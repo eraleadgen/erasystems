@@ -33,21 +33,41 @@ narrow `TO anon` public-read policies.
 
 ## Hostname resolution verification status
 
-Retested on the published host 2026-08-31, and it found a real bug:
+**VERIFIED on a genuine external custom domain — 2026-08-31.**
+
+Test domain: `test.eraleadgen.com` (external zone, Google Cloud DNS; A →
+185.158.133.1 + `_lovable` TXT proof), mapped to the Apex tenant in
+`business_domains`.
+
+Probe results:
+
+| Request | Rendered tenant |
+| --- | --- |
+| `https://test.eraleadgen.com/` | Apex (correct) |
+| same + `X-Forwarded-Host: northwindhvac.example` | Apex (forgery ignored) |
+| same + `Forwarded: host=northwindhvac.example` | Apex (forgery ignored) |
+| `https://safe-harbor-saas.lovable.app/` | 302 → primary custom domain |
+
+Earlier measurements, which motivated the current logic:
 
 - **Preview host**: `Host` is `localhost:8080`; the visitor hostname arrives only in
   `x-forwarded-host`, which the edge injects and overwrites.
-- **Published host**: `Host` carries the real visitor hostname, and
-  `x-forwarded-host` is passed through from the client **unmodified**. A forged
+- **Published host (before fix)**: `Host` carries the real visitor hostname, and
+  `x-forwarded-host` was passed through from the client **unmodified**. A forged
   `X-Forwarded-Host` was observed selecting a different tenant's public site.
 
-Fix applied in `src/lib/tenant-hostname.ts`: `Host` (falling back to the request URL)
-is authoritative whenever it is a real hostname; forwarded headers are consulted only
+Fix in `src/lib/tenant-hostname.ts`: `Host` (falling back to the request URL) is
+authoritative whenever it is a real hostname; forwarded headers are consulted only
 when the connection terminated on a loopback/internal name (the preview runtime).
 Unknown hostnames still resolve to no tenant — never a default.
 
 Impact of the original bug was confined to *which public site rendered*: no private
 data was reachable, because every read stays behind RLS and the narrow `TO anon`
-SELECT policies. Still outstanding: the same probe against an actual connected custom
-domain, which requires a tenant domain to be connected to this project.
+SELECT policies.
+
+Note: connecting `test.eraleadgen.com` made it the project's **primary** domain, so
+the `lovable.app` host now 302-redirects to it. Change the primary in project
+settings if that is not wanted. `www.test.eraleadgen.com` was not tested — no DNS
+record exists for it (a `www.` label under a subdomain was not part of the CNAME).
+
 
