@@ -63,16 +63,26 @@ function hostFromForwardedHeader(value: string | null): string | null {
 
 /**
  * The visitor-facing hostname, in trust order.
- * Only edge-injected headers are consulted before falling back to the request URL.
+ *
+ * `Host` (or the request URL) is authoritative whenever it is a real hostname.
+ * Client-controllable forwarded headers are consulted ONLY when the connection
+ * terminated on an internal/loopback name, which on this platform means the
+ * preview runtime, where the edge injects and overwrites `x-forwarded-host`.
  */
 export function getRequestHostname(request: Request): string | null {
+  const direct =
+    normalizeHostname(request.headers.get("host")) ??
+    normalizeHostname(new URL(request.url).hostname);
+
+  if (!isInternalHostname(direct)) return direct;
+
   return (
     normalizeHostname(request.headers.get("x-forwarded-host")) ??
     hostFromForwardedHeader(request.headers.get("forwarded")) ??
-    normalizeHostname(request.headers.get("host")) ??
-    normalizeHostname(new URL(request.url).hostname)
+    direct
   );
 }
+
 
 export function isPlatformHostname(hostname: string | null): boolean {
   if (!hostname) return true;
