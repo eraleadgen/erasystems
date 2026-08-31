@@ -2,13 +2,34 @@
  * Hostname extraction and normalization.
  *
  * MEASURED BEHAVIOUR ON THIS PLATFORM (do not "simplify" this file):
- * inside the Cloudflare Worker, `request.url` and the `Host` header both read
- * `localhost:8080`. The visitor's real hostname arrives only in `x-forwarded-host`
- * (and the RFC 7239 `forwarded` header), injected by Lovable's edge worker
- * (`cf-worker: lovableproject.com`). A client-sent `X-Forwarded-Host` was verified to be
- * OVERWRITTEN by the edge rather than passed through, so the forwarded value is
- * edge-controlled — but resolution is still never treated as authorization.
+ *
+ * PREVIEW host (id-preview--*.lovable.app): inside the Worker, `request.url` and
+ * the `Host` header both read `localhost:8080`. The visitor hostname arrives only
+ * in `x-forwarded-host`, injected by Lovable's edge worker, which overwrites any
+ * client-sent value.
+ *
+ * PUBLISHED host (*.lovable.app and custom domains) — measured 2026-08-31:
+ * `Host` carries the REAL visitor hostname, and `x-forwarded-host` is passed
+ * through from the client UNMODIFIED. A forged `X-Forwarded-Host` was observed
+ * selecting a different tenant's public site. Therefore the forwarded headers are
+ * consulted ONLY when `Host` is an internal/loopback name (i.e. the preview
+ * runtime). On any real host, `Host` wins and forwarded headers are ignored.
+ *
+ * Resolution is still never treated as authorization: RLS gates every read.
  */
+
+/** Loopback/internal names that mean "the real hostname is elsewhere". */
+const INTERNAL_HOST_PATTERNS: RegExp[] = [
+  /^localhost$/,
+  /^127\.0\.0\.1$/,
+  /^0\.0\.0\.0$/,
+  /^\[?::1\]?$/,
+];
+
+function isInternalHostname(host: string | null): boolean {
+  return !host || INTERNAL_HOST_PATTERNS.some((p) => p.test(host));
+}
+
 
 /** Hostnames owned by the platform, never by a tenant. */
 const PLATFORM_HOST_PATTERNS: RegExp[] = [
@@ -42,16 +63,26 @@ function hostFromForwardedHeader(value: string | null): string | null {
 
 /**
  * The visitor-facing hostname, in trust order.
- * Only edge-injected headers are consulted before falling back to the request URL.
+ *
+ * `Host` (or the request URL) is authoritative whenever it is a real hostname.
+ * Client-controllable forwarded headers are consulted ONLY when the connection
+ * terminated on an internal/loopback name, which on this platform means the
+ * preview runtime, where the edge injects and overwrites `x-forwarded-host`.
  */
 export function getRequestHostname(request: Request): string | null {
+  const direct =
+    normalizeHostname(request.headers.get("host")) ??
+    normalizeHostname(new URL(request.url).hostname);
+
+  if (!isInternalHostname(direct)) return direct;
+
   return (
     normalizeHostname(request.headers.get("x-forwarded-host")) ??
     hostFromForwardedHeader(request.headers.get("forwarded")) ??
-    normalizeHostname(request.headers.get("host")) ??
-    normalizeHostname(new URL(request.url).hostname)
+    direct
   );
 }
+
 
 export function isPlatformHostname(hostname: string | null): boolean {
   if (!hostname) return true;

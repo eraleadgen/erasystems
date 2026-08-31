@@ -33,10 +33,21 @@ narrow `TO anon` public-read policies.
 
 ## Hostname resolution verification status
 
-Preview-verified only. On the preview host, the visitor hostname arrives solely in
-`x-forwarded-host`; a client-forged value was observed being overwritten by the edge.
-This is **not** yet confirmed on a real tenant domain — the project is unpublished and
-no custom domain is connected. To complete verification: publish, connect a tenant
-domain, insert its hostname into `business_domains`, then re-probe the live domain, its
-`www.` variant, the published platform host, and a forged `x-forwarded-host` naming a
-different tenant. Until then, resolution stays labelled preview-verified.
+Retested on the published host 2026-08-31, and it found a real bug:
+
+- **Preview host**: `Host` is `localhost:8080`; the visitor hostname arrives only in
+  `x-forwarded-host`, which the edge injects and overwrites.
+- **Published host**: `Host` carries the real visitor hostname, and
+  `x-forwarded-host` is passed through from the client **unmodified**. A forged
+  `X-Forwarded-Host` was observed selecting a different tenant's public site.
+
+Fix applied in `src/lib/tenant-hostname.ts`: `Host` (falling back to the request URL)
+is authoritative whenever it is a real hostname; forwarded headers are consulted only
+when the connection terminated on a loopback/internal name (the preview runtime).
+Unknown hostnames still resolve to no tenant — never a default.
+
+Impact of the original bug was confined to *which public site rendered*: no private
+data was reachable, because every read stays behind RLS and the narrow `TO anon`
+SELECT policies. Still outstanding: the same probe against an actual connected custom
+domain, which requires a tenant domain to be connected to this project.
+
