@@ -8,3 +8,12 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+## Elevated (service-role) database access
+
+`supabaseAdmin` bypasses RLS. Before adding any call site, read
+`docs/elevated-access.md` and follow its rules: elevation only for provisioning,
+verified webhooks, and platform-staff work; explicit `business_id` scoping on every
+query; tenant id from server context or a verified payload, never client input;
+caller authorized first through the RLS-scoped client; and a new row added to the
+register in the same change.
