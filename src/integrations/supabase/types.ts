@@ -251,6 +251,30 @@ export type Database = {
         }
         Relationships: []
       }
+      invite_attempts: {
+        Row: {
+          blocked_until: string | null
+          failures: number
+          ip: string
+          updated_at: string
+          window_started_at: string
+        }
+        Insert: {
+          blocked_until?: string | null
+          failures?: number
+          ip: string
+          updated_at?: string
+          window_started_at?: string
+        }
+        Update: {
+          blocked_until?: string | null
+          failures?: number
+          ip?: string
+          updated_at?: string
+          window_started_at?: string
+        }
+        Relationships: []
+      }
       invites: {
         Row: {
           accepted_at: string | null
@@ -413,6 +437,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      invite_throttle_check: { Args: { _ip: string }; Returns: boolean }
+      invite_throttle_record: { Args: { _ip: string }; Returns: undefined }
       is_business_manager: { Args: { _business_id: string }; Returns: boolean }
       is_member_of: { Args: { _business_id: string }; Returns: boolean }
       is_platform_staff: { Args: never; Returns: boolean }
