@@ -83,6 +83,59 @@ export type Database = {
           },
         ]
       }
+      business_addons: {
+        Row: {
+          activated_at: string
+          addon: Database["public"]["Enums"]["addon_kind"]
+          billing_interval: string
+          business_id: string
+          created_at: string
+          currency: string
+          deactivated_at: string | null
+          id: string
+          is_active: boolean
+          notes: string | null
+          price_cents: number
+          updated_at: string
+        }
+        Insert: {
+          activated_at?: string
+          addon: Database["public"]["Enums"]["addon_kind"]
+          billing_interval?: string
+          business_id: string
+          created_at?: string
+          currency?: string
+          deactivated_at?: string | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          price_cents: number
+          updated_at?: string
+        }
+        Update: {
+          activated_at?: string
+          addon?: Database["public"]["Enums"]["addon_kind"]
+          billing_interval?: string
+          business_id?: string
+          created_at?: string
+          currency?: string
+          deactivated_at?: string | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          price_cents?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_addons_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_domains: {
         Row: {
           business_id: string
@@ -198,6 +251,21 @@ export type Database = {
         }
         Relationships: []
       }
+      plan_tier_features: {
+        Row: {
+          feature: Database["public"]["Enums"]["platform_feature"]
+          plan_tier: Database["public"]["Enums"]["plan_tier"]
+        }
+        Insert: {
+          feature: Database["public"]["Enums"]["platform_feature"]
+          plan_tier: Database["public"]["Enums"]["plan_tier"]
+        }
+        Update: {
+          feature?: Database["public"]["Enums"]["platform_feature"]
+          plan_tier?: Database["public"]["Enums"]["plan_tier"]
+        }
+        Relationships: []
+      }
       platform_staff: {
         Row: {
           created_at: string
@@ -271,6 +339,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      business_has_addon: {
+        Args: {
+          _addon: Database["public"]["Enums"]["addon_kind"]
+          _business_id: string
+        }
+        Returns: boolean
+      }
+      business_has_feature: {
+        Args: {
+          _business_id: string
+          _feature: Database["public"]["Enums"]["platform_feature"]
+        }
+        Returns: boolean
+      }
       has_business_role: {
         Args: {
           _business_id: string
@@ -283,6 +365,7 @@ export type Database = {
       is_platform_staff: { Args: never; Returns: boolean }
     }
     Enums: {
+      addon_kind: "ad_management" | "white_label_branding"
       booking_status:
         | "pending"
         | "confirmed"
@@ -291,6 +374,20 @@ export type Database = {
         | "no_show"
       business_role: "owner" | "admin" | "specialist" | "customer"
       plan_tier: "basic" | "growth" | "enterprise"
+      platform_feature:
+        | "website"
+        | "ai_chat_widget"
+        | "core_engines"
+        | "payments"
+        | "admin_dashboard"
+        | "self_serve_setup"
+        | "email_automations"
+        | "customer_portal"
+        | "specialist_portal"
+        | "voice_sms_agent"
+        | "sms_automations"
+        | "advanced_analytics"
+        | "partner_network"
       platform_role: "platform_admin" | "platform_support"
     }
     CompositeTypes: {
@@ -419,6 +516,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      addon_kind: ["ad_management", "white_label_branding"],
       booking_status: [
         "pending",
         "confirmed",
@@ -428,6 +526,21 @@ export const Constants = {
       ],
       business_role: ["owner", "admin", "specialist", "customer"],
       plan_tier: ["basic", "growth", "enterprise"],
+      platform_feature: [
+        "website",
+        "ai_chat_widget",
+        "core_engines",
+        "payments",
+        "admin_dashboard",
+        "self_serve_setup",
+        "email_automations",
+        "customer_portal",
+        "specialist_portal",
+        "voice_sms_agent",
+        "sms_automations",
+        "advanced_analytics",
+        "partner_network",
+      ],
       platform_role: ["platform_admin", "platform_support"],
     },
   },
