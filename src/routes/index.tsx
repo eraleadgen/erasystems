@@ -144,9 +144,6 @@ function Index() {
               {tenant.name}
             </span>
           </div>
-          <span className="text-xs uppercase tracking-widest text-muted-foreground">
-            {tenant.planTier}
-          </span>
         </div>
       </header>
 
