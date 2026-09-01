@@ -62,7 +62,7 @@ function money(cents: number) {
 }
 
 function Index() {
-  const { tenant, services } = Route.useLoaderData();
+  const { tenant, services, entitlements } = Route.useLoaderData();
 
   if (!tenant) {
     return (
