@@ -121,6 +121,14 @@ It is not a repeatable pattern. Every subsequent staff account is issued through
 `createInvite` from `/admin/invites`, identically to a client invite, and any
 further direct insert into `invites` or `platform_staff` is a review failure.
 
+**Completed 2026-09-01 22:37 UTC.** The invite was redeemed normally through
+`/register`, and the single `platform_staff` row (`platform_admin`, user
+`cf0462b3-a6e1-4300-902f-6c53641964e5` = `support@eraleadgen.com`) was inserted
+directly. That closes the bootstrap: **no further direct database writes to
+`invites` or `platform_staff` are permitted** — the staff console is now
+self-sufficient and every future staff or client account goes through
+`createInvite`.
+
 
 
 ## Known-and-accepted linter findings
