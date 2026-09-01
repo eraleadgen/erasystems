@@ -1,61 +1,52 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { Database } from "@/integrations/supabase/types";
 import type { BusinessAddon, PlatformFeature, TenantEntitlements } from "./entitlements";
-
-/** Publishable-key client for anon-readable data. Never the service role. */
-function publicClient() {
-  const url = process.env["SUPABASE_URL"];
-  const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
-  if (!url || !key) return null;
-  return createClient<Database>(url, key, {
-    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
-    global: {
-      fetch: (input, init) => {
-        const headers = new Headers(init?.headers);
-        if (key.startsWith("sb_") && headers.get("Authorization") === `Bearer ${key}`) {
-          headers.delete("Authorization");
-        }
-        headers.set("apikey", key);
-        return fetch(input, { ...init, headers });
-      },
-    },
-  });
-}
+import { ALL_FEATURES } from "./entitlements";
 
 const businessIdInput = z.object({ businessId: z.string().uuid() });
 
 /**
- * Tier entitlements for a tenant. Public: the tier->feature map is static
- * price-list data. Add-on rows (and their per-client amounts) are NOT included
- * here and are not readable by anon at all.
+ * Public route gating only. Returns a single boolean — never the tier, never the
+ * feature list. A visitor can learn that /portal exists for this tenant (which the
+ * HTTP status already tells them); they learn nothing else about the plan.
  */
-export const getTenantEntitlements = createServerFn({ method: "GET" })
+export const checkTenantFeature = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) =>
+    businessIdInput
+      .extend({ feature: z.enum(ALL_FEATURES as [PlatformFeature, ...PlatformFeature[]]) })
+      .parse(input),
+  )
+  .handler(async ({ data }): Promise<boolean> => {
+    const { fetchTierEntitlements } = await import("./entitlements.server");
+    const entitlements = await fetchTierEntitlements(data.businessId);
+    return Boolean(entitlements?.features.includes(data.feature));
+  });
+
+/**
+ * The tenant's own tier + feature matrix. Authenticated and membership-scoped:
+ * only a member of that business (or platform staff) can read it. Customers of
+ * the business — and anonymous visitors — get null.
+ */
+export const getMyEntitlements = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => businessIdInput.parse(input))
-  .handler(async ({ data }): Promise<TenantEntitlements | null> => {
-    const supabase = publicClient();
-    if (!supabase) return null;
-
-    const { data: business } = await supabase
-      .from("businesses")
-      .select("plan_tier")
-      .eq("id", data.businessId)
-      .eq("is_active", true)
+  .handler(async ({ data, context }): Promise<TenantEntitlements | null> => {
+    const { data: membership } = await context.supabase
+      .from("business_members")
+      .select("id")
+      .eq("business_id", data.businessId)
+      .eq("user_id", context.userId)
       .maybeSingle();
-    if (!business) return null;
 
-    const { data: rows } = await supabase
-      .from("plan_tier_features")
-      .select("feature")
-      .eq("plan_tier", business.plan_tier);
+    if (!membership) {
+      const { data: isStaff } = await context.supabase.rpc("is_platform_staff");
+      if (!isStaff) return null;
+    }
 
-    return {
-      tier: business.plan_tier,
-      features: (rows ?? []).map((r) => r.feature as PlatformFeature),
-    };
+    const { fetchTierEntitlements } = await import("./entitlements.server");
+    return fetchTierEntitlements(data.businessId);
   });
 
 /**

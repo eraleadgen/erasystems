@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 
 import { resolveTenant, getTenantServices } from "@/lib/tenant.functions";
-import { getTenantEntitlements } from "@/lib/entitlements.functions";
+import { getMyEntitlements } from "@/lib/entitlements.functions";
 import {
   ALL_FEATURES,
   FEATURE_INTRODUCED_IN,
@@ -22,14 +24,12 @@ export const Route = createFileRoute("/")({
   loaderDeps: ({ search }) => ({ tenant: search.tenant }),
   loader: async ({ deps }) => {
     const tenant = await resolveTenant({ data: { tenant: deps.tenant } });
-    const [services, entitlements] = tenant
-      ? await Promise.all([
-          getTenantServices({ data: { businessId: tenant.businessId } }),
-          getTenantEntitlements({ data: { businessId: tenant.businessId } }),
-        ])
-      : [[], null];
-    return { tenant, services, entitlements };
+    const services = tenant
+      ? await getTenantServices({ data: { businessId: tenant.businessId } })
+      : [];
+    return { tenant, services };
   },
+
 
   head: () => ({
     meta: [
@@ -61,8 +61,58 @@ function money(cents: number) {
   return `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 0 })}`;
 }
 
+/**
+ * Tenant-internal commercial information. Fetched client-side through an
+ * authenticated, membership-scoped server fn — never in the public SSR loader —
+ * so a customer of the business (or any anonymous visitor) never sees it.
+ */
+function EntitlementMatrix({ businessId }: { businessId: string }) {
+  const fetchEntitlements = useServerFn(getMyEntitlements);
+  const { data, isPending } = useQuery({
+    queryKey: ["my-entitlements", businessId],
+    queryFn: () => fetchEntitlements({ data: { businessId } }),
+    retry: false,
+  });
+
+  if (isPending || !data) return null;
+
+  return (
+    <>
+      <h2 className="mt-14 text-lg font-semibold text-foreground">
+        Plan entitlements — {data.tier}
+      </h2>
+      <p className="mt-2 max-w-2xl text-xs text-muted-foreground">
+        Visible to this business&apos;s own team only. Resolved from{" "}
+        <code className="text-foreground">plan_tier_features</code>; add-ons live in a separate
+        table keyed on <code className="text-foreground">business_id</code> and are never granted by
+        a tier.
+      </p>
+      <ul className="mt-4 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2">
+        {ALL_FEATURES.map((feature) => {
+          const enabled = hasFeature(data, feature);
+          return (
+            <li key={feature} className="flex items-center justify-between gap-4 bg-card px-5 py-3">
+              <span
+                className={
+                  enabled ? "text-sm text-foreground" : "text-sm text-muted-foreground line-through"
+                }
+              >
+                {FEATURE_LABELS[feature]}
+              </span>
+              <span className="shrink-0 text-[10px] uppercase tracking-widest text-muted-foreground">
+                {enabled ? "included" : FEATURE_INTRODUCED_IN[feature]}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </>
+  );
+}
+
 function Index() {
-  const { tenant, services, entitlements } = Route.useLoaderData();
+  const { tenant, services } = Route.useLoaderData();
+
 
   if (!tenant) {
     return (
@@ -94,9 +144,6 @@ function Index() {
               {tenant.name}
             </span>
           </div>
-          <span className="text-xs uppercase tracking-widest text-muted-foreground">
-            {tenant.planTier}
-          </span>
         </div>
       </header>
 
@@ -142,39 +189,8 @@ function Index() {
           </p>
         )}
 
-        <h2 className="mt-14 text-lg font-semibold text-foreground">
-          Plan entitlements — {entitlements?.tier ?? tenant.planTier}
-        </h2>
-        <p className="mt-2 max-w-2xl text-xs text-muted-foreground">
-          Resolved from <code className="text-foreground">plan_tier_features</code>, a seeded
-          mapping table. No tier ordering is compared anywhere in SQL. Add-ons are stored in a
-          separate table keyed on <code className="text-foreground">business_id</code> and are never
-          granted by a tier.
-        </p>
-        <ul className="mt-4 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2">
-          {ALL_FEATURES.map((feature) => {
-            const enabled = hasFeature(entitlements, feature);
-            return (
-              <li
-                key={feature}
-                className="flex items-center justify-between gap-4 bg-card px-5 py-3"
-              >
-                <span
-                  className={
-                    enabled
-                      ? "text-sm text-foreground"
-                      : "text-sm text-muted-foreground line-through"
-                  }
-                >
-                  {FEATURE_LABELS[feature]}
-                </span>
-                <span className="shrink-0 text-[10px] uppercase tracking-widest text-muted-foreground">
-                  {enabled ? "included" : FEATURE_INTRODUCED_IN[feature]}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
+        <EntitlementMatrix businessId={tenant.businessId} />
+
 
         <div className="mt-6 flex flex-wrap gap-3 text-xs">
           <Link
