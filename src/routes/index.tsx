@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 
 import { resolveTenant, getTenantServices } from "@/lib/tenant.functions";
-import { getTenantEntitlements } from "@/lib/entitlements.functions";
+import { getMyEntitlements } from "@/lib/entitlements.functions";
 import {
   ALL_FEATURES,
   FEATURE_INTRODUCED_IN,
@@ -22,14 +24,12 @@ export const Route = createFileRoute("/")({
   loaderDeps: ({ search }) => ({ tenant: search.tenant }),
   loader: async ({ deps }) => {
     const tenant = await resolveTenant({ data: { tenant: deps.tenant } });
-    const [services, entitlements] = tenant
-      ? await Promise.all([
-          getTenantServices({ data: { businessId: tenant.businessId } }),
-          getTenantEntitlements({ data: { businessId: tenant.businessId } }),
-        ])
-      : [[], null];
-    return { tenant, services, entitlements };
+    const services = tenant
+      ? await getTenantServices({ data: { businessId: tenant.businessId } })
+      : [];
+    return { tenant, services };
   },
+
 
   head: () => ({
     meta: [
