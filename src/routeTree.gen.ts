@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PortalRouteImport } from './routes/portal'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SpecialistsRouteImport } from './routes/specialists'
 import { Route as AdminAddonsRouteImport } from './routes/admin.addons'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const PortalRoute = PortalRouteImport.update({
   id: '/portal',
   path: '/portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SpecialistsRoute = SpecialistsRouteImport.update({
@@ -38,12 +44,14 @@ const AdminAddonsRoute = AdminAddonsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/portal': typeof PortalRoute
+  '/register': typeof RegisterRoute
   '/specialists': typeof SpecialistsRoute
   '/admin/addons': typeof AdminAddonsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/portal': typeof PortalRoute
+  '/register': typeof RegisterRoute
   '/specialists': typeof SpecialistsRoute
   '/admin/addons': typeof AdminAddonsRoute
 }
@@ -51,20 +59,28 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/portal': typeof PortalRoute
+  '/register': typeof RegisterRoute
   '/specialists': typeof SpecialistsRoute
   '/admin/addons': typeof AdminAddonsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/portal' | '/specialists' | '/admin/addons'
+  fullPaths: '/' | '/portal' | '/register' | '/specialists' | '/admin/addons'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/portal' | '/specialists' | '/admin/addons'
-  id: '__root__' | '/' | '/portal' | '/specialists' | '/admin/addons'
+  to: '/' | '/portal' | '/register' | '/specialists' | '/admin/addons'
+  id:
+    | '__root__'
+    | '/'
+    | '/portal'
+    | '/register'
+    | '/specialists'
+    | '/admin/addons'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PortalRoute: typeof PortalRoute
+  RegisterRoute: typeof RegisterRoute
   SpecialistsRoute: typeof SpecialistsRoute
   AdminAddonsRoute: typeof AdminAddonsRoute
 }
@@ -83,6 +99,13 @@ declare module '@tanstack/react-router' {
       path: '/portal'
       fullPath: '/portal'
       preLoaderRoute: typeof PortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/specialists': {
@@ -105,6 +128,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PortalRoute: PortalRoute,
+  RegisterRoute: RegisterRoute,
   SpecialistsRoute: SpecialistsRoute,
   AdminAddonsRoute: AdminAddonsRoute,
 }
