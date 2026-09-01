@@ -171,7 +171,6 @@ export const redeemInvite = createServerFn({ method: "POST" })
     // Atomic single-use claim. Zero rows returned = not pending, expired, or unknown.
     const { data: claimed, error: claimError } = await supabaseAdmin.rpc("consume_invite", {
       _token_hash: tokenHash,
-      _user_id: null,
     });
     const invite = Array.isArray(claimed) ? claimed[0] : null;
 
