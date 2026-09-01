@@ -111,6 +111,18 @@ Token properties: 32 CSPRNG bytes, base64url; only the SHA-256 hash is stored;
 bound to one normalized email; single-use via atomic claim; 7-day expiry; staff
 revocable; plaintext displayed exactly once at issue time.
 
+### One-time staff bootstrap (2026-09-01)
+
+The very first platform-staff account was bootstrapped by inserting a single
+`invites` row directly (`support@eraleadgen.com`), plus the matching
+`platform_staff` row once that account existed. This is a **one-time chicken-and-egg
+fix**: `/admin/invites` requires an existing staff member, and there was none.
+It is not a repeatable pattern. Every subsequent staff account is issued through
+`createInvite` from `/admin/invites`, identically to a client invite, and any
+further direct insert into `invites` or `platform_staff` is a review failure.
+
+
+
 ## Known-and-accepted linter findings
 
 - `invite_attempts`: RLS enabled with **no policies and no grants** — intentional.
