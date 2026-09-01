@@ -251,6 +251,75 @@ export type Database = {
         }
         Relationships: []
       }
+      invite_attempts: {
+        Row: {
+          blocked_until: string | null
+          failures: number
+          ip: string
+          updated_at: string
+          window_started_at: string
+        }
+        Insert: {
+          blocked_until?: string | null
+          failures?: number
+          ip: string
+          updated_at?: string
+          window_started_at?: string
+        }
+        Update: {
+          blocked_until?: string | null
+          failures?: number
+          ip?: string
+          updated_at?: string
+          window_started_at?: string
+        }
+        Relationships: []
+      }
+      invites: {
+        Row: {
+          accepted_at: string | null
+          accepted_user_id: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          full_name: string
+          id: string
+          invited_by: string | null
+          notes: string | null
+          status: Database["public"]["Enums"]["invite_status"]
+          token_hash: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_user_id?: string | null
+          created_at?: string
+          email: string
+          expires_at: string
+          full_name: string
+          id?: string
+          invited_by?: string | null
+          notes?: string | null
+          status?: Database["public"]["Enums"]["invite_status"]
+          token_hash: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_user_id?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          full_name?: string
+          id?: string
+          invited_by?: string | null
+          notes?: string | null
+          status?: Database["public"]["Enums"]["invite_status"]
+          token_hash?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       plan_tier_features: {
         Row: {
           feature: Database["public"]["Enums"]["platform_feature"]
@@ -353,6 +422,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      consume_invite: {
+        Args: { _token_hash: string }
+        Returns: {
+          email: string
+          full_name: string
+          id: string
+        }[]
+      }
       has_business_role: {
         Args: {
           _business_id: string
@@ -360,9 +437,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      invite_throttle_check: { Args: { _ip: string }; Returns: boolean }
+      invite_throttle_record: { Args: { _ip: string }; Returns: undefined }
       is_business_manager: { Args: { _business_id: string }; Returns: boolean }
       is_member_of: { Args: { _business_id: string }; Returns: boolean }
       is_platform_staff: { Args: never; Returns: boolean }
+      release_invite: { Args: { _invite_id: string }; Returns: undefined }
     }
     Enums: {
       addon_kind: "ad_management" | "white_label_branding"
@@ -373,6 +453,7 @@ export type Database = {
         | "cancelled"
         | "no_show"
       business_role: "owner" | "admin" | "specialist" | "customer"
+      invite_status: "pending" | "accepted" | "revoked"
       plan_tier: "basic" | "growth" | "enterprise"
       platform_feature:
         | "website"
@@ -525,6 +606,7 @@ export const Constants = {
         "no_show",
       ],
       business_role: ["owner", "admin", "specialist", "customer"],
+      invite_status: ["pending", "accepted", "revoked"],
       plan_tier: ["basic", "growth", "enterprise"],
       platform_feature: [
         "website",

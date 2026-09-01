@@ -71,3 +71,53 @@ settings if that is not wanted. `www.test.eraleadgen.com` was not tested — no 
 record exists for it (a `www.` label under a subdomain was not part of the CNAME).
 
 
+
+## Elevated-access register
+
+Every `supabaseAdmin` call site in the app must be listed here. Adding one
+without an entry is a review failure.
+
+### 1. Invite preview / redemption — `src/lib/invites.functions.ts`
+
+| | |
+| --- | --- |
+| Functions | `previewInvite`, `redeemInvite` |
+| Why elevated | The caller is anonymous **by definition** — they have no account yet, and creating an auth user requires the Auth Admin API. `anon` has zero privileges on `invites`, so an RLS-scoped client cannot see the row either. |
+| Caller authorization | Not a session — the possession of a 256-bit invite token, verified by SHA-256 hash lookup, plus a per-IP throttle. `redeemInvite` claims the row through `consume_invite`, an atomic conditional update; zero rows returned aborts the request before any user is created. |
+| Tenant scoping | **None required and none performed.** Invites are pre-tenant identity: the table has no `business_id`, and neither function reads or writes any tenant-scoped table. |
+| Client input trusted | None. The account email comes from the invite row, not the submitted form; the submitted email is only compared against it (constant-time). Passwords are the sole client-supplied value. |
+| Failure handling | If user creation fails after the claim, `release_invite` returns the row to `pending` so a genuine prospect is not locked out. |
+| Leakage | Both functions return a uniform failure (`null` / generic message) with a fixed delay, so unknown / used / expired / revoked / wrong-email are indistinguishable. No invite column other than `email` and `full_name` is ever returned, and only for a live invite. |
+
+### 2. Invite guessing throttle — `src/lib/invite-throttle.server.ts`
+
+| | |
+| --- | --- |
+| Functions | `isThrottled`, `recordAttempt` |
+| Why elevated | Same anonymous caller; `invite_attempts` has no grants and no policies for `anon`/`authenticated` and is unreachable via the Data API. |
+| Tenant scoping | Not applicable — the table is keyed by request IP and holds no tenant or user data. |
+| Client input trusted | None. The IP comes from `getRequestIP({ xForwardedFor: false })`, i.e. the connection, not a client-settable header. |
+| Fail mode | Fails **open** on counter errors: the throttle is defence in depth over a 256-bit token, and must not become a denial-of-service on genuine prospects. |
+
+## Registration is invite-only
+
+Open signup is **disabled at the auth provider**. `supabase.auth.signUp()` from a
+browser fails regardless of what the UI offers, so `redeemInvite` is the only path
+that can create an account. Removing the invite check would not silently reopen
+registration — signup would simply stay closed until someone deliberately re-enabled
+it in auth settings.
+
+Token properties: 32 CSPRNG bytes, base64url; only the SHA-256 hash is stored;
+bound to one normalized email; single-use via atomic claim; 7-day expiry; staff
+revocable; plaintext displayed exactly once at issue time.
+
+## Known-and-accepted linter findings
+
+- `invite_attempts`: RLS enabled with **no policies and no grants** — intentional.
+  The table is server-internal; "no policy" is the lock, not an oversight.
+- Six `SECURITY DEFINER` functions executable by `authenticated`
+  (`is_member_of`, `is_business_manager`, `is_platform_staff`, `has_business_role`,
+  `business_has_addon`, `business_has_feature`) — required, since RLS policies are
+  evaluated as the calling role. The invite functions (`consume_invite`,
+  `release_invite`, `invite_throttle_*`) have `EXECUTE` revoked from `public`,
+  `anon` and `authenticated`.
