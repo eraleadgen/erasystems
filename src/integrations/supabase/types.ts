@@ -423,7 +423,7 @@ export type Database = {
         Returns: boolean
       }
       consume_invite: {
-        Args: { _token_hash: string; _user_id: string }
+        Args: { _token_hash: string }
         Returns: {
           email: string
           full_name: string
