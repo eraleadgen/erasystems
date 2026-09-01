@@ -2,6 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { resolveTenant, getTenantServices } from "@/lib/tenant.functions";
+import { getTenantEntitlements } from "@/lib/entitlements.functions";
+import {
+  ALL_FEATURES,
+  FEATURE_INTRODUCED_IN,
+  FEATURE_LABELS,
+  hasFeature,
+} from "@/lib/entitlements";
 
 const searchSchema = z.object({
   tenant: z
@@ -15,9 +22,15 @@ export const Route = createFileRoute("/")({
   loaderDeps: ({ search }) => ({ tenant: search.tenant }),
   loader: async ({ deps }) => {
     const tenant = await resolveTenant({ data: { tenant: deps.tenant } });
-    const services = tenant ? await getTenantServices({ data: { businessId: tenant.businessId } }) : [];
-    return { tenant, services };
+    const [services, entitlements] = tenant
+      ? await Promise.all([
+          getTenantServices({ data: { businessId: tenant.businessId } }),
+          getTenantEntitlements({ data: { businessId: tenant.businessId } }),
+        ])
+      : [[], null];
+    return { tenant, services, entitlements };
   },
+
   head: () => ({
     meta: [
       { title: "ERA Systems — Tenant Isolation Layer" },
