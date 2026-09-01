@@ -1,9 +1,8 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { z } from "zod";
 
-import { getTenantEntitlements } from "@/lib/entitlements.functions";
+import { checkTenantFeature } from "@/lib/entitlements.functions";
 import { resolveTenant } from "@/lib/tenant.functions";
-import { hasFeature } from "@/lib/entitlements";
 
 const searchSchema = z.object({
   tenant: z
@@ -18,8 +17,10 @@ export const Route = createFileRoute("/specialists")({
   loader: async ({ deps }) => {
     const tenant = await resolveTenant({ data: { tenant: deps.tenant } });
     if (!tenant) throw notFound();
-    const entitlements = await getTenantEntitlements({ data: { businessId: tenant.businessId } });
-    if (!hasFeature(entitlements, "specialist_portal")) throw notFound();
+    const allowed = await checkTenantFeature({
+      data: { businessId: tenant.businessId, feature: "specialist_portal" },
+    });
+    if (!allowed) throw notFound();
     return { tenant };
   },
   head: () => ({
