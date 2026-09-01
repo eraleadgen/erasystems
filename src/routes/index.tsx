@@ -142,39 +142,8 @@ function Index() {
           </p>
         )}
 
-        <h2 className="mt-14 text-lg font-semibold text-foreground">
-          Plan entitlements — {entitlements?.tier ?? tenant.planTier}
-        </h2>
-        <p className="mt-2 max-w-2xl text-xs text-muted-foreground">
-          Resolved from <code className="text-foreground">plan_tier_features</code>, a seeded
-          mapping table. No tier ordering is compared anywhere in SQL. Add-ons are stored in a
-          separate table keyed on <code className="text-foreground">business_id</code> and are never
-          granted by a tier.
-        </p>
-        <ul className="mt-4 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2">
-          {ALL_FEATURES.map((feature) => {
-            const enabled = hasFeature(entitlements, feature);
-            return (
-              <li
-                key={feature}
-                className="flex items-center justify-between gap-4 bg-card px-5 py-3"
-              >
-                <span
-                  className={
-                    enabled
-                      ? "text-sm text-foreground"
-                      : "text-sm text-muted-foreground line-through"
-                  }
-                >
-                  {FEATURE_LABELS[feature]}
-                </span>
-                <span className="shrink-0 text-[10px] uppercase tracking-widest text-muted-foreground">
-                  {enabled ? "included" : FEATURE_INTRODUCED_IN[feature]}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
+        <EntitlementMatrix businessId={tenant.businessId} />
+
 
         <div className="mt-6 flex flex-wrap gap-3 text-xs">
           <Link
