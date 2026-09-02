@@ -244,37 +244,30 @@ function HeroVisual() {
         />
 
         {/* orbiting capability nodes on an elliptical path */}
-        <div
-          className="absolute size-[18rem] sm:size-[23rem]"
-          style={{ transform: `scaleY(${tilt})` }}
-        >
-          <div className="animate-orbit relative size-full" style={{ animationDuration: "34s" }}>
-            {nodes.map((label, i) => {
-              const angle = (360 / nodes.length) * i;
-              return (
-                <span
-                  key={label}
-                  className="absolute left-1/2 top-1/2"
-                  style={{
-                    transform: `rotate(${angle}deg) translate(0, -50%) translateY(-4rem)`,
-                  }}
-                >
-                  <span
-                    className="animate-orbit block"
-                    style={{ animationDuration: "34s", animationDirection: "reverse" }}
-                  >
-                    <span
-                      className="block whitespace-nowrap rounded-full border border-metal/60 bg-card/85 px-3 py-1.5 text-[11px] font-medium text-muted-foreground shadow-elevated backdrop-blur"
-                      style={{ transform: `rotate(${-angle}deg) scaleY(${1 / tilt})` }}
-                    >
-                      {label}
-                    </span>
-                  </span>
-                </span>
-              );
-            })}
-          </div>
+        <div className="absolute inset-0">
+          {nodes.map((label, i) => {
+            const theta = spin + (Math.PI * 2 * i) / nodes.length;
+            const depth = Math.sin(theta); // -1 = far, 1 = near
+            const x = Math.cos(theta) * 46; // % of half-width
+            const y = depth * 46 * tilt;
+            const scale = 0.82 + (depth + 1) * 0.12;
+            return (
+              <span
+                key={label}
+                className="absolute left-1/2 top-1/2 whitespace-nowrap rounded-full border border-metal/60 bg-card/85 px-3 py-1.5 text-[11px] font-medium text-muted-foreground shadow-elevated backdrop-blur"
+                style={{
+                  transform: `translate(-50%,-50%) translate(${x * 3.2}px, ${y * 3.2}px) scale(${scale})`,
+                  opacity: 0.55 + (depth + 1) * 0.22,
+                  zIndex: depth > 0 ? 30 : 5,
+                  filter: depth < -0.2 ? "blur(0.6px)" : undefined,
+                }}
+              >
+                {label}
+              </span>
+            );
+          })}
         </div>
+
 
         {/* core */}
         <div
