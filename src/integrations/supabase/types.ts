@@ -211,6 +211,7 @@ export type Database = {
           lifecycle: Database["public"]["Enums"]["business_lifecycle"]
           logo_url: string | null
           name: string
+          origin_invite_id: string | null
           plan_tier: Database["public"]["Enums"]["plan_tier"]
           slug: string
           slug_reserved_until: string | null
@@ -229,6 +230,7 @@ export type Database = {
           lifecycle?: Database["public"]["Enums"]["business_lifecycle"]
           logo_url?: string | null
           name: string
+          origin_invite_id?: string | null
           plan_tier?: Database["public"]["Enums"]["plan_tier"]
           slug: string
           slug_reserved_until?: string | null
@@ -247,6 +249,7 @@ export type Database = {
           lifecycle?: Database["public"]["Enums"]["business_lifecycle"]
           logo_url?: string | null
           name?: string
+          origin_invite_id?: string | null
           plan_tier?: Database["public"]["Enums"]["plan_tier"]
           slug?: string
           slug_reserved_until?: string | null
@@ -255,7 +258,53 @@ export type Database = {
           timezone?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "businesses_origin_invite_id_fkey"
+            columns: ["origin_invite_id"]
+            isOneToOne: false
+            referencedRelation: "invites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invite_addons: {
+        Row: {
+          addon: Database["public"]["Enums"]["addon_kind"]
+          billing_interval: string
+          created_at: string
+          id: string
+          invite_id: string
+          notes: string | null
+          price_cents: number
+        }
+        Insert: {
+          addon: Database["public"]["Enums"]["addon_kind"]
+          billing_interval?: string
+          created_at?: string
+          id?: string
+          invite_id: string
+          notes?: string | null
+          price_cents: number
+        }
+        Update: {
+          addon?: Database["public"]["Enums"]["addon_kind"]
+          billing_interval?: string
+          created_at?: string
+          id?: string
+          invite_id?: string
+          notes?: string | null
+          price_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invite_addons_invite_id_fkey"
+            columns: ["invite_id"]
+            isOneToOne: false
+            referencedRelation: "invites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invite_attempts: {
         Row: {
@@ -285,6 +334,7 @@ export type Database = {
         Row: {
           accepted_at: string | null
           accepted_user_id: string | null
+          billing_interval: string
           created_at: string
           email: string
           expires_at: string
@@ -292,13 +342,17 @@ export type Database = {
           id: string
           invited_by: string | null
           notes: string | null
+          plan_tier: Database["public"]["Enums"]["plan_tier"]
+          setup_fee_cents: number
           status: Database["public"]["Enums"]["invite_status"]
+          subscription_price_cents: number
           token_hash: string
           updated_at: string
         }
         Insert: {
           accepted_at?: string | null
           accepted_user_id?: string | null
+          billing_interval?: string
           created_at?: string
           email: string
           expires_at: string
@@ -306,13 +360,17 @@ export type Database = {
           id?: string
           invited_by?: string | null
           notes?: string | null
+          plan_tier?: Database["public"]["Enums"]["plan_tier"]
+          setup_fee_cents?: number
           status?: Database["public"]["Enums"]["invite_status"]
+          subscription_price_cents?: number
           token_hash: string
           updated_at?: string
         }
         Update: {
           accepted_at?: string | null
           accepted_user_id?: string | null
+          billing_interval?: string
           created_at?: string
           email?: string
           expires_at?: string
@@ -320,7 +378,10 @@ export type Database = {
           id?: string
           invited_by?: string | null
           notes?: string | null
+          plan_tier?: Database["public"]["Enums"]["plan_tier"]
+          setup_fee_cents?: number
           status?: Database["public"]["Enums"]["invite_status"]
+          subscription_price_cents?: number
           token_hash?: string
           updated_at?: string
         }
@@ -360,6 +421,68 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "onboarding_drafts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          activated_at: string | null
+          amount_cents: number
+          api_verified_at: string | null
+          business_id: string
+          created_at: string
+          currency: string
+          failure_reason: string | null
+          id: string
+          provider: string
+          provider_event_id: string | null
+          provider_session_id: string | null
+          raw_summary: Json | null
+          status: string
+          updated_at: string
+          webhook_verified_at: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          amount_cents: number
+          api_verified_at?: string | null
+          business_id: string
+          created_at?: string
+          currency?: string
+          failure_reason?: string | null
+          id?: string
+          provider?: string
+          provider_event_id?: string | null
+          provider_session_id?: string | null
+          raw_summary?: Json | null
+          status?: string
+          updated_at?: string
+          webhook_verified_at?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          amount_cents?: number
+          api_verified_at?: string | null
+          business_id?: string
+          created_at?: string
+          currency?: string
+          failure_reason?: string | null
+          id?: string
+          provider?: string
+          provider_event_id?: string | null
+          provider_session_id?: string | null
+          raw_summary?: Json | null
+          status?: string
+          updated_at?: string
+          webhook_verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
@@ -455,6 +578,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_paid_business: {
+        Args: { _business_id: string }
+        Returns: boolean
+      }
       business_has_addon: {
         Args: {
           _addon: Database["public"]["Enums"]["addon_kind"]
