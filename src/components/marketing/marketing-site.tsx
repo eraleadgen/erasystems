@@ -201,6 +201,20 @@ function HeroVisual() {
   const tilt = 0.4; // vertical squash — reads as a ring seen at an angle
   const ref = useRef<HTMLDivElement | null>(null);
   const [pointer, setPointer] = useState({ x: 0, y: 0 });
+  const [spin, setSpin] = useState(0);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      setSpin(((now - start) / 34000) * Math.PI * 2);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
 
   return (
     <div
