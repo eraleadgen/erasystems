@@ -320,6 +320,47 @@ export type Database = {
         }
         Relationships: []
       }
+      onboarding_drafts: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          current_step: number
+          data: Json
+          id: string
+          status: Database["public"]["Enums"]["onboarding_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          current_step?: number
+          data?: Json
+          id?: string
+          status?: Database["public"]["Enums"]["onboarding_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          current_step?: number
+          data?: Json
+          id?: string
+          status?: Database["public"]["Enums"]["onboarding_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_drafts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plan_tier_features: {
         Row: {
           feature: Database["public"]["Enums"]["platform_feature"]
@@ -454,6 +495,7 @@ export type Database = {
         | "no_show"
       business_role: "owner" | "admin" | "specialist" | "customer"
       invite_status: "pending" | "accepted" | "revoked"
+      onboarding_status: "in_progress" | "completed"
       plan_tier: "basic" | "growth" | "enterprise"
       platform_feature:
         | "website"
@@ -607,6 +649,7 @@ export const Constants = {
       ],
       business_role: ["owner", "admin", "specialist", "customer"],
       invite_status: ["pending", "accepted", "revoked"],
+      onboarding_status: ["in_progress", "completed"],
       plan_tier: ["basic", "growth", "enterprise"],
       platform_feature: [
         "website",

@@ -10,16 +10,22 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SpecialistsRouteImport } from './routes/specialists'
+import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AdminAddonsRouteImport } from './routes/admin.addons'
 import { Route as AdminInvitesRouteImport } from './routes/admin.invites'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -42,6 +48,11 @@ const SpecialistsRoute = SpecialistsRouteImport.update({
   path: '/specialists',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AdminAddonsRoute = AdminAddonsRouteImport.update({
   id: '/admin/addons',
   path: '/admin/addons',
@@ -59,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/portal': typeof PortalRoute
   '/register': typeof RegisterRoute
   '/specialists': typeof SpecialistsRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/invites': typeof AdminInvitesRoute
 }
@@ -68,16 +80,19 @@ export interface FileRoutesByTo {
   '/portal': typeof PortalRoute
   '/register': typeof RegisterRoute
   '/specialists': typeof SpecialistsRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/invites': typeof AdminInvitesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/portal': typeof PortalRoute
   '/register': typeof RegisterRoute
   '/specialists': typeof SpecialistsRoute
+  '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/invites': typeof AdminInvitesRoute
 }
@@ -89,6 +104,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/register'
     | '/specialists'
+    | '/onboarding'
     | '/admin/addons'
     | '/admin/invites'
   fileRoutesByTo: FileRoutesByTo
@@ -98,21 +114,25 @@ export interface FileRouteTypes {
     | '/portal'
     | '/register'
     | '/specialists'
+    | '/onboarding'
     | '/admin/addons'
     | '/admin/invites'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/auth'
     | '/portal'
     | '/register'
     | '/specialists'
+    | '/_authenticated/onboarding'
     | '/admin/addons'
     | '/admin/invites'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   PortalRoute: typeof PortalRoute
   RegisterRoute: typeof RegisterRoute
@@ -128,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -158,6 +185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SpecialistsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/onboarding': {
+      id: '/_authenticated/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/admin/addons': {
       id: '/admin/addons'
       path: '/admin/addons'
@@ -175,8 +209,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   PortalRoute: PortalRoute,
   RegisterRoute: RegisterRoute,
