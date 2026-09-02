@@ -3,42 +3,9 @@ import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { AddonKind, PlanTier } from "./entitlements";
+import type { PlanTier } from "./entitlements";
 import { GENERIC_CHECKOUT_ERROR, type AgreedTerms, type PaymentRecord } from "./payments";
 
-type Ctx = { supabase: never; userId: string };
-
-/**
- * The caller's own business, resolved through their membership row on the
- * RLS-scoped client. Everything below is keyed on the id this returns — never on
- * a business id supplied by the request.
- */
-async function resolveOwnBusiness(context: {
-  supabase: { from: (t: string) => never };
-  userId: string;
-}): Promise<{ id: string; lifecycle: string; name: string; originInviteId: string | null } | null> {
-  const supabase = context.supabase as unknown as {
-    from: (table: string) => {
-      select: (cols: string) => {
-        eq: (
-          col: string,
-          val: string,
-        ) => {
-          order?: unknown;
-          maybeSingle: () => Promise<{ data: Record<string, unknown> | null }>;
-          limit?: unknown;
-        };
-      };
-    };
-  };
-  void supabase;
-  return null;
-}
-void resolveOwnBusiness;
-void ({} as Ctx);
-
-const emptyInput = z.object({}).optional();
-void emptyInput;
 
 /** Membership-scoped: the agreed commercial terms for the caller's business. */
 export const getMyTerms = createServerFn({ method: "GET" })
