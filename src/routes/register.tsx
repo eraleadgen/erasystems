@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -104,11 +104,19 @@ function RegisterPage() {
       <Shell>
         <h1 className="text-xl font-semibold text-foreground">You're registered</h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          Your ERA Systems account is active. Setting up your business comes next in onboarding.
+          Your ERA Systems account is active. Next, set up your business — details, branding and
+          services. No payment is taken during setup.
         </p>
+        <Link
+          to="/onboarding"
+          className="mt-6 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+        >
+          Start business setup
+        </Link>
       </Shell>
     );
   }
+
 
   const invite = inviteQuery.data!;
 
