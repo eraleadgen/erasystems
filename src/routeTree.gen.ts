@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SpecialistsRouteImport } from './routes/specialists'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AdminAddonsRouteImport } from './routes/admin.addons'
 import { Route as AdminInvitesRouteImport } from './routes/admin.invites'
@@ -48,6 +49,11 @@ const SpecialistsRoute = SpecialistsRouteImport.update({
   path: '/specialists',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/portal': typeof PortalRoute
   '/register': typeof RegisterRoute
   '/specialists': typeof SpecialistsRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/invites': typeof AdminInvitesRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/portal': typeof PortalRoute
   '/register': typeof RegisterRoute
   '/specialists': typeof SpecialistsRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/invites': typeof AdminInvitesRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/portal': typeof PortalRoute
   '/register': typeof RegisterRoute
   '/specialists': typeof SpecialistsRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/invites': typeof AdminInvitesRoute
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/register'
     | '/specialists'
+    | '/dashboard'
     | '/onboarding'
     | '/admin/addons'
     | '/admin/invites'
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/register'
     | '/specialists'
+    | '/dashboard'
     | '/onboarding'
     | '/admin/addons'
     | '/admin/invites'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/register'
     | '/specialists'
+    | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
     | '/admin/addons'
     | '/admin/invites'
@@ -185,6 +197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SpecialistsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/onboarding': {
       id: '/_authenticated/onboarding'
       path: '/onboarding'
@@ -210,10 +229,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
 }
 
