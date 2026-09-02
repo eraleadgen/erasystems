@@ -262,7 +262,7 @@ function HeroVisual() {
           {nodes.map((label, i) => {
             const theta = spin + (Math.PI * 2 * i) / nodes.length;
             const depth = Math.sin(theta); // -1 = far, 1 = near
-            const x = Math.cos(theta) * 46; // % of half-width
+            const x = Math.cos(theta) * 40; // % of half-width
             const y = depth * 46 * tilt;
             const scale = 0.82 + (depth + 1) * 0.12;
             return (
