@@ -289,6 +289,16 @@ function InvitesAdmin() {
                   {invite.email} · {inviteStatusLabel(invite)} · expires{" "}
                   {new Date(invite.expiresAt).toLocaleDateString()}
                 </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {invite.terms.planTier} · {formatMoney(invite.terms.subscriptionPriceCents)}{" "}
+                  {invite.terms.billingInterval}
+                  {invite.terms.setupFeeCents > 0
+                    ? ` · setup ${formatMoney(invite.terms.setupFeeCents)}`
+                    : ""}
+                  {invite.terms.addons.map(
+                    (addon) => ` · ${ADDON_LABELS[addon.addon]} ${formatMoney(addon.priceCents)}`,
+                  )}
+                </p>
               </div>
               {invite.status === "pending" ? (
                 <button
