@@ -478,8 +478,9 @@ export function MarketingSite() {
               granted by upgrading — the price is quoted for your business on the discovery call.
             </p>
             <div className="mt-10 grid gap-6 md:grid-cols-2">
-              {addons.map((addon) => (
-                <article key={addon.name} className="rounded-2xl border border-metal bg-card p-7">
+              {addons.map((addon, i) => (
+                <Reveal key={addon.name} delay={i * 120}>
+                <article className="lift h-full rounded-2xl border border-gold/30 bg-card p-7">
                   <div className="flex items-baseline justify-between gap-4">
                     <h3 className="font-display text-lg font-semibold text-foreground">
                       {addon.name}
