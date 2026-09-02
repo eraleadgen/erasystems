@@ -265,45 +265,51 @@ export function MarketingSite() {
       <main>
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-border bg-gradient-hero">
-          <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-[1.15fr_0.85fr] lg:py-28">
+          <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:py-28">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-accent-foreground/80">
-                ERA Core
-              </p>
-              <h1 className="mt-4 font-display text-4xl font-semibold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                One operating system for the whole business.
-              </h1>
-              <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
-                Most local service businesses run on a patchwork: a booking app, a CRM nobody
-                updates, an invoicing tool, a website someone built once, an email blaster, a phone,
-                and a spreadsheet holding it together. ERA Core replaces the patchwork with a single
-                system where the site, the schedule, the customer, the job, and the money are all
-                the same record.
-              </p>
-              <div className="mt-9 flex flex-wrap items-center gap-4">
-                <a
-                  href={CTA}
-                  className="rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-elevated transition-colors hover:bg-primary/90"
-                >
-                  Book a discovery call
-                </a>
-                <a
-                  href="#pricing"
-                  className="rounded-md border border-metal px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
-                >
-                  See the three tiers
-                </a>
-              </div>
-              <p className="mt-5 text-xs text-muted-foreground">
-                No sign-up form. Every ERA account starts with a conversation.
-              </p>
+              <Reveal>
+                <p className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-gold">
+                  ERA Core
+                </p>
+              </Reveal>
+              <Reveal delay={80}>
+                <h1 className="text-gradient-emerald mt-5 font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+                  One operating system for the whole business.
+                </h1>
+              </Reveal>
+              <Reveal delay={160}>
+                <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
+                  Most local service businesses run on a patchwork: a booking app, a CRM nobody
+                  updates, an invoicing tool, a website someone built once, an email blaster, a
+                  phone, and a spreadsheet holding it together. ERA Core replaces the patchwork with
+                  a single system where the site, the schedule, the customer, the job, and the money
+                  are all the same record.
+                </p>
+              </Reveal>
+              <Reveal delay={240}>
+                <div className="mt-9 flex flex-wrap items-center gap-4">
+                  <a
+                    href={CTA}
+                    className="rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-elevated transition-all hover:-translate-y-0.5 hover:bg-primary/90"
+                  >
+                    Book a discovery call
+                  </a>
+                  <a
+                    href="#pricing"
+                    className="rounded-md border border-gold/40 px-6 py-3 text-sm font-semibold text-gold transition-all hover:-translate-y-0.5 hover:bg-gold/10"
+                  >
+                    See the three tiers
+                  </a>
+                </div>
+                <p className="mt-5 text-xs text-muted-foreground">
+                  No sign-up form. Every ERA account starts with a conversation.
+                </p>
+              </Reveal>
             </div>
 
-            <div className="flex items-center justify-center">
-              <div className="rounded-3xl border border-metal bg-card/70 p-10 shadow-elevated">
-                <Logo className="h-40" />
-              </div>
-            </div>
+            <Reveal delay={200} className="flex items-center justify-center">
+              <HeroVisual />
+            </Reveal>
           </div>
         </section>
 
