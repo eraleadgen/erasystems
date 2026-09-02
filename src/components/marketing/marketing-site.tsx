@@ -398,7 +398,7 @@ export function MarketingSite() {
         </section>
 
         {/* Value */}
-        <section id="platform" className="border-b border-border">
+        <section id="platform" className="bg-aurora relative overflow-hidden border-b border-border">
           <div className="mx-auto max-w-6xl px-6 py-20">
             <Reveal>
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-gold">
