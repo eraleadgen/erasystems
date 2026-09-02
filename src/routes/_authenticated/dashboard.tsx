@@ -167,3 +167,118 @@ function Dashboard() {
     </Shell>
   );
 }
+
+/**
+ * Checkout for a business that is waiting on payment.
+ *
+ * The amount shown is the server's own computation from the staff-agreed terms —
+ * it is never sent to the server, and the redirect back from the processor is
+ * treated as a hint only: the state below reflects webhook + live API
+ * verification, not the URL the browser landed on.
+ */
+function CheckoutPanel({ canPay }: { canPay: boolean }) {
+  const search = useSearch({ from: "/_authenticated/dashboard" });
+  const fetchTerms = useServerFn(getMyTerms);
+  const startCheckout = useServerFn(createCheckoutSession);
+  const verify = useServerFn(verifyMyPayment);
+  const queryClient = useQueryClient();
+  const [error, setError] = useState<string | null>(null);
+
+  const termsQuery = useQuery({
+    queryKey: ["my-terms"],
+    queryFn: () => fetchTerms(),
+    retry: false,
+  });
+
+  const checkout = useMutation({
+    mutationFn: () => startCheckout(),
+    onSuccess: ({ url }) => {
+      window.location.href = url;
+    },
+    onError: (err: Error) => setError(err.message),
+  });
+
+  // Returning from the processor: reconcile in case the webhook hasn't landed yet.
+  const reconcile = useMutation({
+    mutationFn: (sessionId: string) => verify({ data: { sessionId } }),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ["my-business"] });
+    },
+  });
+
+  useEffect(() => {
+    if (search.session) reconcile.mutate(search.session);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search.session]);
+
+  const terms = termsQuery.data;
+
+  return (
+    <div className="rounded-lg border border-border bg-card px-5 py-5">
+      <p className="text-sm font-medium text-foreground">Activate your business</p>
+
+      {search.checkout === "cancelled" && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          Checkout was cancelled — nothing was charged. You can start again below.
+        </p>
+      )}
+
+      {search.session && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          {reconcile.isPending
+            ? "Confirming your payment with the processor…"
+            : reconcile.data?.status === "paid"
+              ? "Payment confirmed. Your business is being activated."
+              : "We haven't been able to confirm this payment yet. It can take a moment — refresh shortly."}
+        </p>
+      )}
+
+      {termsQuery.isPending ? (
+        <p className="mt-3 text-xs text-muted-foreground">Loading your agreed terms…</p>
+      ) : !terms || terms.totalCents <= 0 ? (
+        <p className="mt-3 text-xs text-muted-foreground">
+          Your pricing hasn&apos;t been finalised yet. Your ERA Systems representative will set it
+          before checkout opens.
+        </p>
+      ) : (
+        <>
+          <ul className="mt-4 space-y-1 text-xs text-muted-foreground">
+            <li>
+              {terms.planTier} plan — {formatMoney(terms.subscriptionPriceCents)}{" "}
+              {intervalLabel(terms.billingInterval)}
+            </li>
+            {terms.setupFeeCents > 0 && <li>Setup fee — {formatMoney(terms.setupFeeCents)}</li>}
+            {terms.addons.map((addon) => (
+              <li key={addon.addon}>
+                {ADDON_LABELS[addon.addon]} — {formatMoney(addon.priceCents)}{" "}
+                {intervalLabel(addon.billingInterval)}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-sm font-medium text-foreground">
+            Due today: {formatMoney(terms.totalCents)}
+          </p>
+          {canPay ? (
+            <button
+              type="button"
+              onClick={() => {
+                setError(null);
+                checkout.mutate();
+              }}
+              disabled={checkout.isPending}
+              className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
+            >
+              {checkout.isPending ? "Opening secure checkout…" : "Pay and go live"}
+            </button>
+          ) : (
+            <p className="mt-4 text-xs text-muted-foreground">
+              Only the business owner can complete payment.
+            </p>
+          )}
+        </>
+      )}
+
+      {error && <p className="mt-3 text-xs text-destructive">{error}</p>}
+    </div>
+  );
+}
