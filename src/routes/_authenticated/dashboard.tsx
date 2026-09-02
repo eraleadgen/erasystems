@@ -26,9 +26,11 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  validateSearch: (search: Record<string, unknown>) => ({
-    session: typeof search["session"] === "string" ? (search["session"] as string) : undefined,
-    checkout: typeof search["checkout"] === "string" ? (search["checkout"] as string) : undefined,
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { session?: string; checkout?: string } => ({
+    ...(typeof search["session"] === "string" ? { session: search["session"] } : {}),
+    ...(typeof search["checkout"] === "string" ? { checkout: search["checkout"] } : {}),
   }),
   component: Dashboard,
   errorComponent: ({ error }) => (
