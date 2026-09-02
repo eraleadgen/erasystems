@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 
+import { supabase } from "@/integrations/supabase/client";
 import { resolveTenant, getTenantServices } from "@/lib/tenant.functions";
 import { getMyEntitlements } from "@/lib/entitlements.functions";
 import {
