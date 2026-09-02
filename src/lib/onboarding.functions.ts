@@ -260,9 +260,11 @@ export const completeOnboarding = createServerFn({ method: "POST" })
             name: payload.basics.displayName.trim(),
             legal_name: payload.basics.legalName.trim(),
             timezone: payload.basics.timezone,
-            // Not live until payment. Tier stays at its default: commercial terms are staff-set.
+            // Not live until payment. Tier is carried from the staff-issued invite.
             is_active: false,
             lifecycle: "pending_payment",
+            plan_tier: originInvite?.plan_tier ?? "basic",
+            origin_invite_id: originInvite?.id ?? null,
             slug_reserved_until: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
             logo_url: payload.branding.logoPath,
             brand_primary: payload.branding.brandPrimary || null,
