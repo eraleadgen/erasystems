@@ -142,12 +142,12 @@ function Dashboard() {
             {reservedUntil}.
           </p>
         )}
-        {data.lifecycle === "pending_payment" && (
-          <p className="mt-3 text-xs text-muted-foreground">
-            Payment isn&apos;t open yet — your ERA Systems representative will send it through.
-          </p>
-        )}
       </div>
+
+      {(data.lifecycle === "pending_payment" || data.lifecycle === "expired") && (
+        <CheckoutPanel canPay={data.role === "owner" || data.role === "admin"} />
+      )}
+
 
       <dl className="grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2">
         {[
