@@ -118,140 +118,58 @@
   }
 }
 
-@utility animate-float {
-  animation: era-float 7s ease-in-out infinite;
-}
-
-@utility animate-pulse-ring {
-  animation: era-pulse 3.4s ease-in-out infinite;
-}
-
-@utility animate-orbit {
-  animation: era-orbit 18s linear infinite;
-}
-
-@utility animate-shimmer {
-  background-size: 200% 100%;
-  animation: era-shimmer 6s linear infinite;
-}
-
-/* Calm drifting aurora field for section backgrounds */
-@utility bg-aurora {
+/* Faint drifting hairline weave behind the hero: texture, not a colour wash */
+@utility hero-veil {
   position: relative;
   isolation: isolate;
-  &::before,
-  &::after {
+  &::before {
     content: "";
     position: absolute;
-    inset: -25%;
+    inset: 0;
     z-index: -1;
     pointer-events: none;
-    filter: blur(70px);
-  }
-  &::before {
-    background:
-      radial-gradient(28rem 22rem at 22% 32%, color-mix(in oklab, var(--primary) 34%, transparent), transparent 70%),
-      radial-gradient(24rem 20rem at 74% 22%, color-mix(in oklab, var(--gold) 22%, transparent), transparent 70%);
-    animation: era-drift 26s ease-in-out infinite;
-    opacity: 0.55;
-  }
-  &::after {
-    background:
-      radial-gradient(30rem 24rem at 62% 78%, color-mix(in oklab, var(--primary) 26%, transparent), transparent 72%),
-      radial-gradient(20rem 18rem at 12% 82%, color-mix(in oklab, var(--gold) 16%, transparent), transparent 72%);
-    animation: era-drift-alt 34s ease-in-out infinite;
-    opacity: 0.45;
-  }
-}
-
-/* Receding perspective grid — the "floor" under the 3D system */
-@utility grid-floor {
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 55%;
-  pointer-events: none;
-  perspective: 40rem;
-  mask-image: linear-gradient(to top, black, transparent 85%);
-  &::before {
-    content: "";
-    position: absolute;
-    inset: -50% -50% 0 -50%;
-    transform: rotateX(72deg);
-    transform-origin: bottom center;
     background-image:
-      linear-gradient(to right, color-mix(in oklab, var(--primary) 22%, transparent) 1px, transparent 1px),
-      linear-gradient(to bottom, color-mix(in oklab, var(--primary) 18%, transparent) 1px, transparent 1px);
-    background-size: 3.5rem 3.5rem;
-    animation: era-grid 18s linear infinite;
+      repeating-linear-gradient(
+        68deg,
+        color-mix(in oklab, var(--primary) 12%, transparent) 0 1px,
+        transparent 1px 74px
+      ),
+      repeating-linear-gradient(
+        -68deg,
+        color-mix(in oklab, var(--gold) 8%, transparent) 0 1px,
+        transparent 1px 96px
+      );
+    mask-image: radial-gradient(70% 70% at 60% 40%, black, transparent 85%);
+    animation: era-weave 30s linear infinite;
+    opacity: 0.7;
   }
 }
 
-@utility scene-3d {
-  perspective: 1100px;
-  transform-style: preserve-3d;
+/* Expanding ring emitted from the core record */
+@utility pulse-halo {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  border: 1px solid color-mix(in oklab, var(--primary) 55%, transparent);
+  animation: era-halo 3.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
 }
 
-@utility ring-3d {
-  transform-style: preserve-3d;
-  animation: era-ring 28s linear infinite;
+@keyframes era-weave {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: 148px 0, -192px 0; }
 }
 
-@utility animate-drift {
-  animation: era-drift 22s ease-in-out infinite;
-}
-
-@utility animate-breathe {
-  animation: era-breathe 9s ease-in-out infinite;
-}
-
-@utility animate-spin-slow {
-  animation: era-orbit 42s linear infinite;
-}
-
-@keyframes era-shimmer {
-  from { background-position: 0% 0; }
-  to { background-position: 200% 0; }
-}
-
-@keyframes era-drift {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  33% { transform: translate3d(3%, -3%, 0) scale(1.06); }
-  66% { transform: translate3d(-2%, 3%, 0) scale(0.97); }
-}
-
-@keyframes era-drift-alt {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1.02); }
-  50% { transform: translate3d(-4%, -2%, 0) scale(0.96); }
-}
-
-@keyframes era-grid {
-  from { background-position: 0 0; }
-  to { background-position: 0 3.5rem; }
-}
-
-@keyframes era-ring {
-  from { transform: rotateY(0deg); }
-  to { transform: rotateY(360deg); }
-}
-
-@keyframes era-breathe {
-  0%, 100% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.09); opacity: 0.85; }
+@keyframes era-halo {
+  0% { transform: scale(1); opacity: 0.55; }
+  70% { transform: scale(1.18); opacity: 0; }
+  100% { transform: scale(1.18); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1 !important; transform: none !important; }
-  .animate-float,
-  .animate-pulse-ring,
-  .animate-orbit,
-  .animate-shimmer,
-  .animate-drift,
-  .animate-breathe,
-  .animate-spin-slow,
-  .ring-3d { animation: none !important; }
-  .bg-aurora::before,
-  .bg-aurora::after,
-  .grid-floor::before { animation: none !important; }
+  .pulse-halo,
+  .hero-veil::before { animation: none !important; }
 }
 
 
