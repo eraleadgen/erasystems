@@ -209,6 +209,20 @@ export const completeOnboarding = createServerFn({ method: "POST" })
       let reclaimAttempted = false;
 
       /**
+       * Commercial terms come from the invite this account was created with — set
+       * by staff on the discovery call, never chosen by the client. Looked up by
+       * the verified session user id, not by anything in the submitted payload.
+       */
+      const { data: originInvite } = await supabaseAdmin
+        .from("invites")
+        .select("id, plan_tier")
+        .eq("accepted_user_id", context.userId)
+        .eq("status", "accepted")
+        .order("accepted_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      /**
        * A slug is held only by a paid business, or by an unpaid one whose 14-day
        * reservation has not lapsed. A lapsed unpaid holder is moved aside (its row and
        * all its data survive — only the address changes) so a paying client can take the
