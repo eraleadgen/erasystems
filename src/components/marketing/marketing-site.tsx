@@ -547,11 +547,15 @@ export function MarketingSite() {
               Questions
             </h2>
             <dl className="mt-10 divide-y divide-border rounded-2xl border border-border bg-card">
-              {faqs.map((item) => (
-                <div key={item.q} className="p-6">
-                  <dt className="font-display text-base font-semibold text-foreground">{item.q}</dt>
-                  <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.a}</dd>
-                </div>
+              {faqs.map((item, i) => (
+                <Reveal key={item.q} delay={i * 60}>
+                  <div className="p-6 transition-colors hover:bg-muted/40">
+                    <dt className="font-display text-base font-semibold text-foreground">
+                      {item.q}
+                    </dt>
+                    <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.a}</dd>
+                  </div>
+                </Reveal>
               ))}
             </dl>
           </div>
