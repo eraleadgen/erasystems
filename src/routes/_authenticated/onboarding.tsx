@@ -27,13 +27,13 @@ import {
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
     meta: [
-      { title: "Set up your business — ERA Systems" },
+      { title: "Set up your business | ERA Systems" },
       {
         name: "description",
         content:
           "Complete your ERA Systems business setup: details, branding, services and integrations. No payment required at this step.",
       },
-      { property: "og:title", content: "Set up your business — ERA Systems" },
+      { property: "og:title", content: "Set up your business | ERA Systems" },
       {
         property: "og:description",
         content: "Business setup for newly registered ERA Systems clients.",
@@ -168,7 +168,7 @@ function OnboardingWizard() {
       <Shell>
         <h1 className="text-2xl font-semibold text-foreground">Business setup complete</h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          Your business is set up and waiting to go live. Billing is the next step — your ERA
+          Your business is set up and waiting to go live. Billing is the next step, your ERA
           Systems representative will take it from here.
         </p>
         <Link
@@ -196,7 +196,7 @@ function OnboardingWizard() {
       <header>
         <h1 className="text-2xl font-semibold text-foreground">Set up your business</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Business details only — no payment is taken in this step. Your progress saves as you go,
+          Business details only, no payment is taken in this step. Your progress saves as you go,
           so you can leave and pick up exactly where you left off.
         </p>
       </header>
@@ -454,7 +454,7 @@ function OnboardingWizard() {
         {step === "team" ? (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Optional. Listing people here does not create accounts — each one gets a proper
+              Optional. Listing people here does not create accounts, each one gets a proper
               invite later, the same way your own account was created.
             </p>
             {team.members.map((member, index) => (
@@ -591,7 +591,7 @@ function OnboardingWizard() {
                 <ul className="text-muted-foreground">
                   {catalog.services.map((s, i) => (
                     <li key={i}>
-                      {s.name} — {s.durationMinutes} min — {formatPrice(s.priceCents)}
+                      {s.name}, {s.durationMinutes} min, {formatPrice(s.priceCents)}
                     </li>
                   ))}
                 </ul>
@@ -606,7 +606,7 @@ function OnboardingWizard() {
               </p>
             </div>
             <p className="rounded-md bg-muted p-3 text-muted-foreground">
-              Submitting creates your business record. It stays offline until billing is set up —
+              Submitting creates your business record. It stays offline until billing is set up , 
               no payment is taken now.
             </p>
           </div>

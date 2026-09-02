@@ -16,7 +16,7 @@ const outcomes = [
   {
     stat: "24/7",
     title: "Leads answered while you work",
-    body: "The AI chat widget replies, qualifies, and captures the lead on the page — so the enquiry that arrives mid-job is still there as a booking, not a missed call.",
+    body: "The AI chat widget replies, qualifies, and captures the lead on the page, so the enquiry that arrives mid-job is still there as a booking, not a missed call.",
   },
   {
     stat: "Faster cash",
@@ -33,7 +33,7 @@ const outcomes = [
 const coreCapabilities = [
   {
     title: "A website that actually sells",
-    body: "The public site, service catalog and booking flow are one system — a visitor can go from reading to booked without leaving, and it never drifts out of date.",
+    body: "The public site, service catalog and booking flow are one system, so a visitor can go from reading to booked without leaving, and it never drifts out of date.",
   },
   {
     title: "AI chat widget",
@@ -45,11 +45,11 @@ const coreCapabilities = [
   },
   {
     title: "Payments that close themselves",
-    body: "Deposits, invoices and paid jobs settle against the same customer and job — you can see what's owed without building a spreadsheet.",
+    body: "Deposits, invoices and paid jobs settle against the same customer and job, so you can see what's owed without building a spreadsheet.",
   },
   {
     title: "Admin dashboard",
-    body: "One place to see the day, the pipeline, and what money is outstanding — in about a minute, not an hour.",
+    body: "One place to see the day, the pipeline, and what money is outstanding, in about a minute, not an hour.",
   },
   {
     title: "Self-serve domain, email & phone",
@@ -104,7 +104,7 @@ const addons = [
   },
   {
     name: "White-Label Branding",
-    body: "The platform presents entirely as your brand — your domain, your marks, your customer-facing surfaces, with ERA out of the way.",
+    body: "The platform presents entirely as your brand: your domain, your marks, your customer-facing surfaces, with ERA out of the way.",
   },
 ];
 
@@ -115,7 +115,7 @@ const steps = [
   },
   {
     title: "Invite & guided setup",
-    body: "If it is, we send you a private invite link. That's the only way an account gets created here — there is no public sign-up. You then walk through a guided setup: business details, branding, services and pricing, your team.",
+    body: "If it is, we send you a private invite link. That's the only way an account gets created here. There is no public sign-up. You then walk through a guided setup: business details, branding, services and pricing, your team.",
   },
   {
     title: "Go live",
@@ -138,11 +138,11 @@ const faqs = [
   },
   {
     q: "Can I change tiers later?",
-    a: "Yes. Tiers are set by us from the discovery call and can be changed as the business changes — nothing about your data is tied to the plan you started on.",
+    a: "Yes. Tiers are set by us from the discovery call and can be changed as the business changes. Nothing about your data is tied to the plan you started on.",
   },
   {
     q: "Who is ERA for?",
-    a: "Local service businesses — trades, home services, mobile services, appointment-based shops — that are running six disconnected tools and a spreadsheet.",
+    a: "Local service businesses (trades, home services, mobile services, appointment-based shops) that are running six disconnected tools and a spreadsheet.",
   },
   {
     q: "What do I need to bring?",
@@ -196,105 +196,113 @@ function Reveal({
   );
 }
 
+/**
+ * Signal lattice: six inputs on the edges feed one record in the middle.
+ * Pulses physically travel the wires, so the animation shows the product
+ * behaviour instead of decorating the page.
+ */
+const LATTICE = [
+  { label: "Website", x: 40, y: 44 },
+  { label: "Chat", x: 34, y: 160 },
+  { label: "Scheduling", x: 40, y: 276 },
+  { label: "Customers", x: 360, y: 44 },
+  { label: "Jobs", x: 366, y: 160 },
+  { label: "Payments", x: 360, y: 276 },
+] as const;
+
+const CX = 200;
+const CY = 160;
+
+function wire(x: number, y: number) {
+  const mx = (x + CX) / 2;
+  return `M ${x} ${y} C ${mx} ${y} ${mx} ${CY} ${CX} ${CY}`;
+}
+
 function HeroVisual() {
-  const nodes = ["Website", "Chat", "Scheduling", "Customers", "Jobs", "Payments"];
-  const tilt = 0.4; // vertical squash — reads as a ring seen at an angle
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [pointer, setPointer] = useState({ x: 0, y: 0 });
-  const [spin, setSpin] = useState(0);
-
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    let raf = 0;
-    const start = performance.now();
-    const tick = (now: number) => {
-      setSpin(((now - start) / 34000) * Math.PI * 2);
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
+  const [active, setActive] = useState<string | null>(null);
 
   return (
-    <div
-      ref={ref}
-      onPointerMove={(e) => {
-        const box = ref.current?.getBoundingClientRect();
-        if (!box) return;
-        setPointer({
-          x: ((e.clientX - box.left) / box.width - 0.5) * 2,
-          y: ((e.clientY - box.top) / box.height - 0.5) * 2,
-        });
-      }}
-      onPointerLeave={() => setPointer({ x: 0, y: 0 })}
-      className="scene-3d relative flex h-[24rem] w-full items-center justify-center sm:h-[30rem]"
-    >
-      <div className="grid-floor" aria-hidden />
-
-      <div
-        className="relative flex size-full items-center justify-center transition-transform duration-700 ease-out"
-        style={{
-          transform: `rotateX(${pointer.y * -5}deg) rotateY(${pointer.x * 7}deg)`,
-          transformStyle: "preserve-3d",
-        }}
+    <div className="relative flex h-[24rem] w-full items-center justify-center sm:h-[30rem]">
+      <svg
+        viewBox="0 0 400 320"
+        className="absolute inset-0 size-full"
+        aria-hidden
+        preserveAspectRatio="xMidYMid meet"
       >
-        {/* soft volumetric glow */}
-        <div className="animate-breathe absolute size-72 rounded-full bg-primary/25 blur-[70px] sm:size-96" />
-        <div
-          className="animate-drift absolute size-56 rounded-full bg-gold/15 blur-[60px]"
-          style={{ transform: "translate3d(3rem,-3rem,0)" }}
-        />
+        {LATTICE.map((n, i) => {
+          const d = wire(n.x, n.y);
+          const on = active === n.label;
+          return (
+            <g key={n.label}>
+              <path
+                d={d}
+                fill="none"
+                strokeWidth={on ? 1.6 : 1}
+                className={on ? "stroke-gold/70" : "stroke-primary/30"}
+                strokeLinecap="round"
+              />
+              <path
+                id={`wire-${i}`}
+                d={d}
+                fill="none"
+                stroke="none"
+              />
+              <circle r={on ? 3.6 : 2.6} className={on ? "fill-gold" : "fill-primary"}>
+                <animateMotion
+                  dur={`${4.6 + i * 0.55}s`}
+                  begin={`${i * 0.7}s`}
+                  repeatCount="indefinite"
+                  keyPoints="0;1"
+                  keyTimes="0;1"
+                  calcMode="spline"
+                  keySplines="0.45 0 0.15 1"
+                >
+                  <mpath href={`#wire-${i}`} />
+                </animateMotion>
+                <animate
+                  attributeName="opacity"
+                  values="0;1;1;0"
+                  keyTimes="0;0.12;0.82;1"
+                  dur={`${4.6 + i * 0.55}s`}
+                  begin={`${i * 0.7}s`}
+                  repeatCount="indefinite"
+                />
+              </circle>
+            </g>
+          );
+        })}
+      </svg>
 
-        {/* tilted 3D rings */}
-        <div className="ring-3d absolute size-[19rem] rounded-full border border-primary/30 sm:size-[24rem]" />
-        <div
-          className="ring-3d absolute size-[14rem] rounded-full border border-gold/25 sm:size-[18rem]"
-          style={{ animationDuration: "36s", animationDirection: "reverse" }}
-        />
-        <div
-          className="animate-spin-slow absolute size-[22rem] rounded-full border border-metal/25 sm:size-[27rem]"
-          style={{ transform: `rotateX(74deg)` }}
-        />
-
-        {/* orbiting capability nodes on an elliptical path */}
-        <div className="absolute inset-0">
-          {nodes.map((label, i) => {
-            const theta = spin + (Math.PI * 2 * i) / nodes.length;
-            const depth = Math.sin(theta); // -1 = far, 1 = near
-            const x = Math.cos(theta) * 40; // % of half-width
-            const y = depth * 46 * tilt;
-            const scale = 0.82 + (depth + 1) * 0.12;
-            return (
-              <span
-                key={label}
-                className="absolute left-1/2 top-1/2 whitespace-nowrap rounded-full border border-metal/60 bg-card/85 px-3 py-1.5 text-[11px] font-medium text-muted-foreground shadow-elevated backdrop-blur"
-                style={{
-                  transform: `translate(-50%,-50%) translate(${x * 3.2}px, ${y * 3.2}px) scale(${scale})`,
-                  opacity: 0.55 + (depth + 1) * 0.22,
-                  zIndex: depth > 0 ? 30 : 5,
-                  filter: depth < -0.2 ? "blur(0.6px)" : undefined,
-                }}
-              >
-                {label}
-              </span>
-            );
-          })}
-        </div>
-
-
-        {/* core */}
-        <div
-          className="animate-float glow-ring relative rounded-2xl border border-primary/30 bg-card/85 px-7 py-6 text-center backdrop-blur"
-          style={{ transform: "translateZ(60px)" }}
+      {/* edge inputs */}
+      {LATTICE.map((n) => (
+        <button
+          key={n.label}
+          type="button"
+          onMouseEnter={() => setActive(n.label)}
+          onMouseLeave={() => setActive(null)}
+          onFocus={() => setActive(n.label)}
+          onBlur={() => setActive(null)}
+          style={{ left: `${(n.x / 400) * 100}%`, top: `${(n.y / 320) * 100}%` }}
+          className={`absolute z-20 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-md border px-2.5 py-1 text-[11px] font-medium transition-colors duration-300 ${
+            active === n.label
+              ? "border-gold/60 bg-card text-gold"
+              : "border-metal/60 bg-card/90 text-muted-foreground"
+          }`}
         >
-          <p className="font-display text-xs uppercase tracking-[0.3em] text-gold">ERA Core</p>
-          <p className="mt-2 font-display text-2xl font-semibold text-foreground">One record</p>
-          <p className="mt-1 text-xs text-muted-foreground">Everything writes here</p>
-        </div>
+          {n.label}
+        </button>
+      ))}
+
+      {/* core record */}
+      <div className="relative z-10 rounded-xl border border-primary/40 bg-card px-6 py-5 text-center">
+        <span className="pulse-halo" aria-hidden />
+        <p className="font-display text-[10px] uppercase tracking-[0.32em] text-gold">ERA Core</p>
+        <p className="mt-2 font-display text-2xl font-semibold text-foreground">One record</p>
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          {active ? `${active} writes here` : "Everything writes here"}
+        </p>
       </div>
     </div>
-
   );
 }
 
@@ -348,7 +356,7 @@ export function MarketingSite() {
 
       <main>
         {/* Hero */}
-        <section className="bg-aurora relative overflow-hidden border-b border-border bg-gradient-hero">
+        <section className="hero-veil relative overflow-hidden border-b border-border">
           <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:py-28">
             <div>
               <Reveal>
@@ -357,7 +365,7 @@ export function MarketingSite() {
                 </p>
               </Reveal>
               <Reveal delay={80}>
-                <h1 className="text-gradient-emerald mt-5 font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+                <h1 className="mt-5 font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
                   One operating system for the whole business.
                 </h1>
               </Reveal>
@@ -398,7 +406,7 @@ export function MarketingSite() {
         </section>
 
         {/* Value */}
-        <section id="platform" className="bg-aurora relative overflow-hidden border-b border-border">
+        <section id="platform" className="relative overflow-hidden border-b border-border">
           <div className="mx-auto max-w-6xl px-6 py-20">
             <Reveal>
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-gold">
@@ -419,7 +427,7 @@ export function MarketingSite() {
               {outcomes.map((item, i) => (
                 <Reveal key={item.title} delay={i * 90}>
                   <article className="lift h-full rounded-2xl border border-border bg-card p-7">
-                    <p className="text-gradient-emerald font-display text-3xl font-semibold">
+                    <p className="font-display text-3xl font-semibold text-primary">
                       {item.stat}
                     </p>
                     <h3 className="mt-3 font-display text-base font-semibold text-foreground">
@@ -441,7 +449,7 @@ export function MarketingSite() {
               <p className="mt-3 max-w-3xl text-sm leading-relaxed text-primary-foreground/85">
                 A lead lands at 11pm and the chat widget answers it. The quote goes out, the
                 reminder fires, the deposit clears, the job closes, the review request sends, and
-                the customer gets pulled back in months later — without anyone remembering to do
+                the customer gets pulled back in months later, without anyone remembering to do
                 any of it. That&apos;s the difference between a business you run and a business
                 that runs.
               </p>
@@ -501,7 +509,7 @@ export function MarketingSite() {
                       {tier.name}
                     </h3>
                     {tier.highlighted && (
-                      <span className="animate-shimmer rounded-full border border-gold/30 bg-gradient-to-r from-primary/15 via-gold/30 to-primary/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-gold">
+                      <span className="rounded-full border border-gold/40 bg-gold/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-gold">
                         Common starting point
                       </span>
                     )}
@@ -553,7 +561,7 @@ export function MarketingSite() {
             </h2>
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
               Available on any tier, including Basic. They are never included in a plan and never
-              granted by upgrading — the price is quoted for your business on the discovery call.
+              granted by upgrading. The price is quoted for your business on the discovery call.
             </p>
             <div className="mt-10 grid gap-6 md:grid-cols-2">
               {addons.map((addon, i) => (
@@ -615,7 +623,7 @@ export function MarketingSite() {
                 Valet Detailing Service runs on ERA Core
               </h2>
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                VDS is a mobile detailing business in Metro Atlanta — and it&apos;s ours. We built
+                VDS is a mobile detailing business in Metro Atlanta, and it&apos;s ours. We built
                 ERA because we were running it on the same patchwork everyone else is. Its website,
                 quoting, booking, customer records, and payments all run on the platform we&apos;re
                 selling you, which means we feel every rough edge before you do.
@@ -646,7 +654,7 @@ export function MarketingSite() {
                 One real business, honestly stated.
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-relaxed text-primary-foreground/85">
-                ERA is new. VDS is the business proving it in the field, and we own it — so we
+                ERA is new. VDS is the business proving it in the field, and we own it, so we
                 aren&apos;t calling it an independent case study. You won&apos;t find borrowed logos
                 or invented testimonials here. On a discovery call we&apos;ll walk you through the
                 live VDS build, back office included, and tell you plainly whether ERA fits you.
@@ -686,7 +694,7 @@ export function MarketingSite() {
               </h2>
               <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
                 Tell us a little about the business and we&apos;ll get back to you to set up a time.
-                It&apos;s a conversation, not a demo script — and it&apos;s the only route to an ERA
+                It&apos;s a conversation, not a demo script, and it&apos;s the only route to an ERA
                 account.
               </p>
               <p className="mt-6 text-sm text-muted-foreground">

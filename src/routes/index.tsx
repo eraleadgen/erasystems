@@ -12,7 +12,7 @@ const searchSchema = z.object({
     .optional(),
 });
 
-const TITLE = "ERA Core — One operating system for local service businesses";
+const TITLE = "ERA Core: One operating system for local service businesses";
 const DESCRIPTION =
   "ERA Core replaces the patchwork of booking apps, spreadsheets and invoicing tools with one system: website, AI chat, scheduling, payments and automations. Book a discovery call.";
 

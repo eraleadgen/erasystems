@@ -17,7 +17,7 @@ export function DiscoveryForm() {
         <h3 className="text-lg font-semibold text-foreground">Request received</h3>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
           A member of the ERA team will reply by email to schedule your discovery call. No account
-          has been created — accounts are only issued by invite after we&apos;ve spoken.
+          has been created. Accounts are only issued by invite after we&apos;ve spoken.
         </p>
       </div>
     );

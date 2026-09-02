@@ -11,13 +11,13 @@ import { intervalLabel } from "@/lib/payments";
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "Business dashboard — ERA Systems" },
+      { title: "Business dashboard | ERA Systems" },
       {
         name: "description",
         content:
           "Status of your ERA Systems business: setup progress, plan state, and what happens before you go live.",
       },
-      { property: "og:title", content: "Business dashboard — ERA Systems" },
+      { property: "og:title", content: "Business dashboard | ERA Systems" },
       {
         property: "og:description",
         content: "Setup summary and go-live status for your ERA Systems business.",
@@ -63,13 +63,13 @@ const STATE_COPY: Record<
 > = {
   pending_payment: {
     label: "Awaiting payment",
-    headline: "Your setup is saved — you're not live yet",
+    headline: "Your setup is saved, you're not live yet",
     body: "Everything below is stored on your account. Billing is the next step; once payment is complete your site goes live at your reserved address.",
   },
   expired: {
     label: "Reservation lapsed",
     headline: "Your setup is safe, but the address was released",
-    body: "Nothing was deleted — your details, catalog and team are intact. The web address you reserved has been freed for other businesses, so a new one is assigned when you complete payment.",
+    body: "Nothing was deleted, your details, catalog and team are intact. The web address you reserved has been freed for other businesses, so a new one is assigned when you complete payment.",
   },
   suspended: {
     label: "Suspended",
@@ -172,7 +172,7 @@ function Dashboard() {
 /**
  * Checkout for a business that is waiting on payment.
  *
- * The amount shown is the server's own computation from the staff-agreed terms —
+ * The amount shown is the server's own computation from the staff-agreed terms , 
  * it is never sent to the server, and the redirect back from the processor is
  * treated as a hint only: the state below reflects webhook + live API
  * verification, not the URL the browser landed on.
@@ -220,7 +220,7 @@ function CheckoutPanel({ canPay }: { canPay: boolean }) {
 
       {search.checkout === "cancelled" && (
         <p className="mt-2 text-xs text-muted-foreground">
-          Checkout was cancelled — nothing was charged. You can start again below.
+          Checkout was cancelled, nothing was charged. You can start again below.
         </p>
       )}
 
@@ -230,7 +230,7 @@ function CheckoutPanel({ canPay }: { canPay: boolean }) {
             ? "Confirming your payment with the processor…"
             : reconcile.data?.status === "paid"
               ? "Payment confirmed. Your business is being activated."
-              : "We haven't been able to confirm this payment yet. It can take a moment — refresh shortly."}
+              : "We haven't been able to confirm this payment yet. It can take a moment, refresh shortly."}
         </p>
       )}
 
@@ -245,13 +245,13 @@ function CheckoutPanel({ canPay }: { canPay: boolean }) {
         <>
           <ul className="mt-4 space-y-1 text-xs text-muted-foreground">
             <li>
-              {terms.planTier} plan — {formatMoney(terms.subscriptionPriceCents)}{" "}
+              {terms.planTier} plan, {formatMoney(terms.subscriptionPriceCents)}{" "}
               {intervalLabel(terms.billingInterval)}
             </li>
-            {terms.setupFeeCents > 0 && <li>Setup fee — {formatMoney(terms.setupFeeCents)}</li>}
+            {terms.setupFeeCents > 0 && <li>Setup fee, {formatMoney(terms.setupFeeCents)}</li>}
             {terms.addons.map((addon) => (
               <li key={addon.addon}>
-                {ADDON_LABELS[addon.addon]} — {formatMoney(addon.priceCents)}{" "}
+                {ADDON_LABELS[addon.addon]}, {formatMoney(addon.priceCents)}{" "}
                 {intervalLabel(addon.billingInterval)}
               </li>
             ))}
