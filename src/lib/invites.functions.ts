@@ -146,11 +146,21 @@ export const listInvites = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<InviteSummary[]> => {
     const { data, error } = await context.supabase
       .from("invites")
-      .select("id, email, full_name, notes, status, expires_at, created_at, accepted_at")
+      .select(INVITE_COLUMNS)
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) throw new Error(error.message);
-    return (data ?? []).map(toSummary);
+
+    const rows = (data ?? []) as InviteRow[];
+    const { data: addons } = await context.supabase
+      .from("invite_addons")
+      .select("invite_id, addon, price_cents, billing_interval")
+      .in(
+        "invite_id",
+        rows.map((row) => row.id),
+      );
+
+    return rows.map((row) => toSummary(row, (addons ?? []) as AddonRow[]));
   });
 
 /** Staff-only: withdraw an unused invite before it expires. */
