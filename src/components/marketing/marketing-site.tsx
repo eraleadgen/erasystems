@@ -452,15 +452,16 @@ export function MarketingSite() {
 
                   <a
                     href={CTA}
-                    className={`mt-8 rounded-md px-4 py-2.5 text-center text-sm font-semibold transition-colors ${
+                    className={`mt-8 rounded-md px-4 py-2.5 text-center text-sm font-semibold transition-all hover:-translate-y-0.5 ${
                       tier.highlighted
                         ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                        : "border border-metal text-foreground hover:bg-muted"
+                        : "border border-metal text-foreground hover:border-gold/50 hover:text-gold"
                     }`}
                   >
                     Book a discovery call
                   </a>
                 </article>
+                </Reveal>
               ))}
             </div>
           </div>
