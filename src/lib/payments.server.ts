@@ -32,7 +32,7 @@ async function stripeRequest(
       Authorization: `Bearer ${secretKey()}`,
       ...(init?.body ? { "Content-Type": "application/x-www-form-urlencoded" } : {}),
     },
-    body: init?.body,
+    ...(init?.body ? { body: init.body } : {}),
   });
   const text = await response.text();
   if (!response.ok) {
