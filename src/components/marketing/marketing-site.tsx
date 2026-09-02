@@ -526,19 +526,57 @@ export function MarketingSite() {
           </div>
         </section>
 
-        {/* Honest status */}
-        <section className="border-b border-border bg-primary text-primary-foreground">
-          <div className="mx-auto max-w-4xl px-6 py-14 text-center">
-            <p className="font-display text-xl font-semibold">
-              ERA is a new platform, and we&apos;re not going to pretend otherwise.
-            </p>
-            <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-primary-foreground/85">
-              You won&apos;t find customer logos, testimonials, or client counts on this page,
-              because we haven&apos;t earned them yet. What we&apos;ll do on a discovery call is
-              show you the actual product and tell you honestly whether it fits your business.
-            </p>
+        {/* Proof: VDS */}
+        <section id="proof" className="border-b border-border bg-muted/30">
+          <div className="mx-auto max-w-6xl px-6 py-20">
+            <Reveal>
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-gold">
+                Proof it works
+              </p>
+              <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-foreground">
+                Valet Detailing Service runs on ERA Core
+              </h2>
+              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                VDS is a mobile detailing business in Metro Atlanta — and it&apos;s ours. We built
+                ERA because we were running it on the same patchwork everyone else is. Its website,
+                quoting, booking, customer records, and payments all run on the platform we&apos;re
+                selling you, which means we feel every rough edge before you do.
+              </p>
+            </Reveal>
+
+            <div className="mt-10 grid gap-6 lg:grid-cols-2">
+              <Reveal className="overflow-hidden rounded-2xl border border-metal/60 bg-card">
+                <img
+                  src={vdsHero.url}
+                  alt="Valet Detailing Service homepage, built and run on ERA Core"
+                  loading="lazy"
+                  className="w-full"
+                />
+              </Reveal>
+              <Reveal delay={120} className="overflow-hidden rounded-2xl border border-metal/60 bg-card">
+                <img
+                  src={vdsAbout.url}
+                  alt="Valet Detailing Service service pages running on the ERA Core platform"
+                  loading="lazy"
+                  className="w-full"
+                />
+              </Reveal>
+            </div>
+
+            <Reveal delay={160} className="mt-10 rounded-2xl border border-primary/40 bg-primary p-7 text-primary-foreground">
+              <p className="font-display text-lg font-semibold">
+                One real business, honestly stated.
+              </p>
+              <p className="mt-3 max-w-3xl text-sm leading-relaxed text-primary-foreground/85">
+                ERA is new. VDS is the business proving it in the field, and we own it — so we
+                aren&apos;t calling it an independent case study. You won&apos;t find borrowed logos
+                or invented testimonials here. On a discovery call we&apos;ll walk you through the
+                live VDS build, back office included, and tell you plainly whether ERA fits you.
+              </p>
+            </Reveal>
           </div>
         </section>
+
 
         {/* FAQ */}
         <section id="faq" className="border-b border-border">
