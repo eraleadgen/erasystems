@@ -61,6 +61,8 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --color-metal: var(--metal);
   --color-metal-foreground: var(--metal-foreground);
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-body: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --shadow-elevated: 0 24px 60px -28px oklch(0.32 0.06 195 / 0.45);
@@ -70,6 +72,95 @@
   background-image:
     radial-gradient(90rem 40rem at 85% -10%, oklch(0.86 0.04 195 / 0.55), transparent 60%),
     linear-gradient(180deg, oklch(0.985 0.006 195), oklch(0.965 0.008 210));
+}
+
+.dark .bg-gradient-hero {
+  background-image:
+    radial-gradient(60rem 34rem at 82% -12%, oklch(0.72 0.15 162 / 0.22), transparent 62%),
+    radial-gradient(48rem 30rem at 8% 8%, oklch(0.78 0.13 88 / 0.12), transparent 64%),
+    linear-gradient(180deg, oklch(0.17 0.018 165), oklch(0.14 0.014 170));
+}
+
+@utility text-gradient-emerald {
+  background-image: linear-gradient(100deg, var(--foreground) 10%, var(--primary) 48%, var(--gold) 88%);
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+@utility glow-ring {
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--primary) 26%, transparent),
+    0 24px 70px -30px color-mix(in oklab, var(--primary) 60%, transparent);
+}
+
+@utility reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  &[data-visible="true"] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility lift {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+  &:hover {
+    transform: translateY(-6px);
+    border-color: color-mix(in oklab, var(--primary) 55%, transparent);
+    box-shadow: 0 24px 60px -34px color-mix(in oklab, var(--primary) 70%, transparent);
+  }
+}
+
+@utility animate-float {
+  animation: era-float 7s ease-in-out infinite;
+}
+
+@utility animate-pulse-ring {
+  animation: era-pulse 3.4s ease-in-out infinite;
+}
+
+@utility animate-orbit {
+  animation: era-orbit 18s linear infinite;
+}
+
+@utility animate-shimmer {
+  background-size: 200% 100%;
+  animation: era-shimmer 6s linear infinite;
+}
+
+@keyframes era-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes era-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.75; transform: scale(1.06); }
+}
+
+@keyframes era-orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes era-shimmer {
+  from { background-position: 0% 0; }
+  to { background-position: 200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .animate-float,
+  .animate-pulse-ring,
+  .animate-orbit,
+  .animate-shimmer { animation: none !important; }
 }
 
 :root {
