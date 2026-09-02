@@ -42,6 +42,14 @@ function InvitesAdmin() {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [notes, setNotes] = useState("");
+  const [planTier, setPlanTier] = useState<PlanTier>("basic");
+  const [subscriptionPrice, setSubscriptionPrice] = useState("0");
+  const [setupFee, setSetupFee] = useState("0");
+  const [billingInterval, setBillingInterval] = useState<BillingInterval>("monthly");
+  const [addonPrices, setAddonPrices] = useState<Record<AddonKind, string>>({
+    ad_management: "",
+    white_label_branding: "",
+  });
   const [issuedLink, setIssuedLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,14 +59,38 @@ function InvitesAdmin() {
     retry: false,
   });
 
+  const toCents = (value: string) => Math.round(Number(value || 0) * 100);
+
   const issueMutation = useMutation({
-    mutationFn: () => issue({ data: { email, fullName, notes: notes || undefined } }),
+    mutationFn: () =>
+      issue({
+        data: {
+          email,
+          fullName,
+          notes: notes || undefined,
+          terms: {
+            planTier,
+            subscriptionPriceCents: toCents(subscriptionPrice),
+            setupFeeCents: toCents(setupFee),
+            billingInterval,
+            // Add-ons are orthogonal to tier: a row exists only where staff typed an amount.
+            addons: ALL_ADDONS.filter((addon) => addonPrices[addon].trim() !== "").map((addon) => ({
+              addon,
+              priceCents: toCents(addonPrices[addon]),
+              billingInterval,
+            })),
+          },
+        },
+      }),
     onSuccess: (result) => {
       const origin = typeof window === "undefined" ? "" : window.location.origin;
       setIssuedLink(inviteUrl(origin, result.token));
       setEmail("");
       setFullName("");
       setNotes("");
+      setSubscriptionPrice("0");
+      setSetupFee("0");
+      setAddonPrices({ ad_management: "", white_label_branding: "" });
       void queryClient.invalidateQueries({ queryKey: ["invites"] });
     },
     onError: (err: Error) => setError(err.message),
