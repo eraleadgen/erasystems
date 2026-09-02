@@ -367,7 +367,7 @@ export function MarketingSite() {
                   the same data. A booking made on your site is the same object your invoice, your
                   reminder, and your dashboard are looking at.
                 </p>
-              </div>
+              </Reveal>
             </div>
           </div>
         </section>
