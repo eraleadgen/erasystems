@@ -107,7 +107,7 @@ function AddonsAdmin() {
         or not regardless. Amounts are entered per client; there is no platform-wide rate.
       </p>
 
-      {addonsQuery.isError && (
+      {(addonsQuery.isError || hasSession === false) && (
         <p className="mt-8 rounded-md border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
           Add-on records are readable only to members of this business and platform staff. Sign in
           with an authorized account to view or edit them.
