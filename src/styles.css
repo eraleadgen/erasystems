@@ -199,6 +199,8 @@
   --sidebar-ring: oklch(0.52 0.06 196);
   --metal: oklch(0.84 0.012 215);
   --metal-foreground: oklch(0.3 0.04 200);
+  --gold: oklch(0.72 0.13 88);
+  --gold-foreground: oklch(0.22 0.03 90);
 }
 
 .dark {
