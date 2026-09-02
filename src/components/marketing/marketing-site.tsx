@@ -409,12 +409,12 @@ export function MarketingSite() {
             </p>
 
             <div className="mt-10 grid gap-6 lg:grid-cols-3">
-              {tiers.map((tier) => (
+              {tiers.map((tier, i) => (
+                <Reveal key={tier.name} delay={i * 110} className="h-full">
                 <article
-                  key={tier.name}
-                  className={`flex flex-col rounded-2xl border p-7 ${
+                  className={`lift flex h-full flex-col rounded-2xl border p-7 ${
                     tier.highlighted
-                      ? "border-primary bg-card shadow-elevated"
+                      ? "glow-ring border-primary/60 bg-card"
                       : "border-border bg-card"
                   }`}
                 >
