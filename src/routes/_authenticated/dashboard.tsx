@@ -5,8 +5,7 @@ import { useEffect, useState } from "react";
 
 import { getMyBusiness, type MyBusiness } from "@/lib/business.functions";
 import { createCheckoutSession, getMyTerms, verifyMyPayment } from "@/lib/payments.functions";
-import { ADDON_LABELS } from "@/lib/entitlements";
-import { formatMoney } from "@/lib/entitlements";
+import { ADDON_LABELS, formatMoney } from "@/lib/entitlements";
 import { intervalLabel } from "@/lib/payments";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
