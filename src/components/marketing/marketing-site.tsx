@@ -348,7 +348,7 @@ export function MarketingSite() {
 
       <main>
         {/* Hero */}
-        <section className="relative overflow-hidden border-b border-border bg-gradient-hero">
+        <section className="bg-aurora relative overflow-hidden border-b border-border bg-gradient-hero">
           <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:py-28">
             <div>
               <Reveal>
