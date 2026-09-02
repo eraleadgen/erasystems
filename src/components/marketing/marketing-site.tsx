@@ -255,7 +255,7 @@ export function MarketingSite() {
           </nav>
           <a
             href={CTA}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+            className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-elevated transition-all hover:-translate-y-0.5 hover:bg-primary/90"
           >
             Book a discovery call
           </a>
