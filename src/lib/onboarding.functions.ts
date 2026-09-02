@@ -206,6 +206,7 @@ export const completeOnboarding = createServerFn({ method: "POST" })
     try {
       const base = slugify(payload.basics.displayName) || "business";
       let businessId: string | null = null;
+      let reclaimAttempted = false;
 
       /**
        * A slug is held only by a paid business, or by an unpaid one whose 14-day
@@ -262,7 +263,10 @@ export const completeOnboarding = createServerFn({ method: "POST" })
           businessId = inserted.id;
         } else if (error && error.code === "23505") {
           // Only the clean base address is worth reclaiming from a lapsed holder.
-          if (attempt === 0 && (await releaseLapsedSlug(slug))) attempt -= 1;
+          if (attempt === 0 && !reclaimAttempted) {
+            reclaimAttempted = true;
+            if (await releaseLapsedSlug(slug)) attempt -= 1;
+          }
         } else if (error) {
           throw new Error(error.message);
         }
