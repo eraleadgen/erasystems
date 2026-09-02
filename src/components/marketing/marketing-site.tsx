@@ -235,7 +235,7 @@ function Check() {
 
 export function MarketingSite() {
   return (
-    <div className="min-h-screen bg-background font-body">
+    <div className="dark min-h-screen bg-background font-body text-foreground">
       <header className="sticky top-0 z-40 border-b border-border/80 bg-background/85 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3">
           <Logo />
