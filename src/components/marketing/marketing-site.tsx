@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState, type ReactNode } from "react";
+
 import logoAsset from "@/assets/era-logo.png.asset.json";
 import { DiscoveryForm } from "./discovery-form";
 
