@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
@@ -143,7 +143,7 @@ function OnboardingWizard() {
 
   const finishMutation = useMutation({
     mutationFn: () => finish({ data: undefined }),
-    onSuccess: () => navigate({ to: "/" }),
+    onSuccess: () => navigate({ to: "/dashboard" }),
     onError: (e: Error) => setError(e.message),
   });
 
@@ -171,6 +171,12 @@ function OnboardingWizard() {
           Your business is set up and waiting to go live. Billing is the next step — your ERA
           Systems representative will take it from here.
         </p>
+        <Link
+          to="/dashboard"
+          className="mt-5 inline-block rounded-md border border-border px-4 py-2 text-sm text-foreground underline-offset-4 hover:underline"
+        >
+          Go to your dashboard
+        </Link>
       </Shell>
     );
   }

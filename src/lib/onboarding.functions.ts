@@ -206,6 +206,36 @@ export const completeOnboarding = createServerFn({ method: "POST" })
     try {
       const base = slugify(payload.basics.displayName) || "business";
       let businessId: string | null = null;
+      let reclaimAttempted = false;
+
+      /**
+       * A slug is held only by a paid business, or by an unpaid one whose 14-day
+       * reservation has not lapsed. A lapsed unpaid holder is moved aside (its row and
+       * all its data survive — only the address changes) so a paying client can take the
+       * clean address. Scoped by the holder's own id on every write.
+       */
+      const releaseLapsedSlug = async (slug: string): Promise<boolean> => {
+        const { data: holder } = await supabaseAdmin
+          .from("businesses")
+          .select("id, lifecycle, slug_reserved_until")
+          .eq("slug", slug)
+          .maybeSingle();
+
+        if (!holder) return true; // vanished between attempts; retry the insert
+        if (holder.lifecycle !== "pending_payment" && holder.lifecycle !== "expired") return false;
+        if (holder.slug_reserved_until && new Date(holder.slug_reserved_until) > new Date())
+          return false;
+
+        const { error: renameError } = await supabaseAdmin
+          .from("businesses")
+          .update({
+            slug: `${slug}-expired-${holder.id.slice(0, 6)}`,
+            lifecycle: "expired",
+            slug_reserved_until: null,
+          })
+          .eq("id", holder.id);
+        return !renameError;
+      };
 
       for (let attempt = 0; attempt < 6 && !businessId; attempt += 1) {
         const slug = attempt === 0 ? base : `${base}-${Math.random().toString(36).slice(2, 7)}`;
@@ -218,6 +248,8 @@ export const completeOnboarding = createServerFn({ method: "POST" })
             timezone: payload.basics.timezone,
             // Not live until payment. Tier stays at its default: commercial terms are staff-set.
             is_active: false,
+            lifecycle: "pending_payment",
+            slug_reserved_until: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
             logo_url: payload.branding.logoPath,
             brand_primary: payload.branding.brandPrimary || null,
             brand_accent: payload.branding.brandAccent || null,
@@ -227,11 +259,21 @@ export const completeOnboarding = createServerFn({ method: "POST" })
           .select("id")
           .single();
 
-        if (inserted) businessId = inserted.id;
-        else if (error && error.code !== "23505") throw new Error(error.message);
+        if (inserted) {
+          businessId = inserted.id;
+        } else if (error && error.code === "23505") {
+          // Only the clean base address is worth reclaiming from a lapsed holder.
+          if (attempt === 0 && !reclaimAttempted) {
+            reclaimAttempted = true;
+            if (await releaseLapsedSlug(slug)) attempt -= 1;
+          }
+        } else if (error) {
+          throw new Error(error.message);
+        }
       }
 
       if (!businessId) throw new Error("Could not reserve a unique address for your business.");
+
 
       const { error: memberError } = await supabaseAdmin.from("business_members").insert({
         business_id: businessId,
