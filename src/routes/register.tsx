@@ -14,13 +14,13 @@ export const Route = createFileRoute("/register")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Complete your registration — ERA Systems" },
+      { title: "Complete your registration | ERA Systems" },
       {
         name: "description",
         content:
           "Create your ERA Systems account using the private invite link issued after your discovery call.",
       },
-      { property: "og:title", content: "Complete your registration — ERA Systems" },
+      { property: "og:title", content: "Complete your registration | ERA Systems" },
       {
         property: "og:description",
         content: "Registration on ERA Systems is by invitation only.",
@@ -104,7 +104,7 @@ function RegisterPage() {
       <Shell>
         <h1 className="text-xl font-semibold text-foreground">You're registered</h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          Your ERA Systems account is active. Next, set up your business — details, branding and
+          Your ERA Systems account is active. Next, set up your business, details, branding and
           services. No payment is taken during setup.
         </p>
         <Link
@@ -124,7 +124,7 @@ function RegisterPage() {
     <Shell>
       <h1 className="text-xl font-semibold text-foreground">Welcome, {invite.fullName}</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Set a password to create your ERA Systems account. This creates your login only — your
+        Set a password to create your ERA Systems account. This creates your login only, your
         business is set up later in onboarding.
       </p>
 

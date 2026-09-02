@@ -37,13 +37,13 @@ export const Route = createFileRoute("/admin/addons")({
   },
   head: () => ({
     meta: [
-      { title: "Add-on management — ERA Systems" },
+      { title: "Add-on management | ERA Systems" },
       {
         name: "description",
         content:
           "Platform staff activate Ad Management and White-Label Branding per client and set the per-client amount.",
       },
-      { property: "og:title", content: "Add-on management — ERA Systems" },
+      { property: "og:title", content: "Add-on management | ERA Systems" },
       {
         property: "og:description",
         content: "Add-ons are independent of plan tier and priced individually per business.",
@@ -99,7 +99,7 @@ function AddonsAdmin() {
     <main className="mx-auto min-h-screen max-w-3xl px-6 py-14">
       <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Platform staff</p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">
-        Add-ons — {tenant.name}
+        Add-ons, {tenant.name}
       </h1>
       <p className="mt-4 max-w-2xl text-sm text-muted-foreground">
         Add-ons are independent of plan tier: this business is on{" "}
@@ -127,7 +127,7 @@ function AddonsAdmin() {
           ))}
           {mutation.isError && (
             <p className="text-xs text-destructive">
-              {(mutation.error as Error).message} — only platform staff may write add-on records.
+              {(mutation.error as Error).message}, only platform staff may write add-on records.
             </p>
           )}
         </div>

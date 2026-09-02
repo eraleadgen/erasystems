@@ -18,13 +18,13 @@ import {
 export const Route = createFileRoute("/admin/invites")({
   head: () => ({
     meta: [
-      { title: "Invitations — ERA Systems staff" },
+      { title: "Invitations | ERA Systems staff" },
       {
         name: "description",
         content:
           "Platform staff issue and withdraw single-use registration invitations for approved prospects.",
       },
-      { property: "og:title", content: "Invitations — ERA Systems staff" },
+      { property: "og:title", content: "Invitations | ERA Systems staff" },
       {
         property: "og:description",
         content: "Single-use, time-limited registration invites issued after a discovery call.",
@@ -115,7 +115,7 @@ function InvitesAdmin() {
       <h1 className="text-2xl font-semibold text-foreground">Invitations</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Each invite is single-use, tied to one email address, and expires after {INVITE_TTL_DAYS}{" "}
-        days. The link is shown once — copy it now, it cannot be retrieved later.
+        days. The link is shown once, copy it now, it cannot be retrieved later.
       </p>
 
       <form
@@ -235,7 +235,7 @@ function InvitesAdmin() {
               className="block text-xs font-medium text-muted-foreground"
               htmlFor={`addon-${addon}`}
             >
-              {ADDON_LABELS[addon]} (USD — blank = not sold)
+              {ADDON_LABELS[addon]} (USD, blank = not sold)
             </label>
             <input
               id={`addon-${addon}`}
@@ -266,7 +266,7 @@ function InvitesAdmin() {
       {issuedLink ? (
         <div className="mt-6 rounded-xl border border-primary/40 bg-primary/5 p-4">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Copy this link now — shown once
+            Copy this link now, shown once
           </p>
           <code className="mt-2 block break-all text-sm text-foreground">{issuedLink}</code>
         </div>

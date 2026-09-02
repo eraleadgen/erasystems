@@ -198,7 +198,7 @@ function Reveal({
 
 function HeroVisual() {
   const nodes = ["Website", "Chat", "Scheduling", "Customers", "Jobs", "Payments"];
-  const tilt = 0.4; // vertical squash — reads as a ring seen at an angle
+  const tilt = 0.4; // vertical squash, reads as a ring seen at an angle
   const ref = useRef<HTMLDivElement | null>(null);
   const [pointer, setPointer] = useState({ x: 0, y: 0 });
   const [spin, setSpin] = useState(0);

@@ -26,7 +26,7 @@ function money(cents: number) {
 
 /**
  * Tenant-internal commercial information. Fetched client-side through an
- * authenticated, membership-scoped server fn — never in the public SSR loader.
+ * authenticated, membership-scoped server fn, never in the public SSR loader.
  */
 function EntitlementMatrix({ businessId }: { businessId: string }) {
   const fetchEntitlements = useServerFn(getMyEntitlements);
@@ -49,7 +49,7 @@ function EntitlementMatrix({ businessId }: { businessId: string }) {
   return (
     <>
       <h2 className="mt-14 text-lg font-semibold text-foreground">
-        Plan entitlements — {data.tier}
+        Plan entitlements, {data.tier}
       </h2>
       <p className="mt-2 max-w-2xl text-xs text-muted-foreground">
         Visible to this business&apos;s own team only. Resolved from{" "}
@@ -134,7 +134,7 @@ export function TenantHome({
 
         <dl className="mt-10 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-3">
           {[
-            ["Hostname seen by server", tenant.hostname ?? "—"],
+            ["Hostname seen by server", tenant.hostname ?? ", "],
             ["Business ID", tenant.businessId],
             ["Timezone", tenant.timezone],
           ].map(([label, value]) => (

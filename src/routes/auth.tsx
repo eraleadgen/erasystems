@@ -7,12 +7,12 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — ERA Systems" },
+      { title: "Sign in | ERA Systems" },
       {
         name: "description",
         content: "Sign in to your ERA Systems account. New accounts are created by invitation only.",
       },
-      { property: "og:title", content: "Sign in — ERA Systems" },
+      { property: "og:title", content: "Sign in | ERA Systems" },
       {
         property: "og:description",
         content: "ERA Systems accounts are issued by invitation after a discovery call.",

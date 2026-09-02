@@ -23,13 +23,13 @@ export const Route = createFileRoute("/demo/tenant")({
   },
   head: () => ({
     meta: [
-      { title: "Tenant rendering demo — ERA Systems" },
+      { title: "Tenant rendering demo | ERA Systems" },
       {
         name: "description",
         content:
           "Internal demo of ERA Systems hostname-based tenant resolution and business_id-scoped row-level security.",
       },
-      { property: "og:title", content: "Tenant rendering demo — ERA Systems" },
+      { property: "og:title", content: "Tenant rendering demo | ERA Systems" },
       {
         property: "og:description",
         content: "Every request resolves its business from the incoming hostname before render.",

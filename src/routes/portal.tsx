@@ -26,13 +26,13 @@ export const Route = createFileRoute("/portal")({
   },
   head: () => ({
     meta: [
-      { title: "Customer portal — ERA Systems" },
+      { title: "Customer portal | ERA Systems" },
       {
         name: "description",
         content:
           "Member portal for customers of a Growth or Enterprise tier business on ERA Systems.",
       },
-      { property: "og:title", content: "Customer portal — ERA Systems" },
+      { property: "og:title", content: "Customer portal | ERA Systems" },
       {
         property: "og:description",
         content: "Bookings, invoices and history for members of this business.",

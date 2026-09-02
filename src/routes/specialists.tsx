@@ -25,12 +25,12 @@ export const Route = createFileRoute("/specialists")({
   },
   head: () => ({
     meta: [
-      { title: "Specialist portal — ERA Systems" },
+      { title: "Specialist portal | ERA Systems" },
       {
         name: "description",
         content: "Employee and specialist workspace for Growth and Enterprise tier businesses.",
       },
-      { property: "og:title", content: "Specialist portal — ERA Systems" },
+      { property: "og:title", content: "Specialist portal | ERA Systems" },
       {
         property: "og:description",
         content: "Schedules, assigned jobs and availability for a business's specialists.",
