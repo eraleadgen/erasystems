@@ -19,6 +19,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AdminAddonsRouteImport } from './routes/admin.addons'
 import { Route as AdminInvitesRouteImport } from './routes/admin.invites'
+import { Route as ApiPublicCronExpireBusinessesRouteImport } from './routes/api/public/cron/expire-businesses'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -69,6 +70,12 @@ const AdminInvitesRoute = AdminInvitesRouteImport.update({
   path: '/admin/invites',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCronExpireBusinessesRoute =
+  ApiPublicCronExpireBusinessesRouteImport.update({
+    id: '/api/public/cron/expire-businesses',
+    path: '/api/public/cron/expire-businesses',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/invites': typeof AdminInvitesRoute
+  '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -91,6 +99,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/invites': typeof AdminInvitesRoute
+  '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -104,6 +113,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/invites': typeof AdminInvitesRoute
+  '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/admin/addons'
     | '/admin/invites'
+    | '/api/public/cron/expire-businesses'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/admin/addons'
     | '/admin/invites'
+    | '/api/public/cron/expire-businesses'
   id:
     | '__root__'
     | '/'
@@ -140,6 +152,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/admin/addons'
     | '/admin/invites'
+    | '/api/public/cron/expire-businesses'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -151,6 +164,7 @@ export interface RootRouteChildren {
   SpecialistsRoute: typeof SpecialistsRoute
   AdminAddonsRoute: typeof AdminAddonsRoute
   AdminInvitesRoute: typeof AdminInvitesRoute
+  ApiPublicCronExpireBusinessesRoute: typeof ApiPublicCronExpireBusinessesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -225,6 +239,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInvitesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/expire-businesses': {
+      id: '/api/public/cron/expire-businesses'
+      path: '/api/public/cron/expire-businesses'
+      fullPath: '/api/public/cron/expire-businesses'
+      preLoaderRoute: typeof ApiPublicCronExpireBusinessesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -250,6 +271,7 @@ const rootRouteChildren: RootRouteChildren = {
   SpecialistsRoute: SpecialistsRoute,
   AdminAddonsRoute: AdminAddonsRoute,
   AdminInvitesRoute: AdminInvitesRoute,
+  ApiPublicCronExpireBusinessesRoute: ApiPublicCronExpireBusinessesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
