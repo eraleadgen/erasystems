@@ -485,13 +485,14 @@ export function MarketingSite() {
                     <h3 className="font-display text-lg font-semibold text-foreground">
                       {addon.name}
                     </h3>
-                    <span className="shrink-0 text-xs font-semibold uppercase tracking-widest text-primary">
+                    <span className="shrink-0 text-xs font-semibold uppercase tracking-widest text-gold">
                       Custom pricing
                     </span>
                   </div>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{addon.body}</p>
                   <p className="mt-5 text-xs text-muted-foreground">Available on any tier</p>
                 </article>
+                </Reveal>
               ))}
             </div>
           </div>
