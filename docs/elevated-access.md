@@ -143,6 +143,27 @@ self-sufficient and every future staff or client account goes through
 
 
 
+### Business lifecycle expiry cron (2026-09-02)
+
+`src/routes/api/public/cron/expire-businesses.ts` — `POST`, authenticated by the
+platform cron secret (`authenticateCronRequest`) before any elevated import. There
+is no user session, so this is a platform-operations caller, not a tenant one.
+
+- Reads only `businesses` rows with `lifecycle = 'pending_payment'` older than 30 days.
+- Every write is `.eq("id", row.id)` plus a `lifecycle = 'pending_payment'` guard, so a
+  business that was paid between read and write is never touched.
+- Writes exactly two columns: `lifecycle -> 'expired'` and `slug_reserved_until -> null`.
+  No deletion, no tier change, no `is_active` change.
+
+### Onboarding slug reclaim (2026-09-02)
+
+Inside the already-registered `completeOnboarding` provisioning path. When the clean
+web address is held by a business that never paid and whose 14-day reservation has
+lapsed, that holder is renamed to `<slug>-expired-<short id>` and marked `expired`,
+scoped by the holder's own `id`. Its data, membership and catalog are untouched. Only
+the single base-slug attempt can reclaim, and only once per submission.
+
+
 ## Known-and-accepted linter findings
 
 - `invite_attempts`: RLS enabled with **no policies and no grants** — intentional.
