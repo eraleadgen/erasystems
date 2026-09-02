@@ -139,6 +139,85 @@ function Logo({ className = "h-9" }: { className?: string }) {
   return <img src={logoAsset.url} alt="ERA Systems" className={`${className} w-auto`} />;
 }
 
+function Reveal({
+  children,
+  delay = 0,
+  className = "",
+}: {
+  children: ReactNode;
+  delay?: number;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setVisible(true);
+            io.disconnect();
+          }
+        }
+      },
+      { rootMargin: "0px 0px -12% 0px", threshold: 0.12 },
+    );
+    io.observe(node);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      data-visible={visible}
+      style={{ transitionDelay: `${delay}ms` }}
+      className={`reveal ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function HeroVisual() {
+  const nodes = ["Website", "Chat", "Scheduling", "Customers", "Jobs", "Payments"];
+  return (
+    <div className="relative flex h-[22rem] items-center justify-center sm:h-[26rem]">
+      <div className="animate-pulse-ring absolute size-64 rounded-full bg-primary/20 blur-3xl sm:size-80" />
+      <div className="absolute size-56 rounded-full border border-primary/25 sm:size-72" />
+      <div className="absolute size-72 rounded-full border border-gold/20 sm:size-[22rem]" />
+
+      <div className="animate-orbit absolute size-56 sm:size-72">
+        {nodes.map((label, i) => {
+          const angle = (360 / nodes.length) * i;
+          return (
+            <span
+              key={label}
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+              style={{ transform: `rotate(${angle}deg) translateY(-9rem) rotate(-${angle}deg)` }}
+            >
+              <span
+                className="animate-orbit block rounded-full border border-metal/60 bg-card/90 px-3 py-1.5 text-[11px] font-medium text-muted-foreground shadow-elevated backdrop-blur"
+                style={{ animationDirection: "reverse" }}
+              >
+                {label}
+              </span>
+            </span>
+          );
+        })}
+      </div>
+
+      <div className="animate-float glow-ring relative rounded-2xl border border-primary/30 bg-card/85 px-7 py-6 text-center backdrop-blur">
+        <p className="font-display text-xs uppercase tracking-[0.3em] text-gold">ERA Core</p>
+        <p className="mt-2 font-display text-2xl font-semibold text-foreground">One record</p>
+        <p className="mt-1 text-xs text-muted-foreground">Everything writes here</p>
+      </div>
+    </div>
+  );
+}
+
 function Check() {
   return (
     <svg
