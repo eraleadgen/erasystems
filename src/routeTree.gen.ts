@@ -19,6 +19,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AdminAddonsRouteImport } from './routes/admin.addons'
 import { Route as AdminInvitesRouteImport } from './routes/admin.invites'
+import { Route as DemoTenantRouteImport } from './routes/demo.tenant'
 import { Route as ApiPublicCronExpireBusinessesRouteImport } from './routes/api/public/cron/expire-businesses'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 
@@ -71,6 +72,11 @@ const AdminInvitesRoute = AdminInvitesRouteImport.update({
   path: '/admin/invites',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoTenantRoute = DemoTenantRouteImport.update({
+  id: '/demo/tenant',
+  path: '/demo/tenant',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCronExpireBusinessesRoute =
   ApiPublicCronExpireBusinessesRouteImport.update({
     id: '/api/public/cron/expire-businesses',
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/invites': typeof AdminInvitesRoute
+  '/demo/tenant': typeof DemoTenantRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/invites': typeof AdminInvitesRoute
+  '/demo/tenant': typeof DemoTenantRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/invites': typeof AdminInvitesRoute
+  '/demo/tenant': typeof DemoTenantRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
@@ -136,6 +145,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/admin/addons'
     | '/admin/invites'
+    | '/demo/tenant'
     | '/api/public/cron/expire-businesses'
     | '/api/public/webhooks/stripe'
   fileRoutesByTo: FileRoutesByTo
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/admin/addons'
     | '/admin/invites'
+    | '/demo/tenant'
     | '/api/public/cron/expire-businesses'
     | '/api/public/webhooks/stripe'
   id:
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/admin/addons'
     | '/admin/invites'
+    | '/demo/tenant'
     | '/api/public/cron/expire-businesses'
     | '/api/public/webhooks/stripe'
   fileRoutesById: FileRoutesById
@@ -176,6 +188,7 @@ export interface RootRouteChildren {
   SpecialistsRoute: typeof SpecialistsRoute
   AdminAddonsRoute: typeof AdminAddonsRoute
   AdminInvitesRoute: typeof AdminInvitesRoute
+  DemoTenantRoute: typeof DemoTenantRoute
   ApiPublicCronExpireBusinessesRoute: typeof ApiPublicCronExpireBusinessesRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
 }
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInvitesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo/tenant': {
+      id: '/demo/tenant'
+      path: '/demo/tenant'
+      fullPath: '/demo/tenant'
+      preLoaderRoute: typeof DemoTenantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/expire-businesses': {
       id: '/api/public/cron/expire-businesses'
       path: '/api/public/cron/expire-businesses'
@@ -291,6 +311,7 @@ const rootRouteChildren: RootRouteChildren = {
   SpecialistsRoute: SpecialistsRoute,
   AdminAddonsRoute: AdminAddonsRoute,
   AdminInvitesRoute: AdminInvitesRoute,
+  DemoTenantRoute: DemoTenantRoute,
   ApiPublicCronExpireBusinessesRoute: ApiPublicCronExpireBusinessesRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
 }

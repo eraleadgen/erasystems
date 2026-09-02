@@ -268,6 +268,45 @@ export type Database = {
           },
         ]
       }
+      discovery_requests: {
+        Row: {
+          business_name: string
+          business_type: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          message: string | null
+          phone: string | null
+          source_hostname: string | null
+          status: string
+        }
+        Insert: {
+          business_name: string
+          business_type?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          message?: string | null
+          phone?: string | null
+          source_hostname?: string | null
+          status?: string
+        }
+        Update: {
+          business_name?: string
+          business_type?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          message?: string | null
+          phone?: string | null
+          source_hostname?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       invite_addons: {
         Row: {
           addon: Database["public"]["Enums"]["addon_kind"]
