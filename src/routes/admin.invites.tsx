@@ -266,7 +266,7 @@ function InvitesAdmin() {
       {issuedLink ? (
         <div className="mt-6 rounded-xl border border-primary/40 bg-primary/5 p-4">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Copy this link now, shown once
+            Copy this link now (shown once)
           </p>
           <code className="mt-2 block break-all text-sm text-foreground">{issuedLink}</code>
         </div>

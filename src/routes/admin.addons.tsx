@@ -99,7 +99,7 @@ function AddonsAdmin() {
     <main className="mx-auto min-h-screen max-w-3xl px-6 py-14">
       <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Platform staff</p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">
-        Add-ons, {tenant.name}
+        Add-ons for {tenant.name}
       </h1>
       <p className="mt-4 max-w-2xl text-sm text-muted-foreground">
         Add-ons are independent of plan tier: this business is on{" "}
