@@ -423,7 +423,7 @@ export function MarketingSite() {
                       {tier.name}
                     </h3>
                     {tier.highlighted && (
-                      <span className="animate-shimmer rounded-full bg-[linear-gradient(100deg,var(--primary)/0.14,var(--gold)/0.28,var(--primary)/0.14)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-gold">
+                      <span className="animate-shimmer rounded-full border border-gold/30 bg-gradient-to-r from-primary/15 via-gold/30 to-primary/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-gold">
                         Common starting point
                       </span>
                     )}
