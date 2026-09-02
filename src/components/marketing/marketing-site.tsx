@@ -16,7 +16,7 @@ const outcomes = [
   {
     stat: "24/7",
     title: "Leads answered while you work",
-    body: "The AI chat widget replies, qualifies, and captures the lead on the page — so the enquiry that arrives mid-job is still there as a booking, not a missed call.",
+    body: "The AI chat widget replies, qualifies, and captures the lead on the page, so the enquiry that arrives mid-job is still there as a booking, not a missed call.",
   },
   {
     stat: "Faster cash",
@@ -33,7 +33,7 @@ const outcomes = [
 const coreCapabilities = [
   {
     title: "A website that actually sells",
-    body: "The public site, service catalog and booking flow are one system — a visitor can go from reading to booked without leaving, and it never drifts out of date.",
+    body: "The public site, service catalog and booking flow are one system, so a visitor can go from reading to booked without leaving, and it never drifts out of date.",
   },
   {
     title: "AI chat widget",
@@ -45,11 +45,11 @@ const coreCapabilities = [
   },
   {
     title: "Payments that close themselves",
-    body: "Deposits, invoices and paid jobs settle against the same customer and job — you can see what's owed without building a spreadsheet.",
+    body: "Deposits, invoices and paid jobs settle against the same customer and job, so you can see what's owed without building a spreadsheet.",
   },
   {
     title: "Admin dashboard",
-    body: "One place to see the day, the pipeline, and what money is outstanding — in about a minute, not an hour.",
+    body: "One place to see the day, the pipeline, and what money is outstanding, in about a minute, not an hour.",
   },
   {
     title: "Self-serve domain, email & phone",
@@ -104,7 +104,7 @@ const addons = [
   },
   {
     name: "White-Label Branding",
-    body: "The platform presents entirely as your brand — your domain, your marks, your customer-facing surfaces, with ERA out of the way.",
+    body: "The platform presents entirely as your brand: your domain, your marks, your customer-facing surfaces, with ERA out of the way.",
   },
 ];
 
@@ -115,7 +115,7 @@ const steps = [
   },
   {
     title: "Invite & guided setup",
-    body: "If it is, we send you a private invite link. That's the only way an account gets created here — there is no public sign-up. You then walk through a guided setup: business details, branding, services and pricing, your team.",
+    body: "If it is, we send you a private invite link. That's the only way an account gets created here. There is no public sign-up. You then walk through a guided setup: business details, branding, services and pricing, your team.",
   },
   {
     title: "Go live",
@@ -138,11 +138,11 @@ const faqs = [
   },
   {
     q: "Can I change tiers later?",
-    a: "Yes. Tiers are set by us from the discovery call and can be changed as the business changes — nothing about your data is tied to the plan you started on.",
+    a: "Yes. Tiers are set by us from the discovery call and can be changed as the business changes. Nothing about your data is tied to the plan you started on.",
   },
   {
     q: "Who is ERA for?",
-    a: "Local service businesses — trades, home services, mobile services, appointment-based shops — that are running six disconnected tools and a spreadsheet.",
+    a: "Local service businesses (trades, home services, mobile services, appointment-based shops) that are running six disconnected tools and a spreadsheet.",
   },
   {
     q: "What do I need to bring?",
@@ -441,7 +441,7 @@ export function MarketingSite() {
               <p className="mt-3 max-w-3xl text-sm leading-relaxed text-primary-foreground/85">
                 A lead lands at 11pm and the chat widget answers it. The quote goes out, the
                 reminder fires, the deposit clears, the job closes, the review request sends, and
-                the customer gets pulled back in months later — without anyone remembering to do
+                the customer gets pulled back in months later, without anyone remembering to do
                 any of it. That&apos;s the difference between a business you run and a business
                 that runs.
               </p>
@@ -553,7 +553,7 @@ export function MarketingSite() {
             </h2>
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
               Available on any tier, including Basic. They are never included in a plan and never
-              granted by upgrading — the price is quoted for your business on the discovery call.
+              granted by upgrading. The price is quoted for your business on the discovery call.
             </p>
             <div className="mt-10 grid gap-6 md:grid-cols-2">
               {addons.map((addon, i) => (
@@ -615,7 +615,7 @@ export function MarketingSite() {
                 Valet Detailing Service runs on ERA Core
               </h2>
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                VDS is a mobile detailing business in Metro Atlanta — and it&apos;s ours. We built
+                VDS is a mobile detailing business in Metro Atlanta, and it&apos;s ours. We built
                 ERA because we were running it on the same patchwork everyone else is. Its website,
                 quoting, booking, customer records, and payments all run on the platform we&apos;re
                 selling you, which means we feel every rough edge before you do.
@@ -646,7 +646,7 @@ export function MarketingSite() {
                 One real business, honestly stated.
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-relaxed text-primary-foreground/85">
-                ERA is new. VDS is the business proving it in the field, and we own it — so we
+                ERA is new. VDS is the business proving it in the field, and we own it, so we
                 aren&apos;t calling it an independent case study. You won&apos;t find borrowed logos
                 or invented testimonials here. On a discovery call we&apos;ll walk you through the
                 live VDS build, back office included, and tell you plainly whether ERA fits you.
@@ -686,7 +686,7 @@ export function MarketingSite() {
               </h2>
               <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
                 Tell us a little about the business and we&apos;ll get back to you to set up a time.
-                It&apos;s a conversation, not a demo script — and it&apos;s the only route to an ERA
+                It&apos;s a conversation, not a demo script, and it&apos;s the only route to an ERA
                 account.
               </p>
               <p className="mt-6 text-sm text-muted-foreground">
