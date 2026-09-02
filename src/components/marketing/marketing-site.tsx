@@ -1,47 +1,62 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import logoAsset from "@/assets/era-logo.png.asset.json";
+import vdsHero from "@/assets/vds-hero.png.asset.json";
+import vdsAbout from "@/assets/vds-about.png.asset.json";
 import { DiscoveryForm } from "./discovery-form";
 
 const CTA = "#discovery";
 
-const scattered = [
-  "Booking app",
-  "CRM spreadsheet",
-  "Invoicing tool",
-  "Website builder",
-  "Email blaster",
-  "Text messages",
-  "Review requests",
-  "Paper schedule",
+const outcomes = [
+  {
+    stat: "Hours back",
+    title: "Admin stops being a second job",
+    body: "Bookings, customer records, quotes and invoices write themselves from one shared record instead of being re-typed across six tools every evening.",
+  },
+  {
+    stat: "24/7",
+    title: "Leads answered while you work",
+    body: "The AI chat widget replies, qualifies, and captures the lead on the page — so the enquiry that arrives mid-job is still there as a booking, not a missed call.",
+  },
+  {
+    stat: "Faster cash",
+    title: "Money moves without chasing",
+    body: "Deposits, invoices and reminders fire off the job itself. Fewer unpaid jobs sitting in someone's head and fewer awkward follow-up texts.",
+  },
+  {
+    stat: "Repeat work",
+    title: "Follow-up that never forgets",
+    body: "Automations bring past customers back on schedule and ask for the review at the right moment, turning one job into the next one automatically.",
+  },
 ];
 
 const coreCapabilities = [
   {
-    title: "Your website, run by the system",
-    body: "The public site, service catalog, and booking flow are part of the platform — not a separate build that drifts out of date.",
+    title: "A website that actually sells",
+    body: "The public site, service catalog and booking flow are one system — a visitor can go from reading to booked without leaving, and it never drifts out of date.",
   },
   {
     title: "AI chat widget",
     body: "Answers questions and captures the lead on the page instead of losing it to a contact form nobody checks.",
   },
   {
-    title: "Core engines",
-    body: "Scheduling, jobs, customers, and quotes share one record. Nothing is retyped between tools.",
+    title: "One record for the work",
+    body: "Scheduling, jobs, customers and quotes share the same record, so nothing is retyped and nothing quietly falls through.",
   },
   {
-    title: "Payments",
-    body: "Deposits, invoices, and paid jobs settle against the same customer and job record.",
+    title: "Payments that close themselves",
+    body: "Deposits, invoices and paid jobs settle against the same customer and job — you can see what's owed without building a spreadsheet.",
   },
   {
     title: "Admin dashboard",
-    body: "One place to see the day, the pipeline, and what money is outstanding.",
+    body: "One place to see the day, the pipeline, and what money is outstanding — in about a minute, not an hour.",
   },
   {
     title: "Self-serve domain, email & phone",
     body: "Connect your own domain, sending address, and business number from inside the platform.",
   },
 ];
+
 
 const tiers = [
   {
