@@ -4,8 +4,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { z } from "zod";
 
+import { supabase } from "@/integrations/supabase/client";
 import { resolveTenant } from "@/lib/tenant.functions";
 import { getBusinessAddons, saveBusinessAddon } from "@/lib/entitlements.functions";
+
 import {
   ADDON_LABELS,
   ALL_ADDONS,
@@ -64,11 +66,21 @@ function AddonsAdmin() {
   const saveAddon = useServerFn(saveBusinessAddon);
   const queryClient = useQueryClient();
 
+  // Anonymous visitors carry no bearer token; the authenticated fn would 401
+  // and blank the page, so only query once a session exists.
+  const { data: hasSession } = useQuery({
+    queryKey: ["has-session"],
+    queryFn: async () => Boolean((await supabase.auth.getSession()).data.session),
+    retry: false,
+  });
+
   const addonsQuery = useQuery({
     queryKey: ["business-addons", tenant.businessId],
     queryFn: () => fetchAddons({ data: { businessId: tenant.businessId } }),
+    enabled: hasSession === true,
     retry: false,
   });
+
 
   const mutation = useMutation({
     mutationFn: (input: {
@@ -95,7 +107,7 @@ function AddonsAdmin() {
         or not regardless. Amounts are entered per client; there is no platform-wide rate.
       </p>
 
-      {addonsQuery.isError && (
+      {(addonsQuery.isError || hasSession === false) && (
         <p className="mt-8 rounded-md border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
           Add-on records are readable only to members of this business and platform staff. Sign in
           with an authorized account to view or edit them.
