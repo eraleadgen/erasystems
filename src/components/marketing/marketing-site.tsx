@@ -333,8 +333,11 @@ export function MarketingSite() {
                   {scattered.map((tool, i) => (
                     <li
                       key={tool}
-                      className="rounded-md border border-border bg-card px-3 py-2 text-xs text-muted-foreground"
-                      style={{ transform: `rotate(${(i % 3) - 1}deg)` }}
+                      className="animate-float rounded-md border border-border bg-card px-3 py-2 text-xs text-muted-foreground transition-colors hover:border-destructive/40 hover:text-foreground"
+                      style={{
+                        transform: `rotate(${(i % 3) - 1}deg)`,
+                        animationDelay: `${i * 320}ms`,
+                      }}
                     >
                       {tool}
                     </li>
@@ -343,13 +346,18 @@ export function MarketingSite() {
                 <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
                   Eight logins, no shared record, and re-entry between every one of them.
                 </p>
+              </Reveal>
+
+              <div className="flex items-center justify-center text-2xl text-gold">
+                <span aria-hidden className="animate-pulse-ring">
+                  →
+                </span>
               </div>
 
-              <div className="flex items-center justify-center text-2xl text-muted-foreground">
-                <span aria-hidden>→</span>
-              </div>
-
-              <div className="rounded-2xl border border-metal bg-primary p-6 text-primary-foreground shadow-elevated">
+              <Reveal
+                delay={140}
+                className="glow-ring rounded-2xl border border-primary/40 bg-primary p-6 text-primary-foreground"
+              >
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground/70">
                   With ERA Core
                 </p>
