@@ -1,0 +1,160 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
+
+import { getMyBusiness, type MyBusiness } from "@/lib/business.functions";
+
+export const Route = createFileRoute("/_authenticated/dashboard")({
+  head: () => ({
+    meta: [
+      { title: "Business dashboard — ERA Systems" },
+      {
+        name: "description",
+        content:
+          "Status of your ERA Systems business: setup progress, plan state, and what happens before you go live.",
+      },
+      { property: "og:title", content: "Business dashboard — ERA Systems" },
+      {
+        property: "og:description",
+        content: "Setup summary and go-live status for your ERA Systems business.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: Dashboard,
+  errorComponent: ({ error }) => (
+    <Shell>
+      <p className="text-sm text-destructive">{error.message}</p>
+    </Shell>
+  ),
+});
+
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <main className="mx-auto min-h-screen max-w-3xl px-6 py-16">
+      <div className="space-y-6">{children}</div>
+    </main>
+  );
+}
+
+function formatDate(value: string | null) {
+  if (!value) return null;
+  return new Date(value).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+const STATE_COPY: Record<
+  MyBusiness["lifecycle"],
+  { label: string; headline: string; body: string }
+> = {
+  pending_payment: {
+    label: "Awaiting payment",
+    headline: "Your setup is saved — you're not live yet",
+    body: "Everything below is stored on your account. Billing is the next step; once payment is complete your site goes live at your reserved address.",
+  },
+  expired: {
+    label: "Reservation lapsed",
+    headline: "Your setup is safe, but the address was released",
+    body: "Nothing was deleted — your details, catalog and team are intact. The web address you reserved has been freed for other businesses, so a new one is assigned when you complete payment.",
+  },
+  suspended: {
+    label: "Suspended",
+    headline: "This business is currently suspended",
+    body: "Your data is intact and the site is offline. Your ERA Systems representative can restore it.",
+  },
+  active: {
+    label: "Live",
+    headline: "Your business is live",
+    body: "Your site is published and serving customers.",
+  },
+};
+
+function Dashboard() {
+  const fetchBusiness = useServerFn(getMyBusiness);
+  const { data, isPending, error } = useQuery({
+    queryKey: ["my-business"],
+    queryFn: () => fetchBusiness(),
+    retry: false,
+  });
+
+  if (isPending) {
+    return (
+      <Shell>
+        <p className="text-sm text-muted-foreground">Loading your business…</p>
+      </Shell>
+    );
+  }
+
+  if (error) {
+    return (
+      <Shell>
+        <p className="text-sm text-destructive">{(error as Error).message}</p>
+      </Shell>
+    );
+  }
+
+  if (!data) {
+    return (
+      <Shell>
+        <h1 className="text-2xl font-semibold text-foreground">No business yet</h1>
+        <p className="text-sm text-muted-foreground">
+          You haven&apos;t finished business setup. Everything you enter saves as you go.
+        </p>
+        <Link
+          to="/onboarding"
+          className="inline-block rounded-md border border-border px-4 py-2 text-sm text-foreground underline-offset-4 hover:underline"
+        >
+          Continue setup
+        </Link>
+      </Shell>
+    );
+  }
+
+  const copy = STATE_COPY[data.lifecycle];
+  const reservedUntil = formatDate(data.slugReservedUntil);
+
+  return (
+    <Shell>
+      <div>
+        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{copy.label}</p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">{data.name}</h1>
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{copy.body}</p>
+      </div>
+
+      <div className="rounded-lg border border-border bg-card px-5 py-4">
+        <p className="text-sm font-medium text-foreground">{copy.headline}</p>
+        {data.lifecycle === "pending_payment" && reservedUntil && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Your address <code className="text-foreground">{data.slug}</code> is reserved until{" "}
+            {reservedUntil}.
+          </p>
+        )}
+        {data.lifecycle === "pending_payment" && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Payment isn&apos;t open yet — your ERA Systems representative will send it through.
+          </p>
+        )}
+      </div>
+
+      <dl className="grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2">
+        {[
+          ["Web address", data.slug],
+          ["Plan", data.planTier],
+          ["Timezone", data.timezone],
+          ["Services in catalog", String(data.serviceCount)],
+          ["Your role", data.role],
+          ["Site published", data.isActive ? "Yes" : "No"],
+        ].map(([label, value]) => (
+          <div key={label} className="bg-card px-5 py-4">
+            <dt className="text-xs uppercase tracking-wide text-muted-foreground">{label}</dt>
+            <dd className="mt-1 break-all text-sm text-foreground">{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </Shell>
+  );
+}
