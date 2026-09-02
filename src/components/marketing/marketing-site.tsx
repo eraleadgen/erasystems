@@ -313,73 +313,66 @@ export function MarketingSite() {
           </div>
         </section>
 
-        {/* Patchwork problem */}
+        {/* Value */}
         <section id="platform" className="border-b border-border">
           <div className="mx-auto max-w-6xl px-6 py-20">
-            <h2 className="font-display text-3xl font-semibold tracking-tight text-foreground">
-              The patchwork costs more than the software
-            </h2>
-            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Every tool holds a slightly different version of the truth, and someone on your team
-              spends their day being the integration between them.
-            </p>
+            <Reveal>
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-gold">
+                The value
+              </p>
+              <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-foreground">
+                Better back-end systems buy you time, and time is where the revenue is
+              </h2>
+              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                The work that eats your week isn&apos;t the work customers pay for. Chasing quotes,
+                re-typing bookings, remembering who never paid, following up with the lead from
+                Tuesday. When the system does that for you, the hours come back and the follow-up
+                keeps earning while you&apos;re on the job.
+              </p>
+            </Reveal>
 
-            <div className="mt-10 grid items-stretch gap-6 lg:grid-cols-[1fr_auto_1fr]">
-              <Reveal className="rounded-2xl border border-dashed border-border bg-muted/40 p-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                  Today
-                </p>
-                <ul className="mt-5 flex flex-wrap gap-2.5">
-                  {scattered.map((tool, i) => (
-                    <li
-                      key={tool}
-                      className="animate-float rounded-md border border-border bg-card px-3 py-2 text-xs text-muted-foreground transition-colors hover:border-destructive/40 hover:text-foreground"
-                      style={{
-                        transform: `rotate(${(i % 3) - 1}deg)`,
-                        animationDelay: `${i * 320}ms`,
-                      }}
-                    >
-                      {tool}
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
-                  Eight logins, no shared record, and re-entry between every one of them.
-                </p>
-              </Reveal>
-
-              <div className="flex items-center justify-center text-2xl text-gold">
-                <span aria-hidden className="animate-pulse-ring">
-                  →
-                </span>
-              </div>
-
-              <Reveal
-                delay={140}
-                className="glow-ring rounded-2xl border border-primary/40 bg-primary p-6 text-primary-foreground"
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground/70">
-                  With ERA Core
-                </p>
-                <p className="mt-5 font-display text-2xl font-semibold">One system of record</p>
-                <p className="mt-3 text-sm leading-relaxed text-primary-foreground/85">
-                  Site, chat, scheduling, customers, jobs, quotes, payments, and automations share
-                  the same data. A booking made on your site is the same object your invoice, your
-                  reminder, and your dashboard are looking at.
-                </p>
-              </Reveal>
+            <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {outcomes.map((item, i) => (
+                <Reveal key={item.title} delay={i * 90}>
+                  <article className="lift h-full rounded-2xl border border-border bg-card p-7">
+                    <p className="text-gradient-emerald font-display text-3xl font-semibold">
+                      {item.stat}
+                    </p>
+                    <h3 className="mt-3 font-display text-base font-semibold text-foreground">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {item.body}
+                    </p>
+                  </article>
+                </Reveal>
+              ))}
             </div>
+
+            <Reveal
+              delay={140}
+              className="glow-ring mt-12 rounded-2xl border border-primary/40 bg-primary p-7 text-primary-foreground"
+            >
+              <p className="font-display text-xl font-semibold">Revenue on autopilot</p>
+              <p className="mt-3 max-w-3xl text-sm leading-relaxed text-primary-foreground/85">
+                A lead lands at 11pm and the chat widget answers it. The quote goes out, the
+                reminder fires, the deposit clears, the job closes, the review request sends, and
+                the customer gets pulled back in months later — without anyone remembering to do
+                any of it. That&apos;s the difference between a business you run and a business
+                that runs.
+              </p>
+            </Reveal>
           </div>
         </section>
 
-        {/* What ERA Core is */}
+        {/* What it does for you */}
         <section className="border-b border-border bg-muted/30">
           <div className="mx-auto max-w-6xl px-6 py-20">
             <h2 className="font-display text-3xl font-semibold tracking-tight text-foreground">
-              What ERA Core is
+              What that looks like day to day
             </h2>
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Every tier includes the platform itself. Higher tiers extend it; they don&apos;t
+              Every tier includes the whole platform. Higher tiers extend it; they don&apos;t
               unlock the basics.
             </p>
             <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
@@ -397,6 +390,7 @@ export function MarketingSite() {
             </div>
           </div>
         </section>
+
 
         {/* Pricing */}
         <section id="pricing" className="border-b border-border">
