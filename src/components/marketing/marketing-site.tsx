@@ -264,6 +264,10 @@ export function MarketingSite() {
             <a href="#addons" className="hover:text-foreground">
               Add-ons
             </a>
+            <a href="#proof" className="hover:text-foreground">
+              Proof
+            </a>
+
             <a href="#faq" className="hover:text-foreground">
               FAQ
             </a>
