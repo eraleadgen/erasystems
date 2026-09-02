@@ -164,6 +164,92 @@ function InvitesAdmin() {
             className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
           />
         </div>
+        <div className="sm:col-span-2 border-t border-border pt-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Commercial terms (staff-set, from the discovery call)
+          </p>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted-foreground" htmlFor="planTier">
+            Plan tier
+          </label>
+          <select
+            id="planTier"
+            value={planTier}
+            onChange={(event) => setPlanTier(event.target.value as PlanTier)}
+            className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+          >
+            <option value="basic">Basic</option>
+            <option value="growth">Growth</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted-foreground" htmlFor="interval">
+            Billing interval
+          </label>
+          <select
+            id="interval"
+            value={billingInterval}
+            onChange={(event) => setBillingInterval(event.target.value as BillingInterval)}
+            className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+          >
+            {BILLING_INTERVALS.map((interval) => (
+              <option key={interval} value={interval}>
+                {interval.replace("_", "-")}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted-foreground" htmlFor="subPrice">
+            Subscription price (USD)
+          </label>
+          <input
+            id="subPrice"
+            type="number"
+            min="0"
+            step="0.01"
+            value={subscriptionPrice}
+            onChange={(event) => setSubscriptionPrice(event.target.value)}
+            className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted-foreground" htmlFor="setupFee">
+            One-time setup fee (USD)
+          </label>
+          <input
+            id="setupFee"
+            type="number"
+            min="0"
+            step="0.01"
+            value={setupFee}
+            onChange={(event) => setSetupFee(event.target.value)}
+            className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+          />
+        </div>
+        {ALL_ADDONS.map((addon) => (
+          <div key={addon}>
+            <label
+              className="block text-xs font-medium text-muted-foreground"
+              htmlFor={`addon-${addon}`}
+            >
+              {ADDON_LABELS[addon]} (USD — blank = not sold)
+            </label>
+            <input
+              id={`addon-${addon}`}
+              type="number"
+              min="0"
+              step="0.01"
+              value={addonPrices[addon]}
+              onChange={(event) =>
+                setAddonPrices((prev) => ({ ...prev, [addon]: event.target.value }))
+              }
+              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+            />
+          </div>
+        ))}
         <div className="sm:col-span-2">
           <button
             type="submit"
