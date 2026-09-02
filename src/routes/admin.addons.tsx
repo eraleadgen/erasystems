@@ -64,11 +64,21 @@ function AddonsAdmin() {
   const saveAddon = useServerFn(saveBusinessAddon);
   const queryClient = useQueryClient();
 
+  // Anonymous visitors carry no bearer token; the authenticated fn would 401
+  // and blank the page, so only query once a session exists.
+  const { data: hasSession } = useQuery({
+    queryKey: ["has-session"],
+    queryFn: async () => Boolean((await supabase.auth.getSession()).data.session),
+    retry: false,
+  });
+
   const addonsQuery = useQuery({
     queryKey: ["business-addons", tenant.businessId],
     queryFn: () => fetchAddons({ data: { businessId: tenant.businessId } }),
+    enabled: hasSession === true,
     retry: false,
   });
+
 
   const mutation = useMutation({
     mutationFn: (input: {
