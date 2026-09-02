@@ -356,7 +356,7 @@ export function MarketingSite() {
 
       <main>
         {/* Hero */}
-        <section className="bg-aurora relative overflow-hidden border-b border-border bg-gradient-hero">
+        <section className="hero-veil relative overflow-hidden border-b border-border">
           <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:py-28">
             <div>
               <Reveal>
@@ -365,7 +365,7 @@ export function MarketingSite() {
                 </p>
               </Reveal>
               <Reveal delay={80}>
-                <h1 className="text-gradient-emerald mt-5 font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+                <h1 className="mt-5 font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
                   One operating system for the whole business.
                 </h1>
               </Reveal>
@@ -406,7 +406,7 @@ export function MarketingSite() {
         </section>
 
         {/* Value */}
-        <section id="platform" className="bg-aurora relative overflow-hidden border-b border-border">
+        <section id="platform" className="relative overflow-hidden border-b border-border">
           <div className="mx-auto max-w-6xl px-6 py-20">
             <Reveal>
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-gold">
@@ -427,7 +427,7 @@ export function MarketingSite() {
               {outcomes.map((item, i) => (
                 <Reveal key={item.title} delay={i * 90}>
                   <article className="lift h-full rounded-2xl border border-border bg-card p-7">
-                    <p className="text-gradient-emerald font-display text-3xl font-semibold">
+                    <p className="font-display text-3xl font-semibold text-primary">
                       {item.stat}
                     </p>
                     <h3 className="mt-3 font-display text-base font-semibold text-foreground">
@@ -509,7 +509,7 @@ export function MarketingSite() {
                       {tier.name}
                     </h3>
                     {tier.highlighted && (
-                      <span className="animate-shimmer rounded-full border border-gold/30 bg-gradient-to-r from-primary/15 via-gold/30 to-primary/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-gold">
+                      <span className="rounded-full border border-gold/40 bg-gold/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-gold">
                         Common starting point
                       </span>
                     )}
