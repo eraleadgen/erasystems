@@ -174,3 +174,53 @@ the single base-slug attempt can reclaim, and only once per submission.
   evaluated as the calling role. The invite functions (`consume_invite`,
   `release_invite`, `invite_throttle_*`) have `EXECUTE` revoked from `public`,
   `anon` and `authenticated`.
+
+### Agreed-terms resolution (2026-09-02)
+
+`src/lib/terms.server.ts` — `resolveAgreedTerms(businessId, planTier, originInviteId)`.
+The tier price lives on the originating invite, which is platform-staff-only under
+RLS, so it is read with the elevated client.
+
+- Caller authorized first: the calling server function resolves the business through
+  the caller's **own membership row** on the RLS-scoped client. This helper is never
+  reached with a business id taken from the request.
+- The invite id comes from `businesses.origin_invite_id`, never from the client.
+- Reads only: one `.eq("id", originInviteId)` on `invites` (three price columns) and
+  one `.eq("business_id", businessId)` on `business_addons`. No listing, no writes.
+
+### Checkout session recording (2026-09-02)
+
+`src/lib/payments.functions.ts` → `createCheckoutSession`. Insert into `payments`,
+which deliberately has no client write policy, so the row must be written with the
+elevated client.
+
+- Caller authorized first through the RLS-scoped client: must be `owner`/`admin` of
+  the business, and the business must be `pending_payment` or `expired`.
+- `business_id` is the id from that membership row; the amount is computed
+  server-side from the agreed terms. Nothing about price or tenant comes from the
+  request body.
+
+### Payment verification and activation (2026-09-02)
+
+`src/lib/payments.server.ts` → `verifyAndActivate(sessionId)`, reached from the
+webhook route and from the authenticated reconciliation fallback.
+
+- The webhook authenticates itself by HMAC signature + 5-minute replay window before
+  any elevated import; the reconciliation path is session-authenticated and confirms
+  the payment row is visible to the caller under RLS first.
+- The tenant is derived from the local `payments` row keyed by
+  `provider_session_id` — never from the webhook payload.
+- Live provider verification is an independent second check: amount, currency,
+  `payment_status` and `client_reference_id` must all match the stored row.
+- Idempotency: the event id is claimed with a conditional update
+  (`.is("provider_event_id", null)`); zero rows claimed means already processed.
+- Activation is one guarded statement, `activate_paid_business(business_id)`, which
+  is `EXECUTE`-revoked from `authenticated`/`anon` and transitions only from
+  `pending_payment`/`expired`. Running it twice is a no-op.
+
+### Onboarding invite carry-over (2026-09-02)
+
+Inside the already-registered `completeOnboarding` path. Looks up the accepted invite
+by `accepted_user_id = context.userId` (verified session user, not payload), stamps
+`plan_tier` and `origin_invite_id` on the new business, and copies the invite's
+add-on rows onto that `business_id` **inactive** — only payment activation turns them on.

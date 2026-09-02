@@ -1,8 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 import { getMyBusiness, type MyBusiness } from "@/lib/business.functions";
+import { createCheckoutSession, getMyTerms, verifyMyPayment } from "@/lib/payments.functions";
+import { ADDON_LABELS, formatMoney } from "@/lib/entitlements";
+import { intervalLabel } from "@/lib/payments";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -21,6 +25,12 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+  }),
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { session?: string; checkout?: string } => ({
+    ...(typeof search["session"] === "string" ? { session: search["session"] } : {}),
+    ...(typeof search["checkout"] === "string" ? { checkout: search["checkout"] } : {}),
   }),
   component: Dashboard,
   errorComponent: ({ error }) => (
@@ -133,12 +143,12 @@ function Dashboard() {
             {reservedUntil}.
           </p>
         )}
-        {data.lifecycle === "pending_payment" && (
-          <p className="mt-3 text-xs text-muted-foreground">
-            Payment isn&apos;t open yet — your ERA Systems representative will send it through.
-          </p>
-        )}
       </div>
+
+      {(data.lifecycle === "pending_payment" || data.lifecycle === "expired") && (
+        <CheckoutPanel canPay={data.role === "owner" || data.role === "admin"} />
+      )}
+
 
       <dl className="grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2">
         {[
@@ -156,5 +166,120 @@ function Dashboard() {
         ))}
       </dl>
     </Shell>
+  );
+}
+
+/**
+ * Checkout for a business that is waiting on payment.
+ *
+ * The amount shown is the server's own computation from the staff-agreed terms —
+ * it is never sent to the server, and the redirect back from the processor is
+ * treated as a hint only: the state below reflects webhook + live API
+ * verification, not the URL the browser landed on.
+ */
+function CheckoutPanel({ canPay }: { canPay: boolean }) {
+  const search = useSearch({ from: "/_authenticated/dashboard" });
+  const fetchTerms = useServerFn(getMyTerms);
+  const startCheckout = useServerFn(createCheckoutSession);
+  const verify = useServerFn(verifyMyPayment);
+  const queryClient = useQueryClient();
+  const [error, setError] = useState<string | null>(null);
+
+  const termsQuery = useQuery({
+    queryKey: ["my-terms"],
+    queryFn: () => fetchTerms(),
+    retry: false,
+  });
+
+  const checkout = useMutation({
+    mutationFn: () => startCheckout(),
+    onSuccess: ({ url }) => {
+      window.location.href = url;
+    },
+    onError: (err: Error) => setError(err.message),
+  });
+
+  // Returning from the processor: reconcile in case the webhook hasn't landed yet.
+  const reconcile = useMutation({
+    mutationFn: (sessionId: string) => verify({ data: { sessionId } }),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ["my-business"] });
+    },
+  });
+
+  useEffect(() => {
+    if (search.session) reconcile.mutate(search.session);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search.session]);
+
+  const terms = termsQuery.data;
+
+  return (
+    <div className="rounded-lg border border-border bg-card px-5 py-5">
+      <p className="text-sm font-medium text-foreground">Activate your business</p>
+
+      {search.checkout === "cancelled" && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          Checkout was cancelled — nothing was charged. You can start again below.
+        </p>
+      )}
+
+      {search.session && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          {reconcile.isPending
+            ? "Confirming your payment with the processor…"
+            : reconcile.data?.status === "paid"
+              ? "Payment confirmed. Your business is being activated."
+              : "We haven't been able to confirm this payment yet. It can take a moment — refresh shortly."}
+        </p>
+      )}
+
+      {termsQuery.isPending ? (
+        <p className="mt-3 text-xs text-muted-foreground">Loading your agreed terms…</p>
+      ) : !terms || terms.totalCents <= 0 ? (
+        <p className="mt-3 text-xs text-muted-foreground">
+          Your pricing hasn&apos;t been finalised yet. Your ERA Systems representative will set it
+          before checkout opens.
+        </p>
+      ) : (
+        <>
+          <ul className="mt-4 space-y-1 text-xs text-muted-foreground">
+            <li>
+              {terms.planTier} plan — {formatMoney(terms.subscriptionPriceCents)}{" "}
+              {intervalLabel(terms.billingInterval)}
+            </li>
+            {terms.setupFeeCents > 0 && <li>Setup fee — {formatMoney(terms.setupFeeCents)}</li>}
+            {terms.addons.map((addon) => (
+              <li key={addon.addon}>
+                {ADDON_LABELS[addon.addon]} — {formatMoney(addon.priceCents)}{" "}
+                {intervalLabel(addon.billingInterval)}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-sm font-medium text-foreground">
+            Due today: {formatMoney(terms.totalCents)}
+          </p>
+          {canPay ? (
+            <button
+              type="button"
+              onClick={() => {
+                setError(null);
+                checkout.mutate();
+              }}
+              disabled={checkout.isPending}
+              className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
+            >
+              {checkout.isPending ? "Opening secure checkout…" : "Pay and go live"}
+            </button>
+          ) : (
+            <p className="mt-4 text-xs text-muted-foreground">
+              Only the business owner can complete payment.
+            </p>
+          )}
+        </>
+      )}
+
+      {error && <p className="mt-3 text-xs text-destructive">{error}</p>}
+    </div>
   );
 }

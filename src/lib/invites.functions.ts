@@ -12,7 +12,10 @@ import {
 
 const tokenInput = z.object({ token: z.string().min(20).max(200) });
 
-function toSummary(row: {
+const INVITE_COLUMNS =
+  "id, email, full_name, notes, status, expires_at, created_at, accepted_at, plan_tier, subscription_price_cents, setup_fee_cents, billing_interval";
+
+type InviteRow = {
   id: string;
   email: string;
   full_name: string;
@@ -21,7 +24,15 @@ function toSummary(row: {
   expires_at: string;
   created_at: string;
   accepted_at: string | null;
-}): InviteSummary {
+  plan_tier: string;
+  subscription_price_cents: number;
+  setup_fee_cents: number;
+  billing_interval: string;
+};
+
+type AddonRow = { invite_id: string; addon: string; price_cents: number; billing_interval: string };
+
+function toSummary(row: InviteRow, addonRows: AddonRow[] = []): InviteSummary {
   return {
     id: row.id,
     email: row.email,
@@ -31,12 +42,43 @@ function toSummary(row: {
     expiresAt: row.expires_at,
     createdAt: row.created_at,
     acceptedAt: row.accepted_at,
+    terms: {
+      planTier: row.plan_tier as InviteSummary["terms"]["planTier"],
+      subscriptionPriceCents: row.subscription_price_cents,
+      setupFeeCents: row.setup_fee_cents,
+      billingInterval: row.billing_interval,
+      addons: addonRows
+        .filter((addon) => addon.invite_id === row.id)
+        .map((addon) => ({
+          addon: addon.addon as InviteSummary["terms"]["addons"][number]["addon"],
+          priceCents: addon.price_cents,
+          billingInterval: addon.billing_interval,
+        })),
+    },
   };
 }
 
+const termsInput = z.object({
+  planTier: z.enum(["basic", "growth", "enterprise"]),
+  subscriptionPriceCents: z.number().int().min(0).max(100_000_00),
+  setupFeeCents: z.number().int().min(0).max(100_000_00),
+  billingInterval: z.enum(["monthly", "quarterly", "annual", "one_time"]),
+  addons: z
+    .array(
+      z.object({
+        addon: z.enum(["ad_management", "white_label_branding"]),
+        priceCents: z.number().int().min(0).max(100_000_00),
+        billingInterval: z.enum(["monthly", "quarterly", "annual", "one_time"]),
+      }),
+    )
+    .max(2)
+    .default([]),
+});
+
 /**
- * Staff-only: issue an invite for one named prospect.
- * The plaintext token is returned exactly once, here. Only its SHA-256 is stored.
+ * Staff-only: issue an invite for one named prospect, carrying the commercial
+ * terms agreed on the discovery call. The plaintext token is returned exactly
+ * once, here. Only its SHA-256 is stored.
  */
 export const createInvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -46,6 +88,7 @@ export const createInvite = createServerFn({ method: "POST" })
         email: z.string().email().max(254),
         fullName: z.string().min(1).max(120),
         notes: z.string().max(2000).optional(),
+        terms: termsInput,
       })
       .parse(input),
   )
@@ -67,12 +110,34 @@ export const createInvite = createServerFn({ method: "POST" })
         notes: data.notes?.trim() || null,
         expires_at: expiryFromNow(INVITE_TTL_DAYS),
         invited_by: context.userId,
+        plan_tier: data.terms.planTier,
+        subscription_price_cents: data.terms.subscriptionPriceCents,
+        setup_fee_cents: data.terms.setupFeeCents,
+        billing_interval: data.terms.billingInterval,
       })
-      .select("id, email, full_name, notes, status, expires_at, created_at, accepted_at")
+      .select(INVITE_COLUMNS)
       .single();
 
     if (error || !row) throw new Error(error?.message ?? "Could not create the invite.");
-    return { token, invite: toSummary(row) };
+
+    let addonRows: AddonRow[] = [];
+    if (data.terms.addons.length > 0) {
+      const { data: inserted, error: addonError } = await context.supabase
+        .from("invite_addons")
+        .insert(
+          data.terms.addons.map((addon) => ({
+            invite_id: row.id,
+            addon: addon.addon,
+            price_cents: addon.priceCents,
+            billing_interval: addon.billingInterval,
+          })),
+        )
+        .select("invite_id, addon, price_cents, billing_interval");
+      if (addonError) throw new Error(addonError.message);
+      addonRows = (inserted ?? []) as AddonRow[];
+    }
+
+    return { token, invite: toSummary(row as InviteRow, addonRows) };
   });
 
 /** Staff-only: the invite register. Never exposes token_hash. */
@@ -81,11 +146,21 @@ export const listInvites = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<InviteSummary[]> => {
     const { data, error } = await context.supabase
       .from("invites")
-      .select("id, email, full_name, notes, status, expires_at, created_at, accepted_at")
+      .select(INVITE_COLUMNS)
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) throw new Error(error.message);
-    return (data ?? []).map(toSummary);
+
+    const rows = (data ?? []) as InviteRow[];
+    const { data: addons } = await context.supabase
+      .from("invite_addons")
+      .select("invite_id, addon, price_cents, billing_interval")
+      .in(
+        "invite_id",
+        rows.map((row) => row.id),
+      );
+
+    return rows.map((row) => toSummary(row, (addons ?? []) as AddonRow[]));
   });
 
 /** Staff-only: withdraw an unused invite before it expires. */

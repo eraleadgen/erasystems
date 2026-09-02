@@ -1,6 +1,21 @@
 /** Shared, browser-safe invite types and helpers. No secrets, no server imports. */
 
+import type { AddonKind, PlanTier } from "./entitlements";
+
 export type InviteStatus = "pending" | "accepted" | "revoked";
+
+/**
+ * Commercial terms agreed on the discovery call, set by staff when the invite is
+ * issued and copied onto the business at onboarding completion. The client never
+ * chooses any of this.
+ */
+export interface InviteTerms {
+  planTier: PlanTier;
+  subscriptionPriceCents: number;
+  setupFeeCents: number;
+  billingInterval: string;
+  addons: { addon: AddonKind; priceCents: number; billingInterval: string }[];
+}
 
 export interface InviteSummary {
   id: string;
@@ -11,7 +26,9 @@ export interface InviteSummary {
   expiresAt: string;
   createdAt: string;
   acceptedAt: string | null;
+  terms: InviteTerms;
 }
+
 
 /** What a visitor holding a token is allowed to learn. Nothing else. */
 export interface InvitePreview {

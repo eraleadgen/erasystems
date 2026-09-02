@@ -5,6 +5,15 @@ import { useState } from "react";
 
 import { createInvite, listInvites, revokeInvite } from "@/lib/invites.functions";
 import { INVITE_TTL_DAYS, inviteStatusLabel, inviteUrl, type InviteSummary } from "@/lib/invites";
+import {
+  ADDON_LABELS,
+  ALL_ADDONS,
+  BILLING_INTERVALS,
+  formatMoney,
+  type AddonKind,
+  type BillingInterval,
+  type PlanTier,
+} from "@/lib/entitlements";
 
 export const Route = createFileRoute("/admin/invites")({
   head: () => ({
@@ -42,6 +51,14 @@ function InvitesAdmin() {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [notes, setNotes] = useState("");
+  const [planTier, setPlanTier] = useState<PlanTier>("basic");
+  const [subscriptionPrice, setSubscriptionPrice] = useState("0");
+  const [setupFee, setSetupFee] = useState("0");
+  const [billingInterval, setBillingInterval] = useState<BillingInterval>("monthly");
+  const [addonPrices, setAddonPrices] = useState<Record<AddonKind, string>>({
+    ad_management: "",
+    white_label_branding: "",
+  });
   const [issuedLink, setIssuedLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,14 +68,38 @@ function InvitesAdmin() {
     retry: false,
   });
 
+  const toCents = (value: string) => Math.round(Number(value || 0) * 100);
+
   const issueMutation = useMutation({
-    mutationFn: () => issue({ data: { email, fullName, notes: notes || undefined } }),
+    mutationFn: () =>
+      issue({
+        data: {
+          email,
+          fullName,
+          notes: notes || undefined,
+          terms: {
+            planTier,
+            subscriptionPriceCents: toCents(subscriptionPrice),
+            setupFeeCents: toCents(setupFee),
+            billingInterval,
+            // Add-ons are orthogonal to tier: a row exists only where staff typed an amount.
+            addons: ALL_ADDONS.filter((addon) => addonPrices[addon].trim() !== "").map((addon) => ({
+              addon,
+              priceCents: toCents(addonPrices[addon]),
+              billingInterval,
+            })),
+          },
+        },
+      }),
     onSuccess: (result) => {
       const origin = typeof window === "undefined" ? "" : window.location.origin;
       setIssuedLink(inviteUrl(origin, result.token));
       setEmail("");
       setFullName("");
       setNotes("");
+      setSubscriptionPrice("0");
+      setSetupFee("0");
+      setAddonPrices({ ad_management: "", white_label_branding: "" });
       void queryClient.invalidateQueries({ queryKey: ["invites"] });
     },
     onError: (err: Error) => setError(err.message),
@@ -123,6 +164,92 @@ function InvitesAdmin() {
             className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
           />
         </div>
+        <div className="sm:col-span-2 border-t border-border pt-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Commercial terms (staff-set, from the discovery call)
+          </p>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted-foreground" htmlFor="planTier">
+            Plan tier
+          </label>
+          <select
+            id="planTier"
+            value={planTier}
+            onChange={(event) => setPlanTier(event.target.value as PlanTier)}
+            className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+          >
+            <option value="basic">Basic</option>
+            <option value="growth">Growth</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted-foreground" htmlFor="interval">
+            Billing interval
+          </label>
+          <select
+            id="interval"
+            value={billingInterval}
+            onChange={(event) => setBillingInterval(event.target.value as BillingInterval)}
+            className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+          >
+            {BILLING_INTERVALS.map((interval) => (
+              <option key={interval} value={interval}>
+                {interval.replace("_", "-")}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted-foreground" htmlFor="subPrice">
+            Subscription price (USD)
+          </label>
+          <input
+            id="subPrice"
+            type="number"
+            min="0"
+            step="0.01"
+            value={subscriptionPrice}
+            onChange={(event) => setSubscriptionPrice(event.target.value)}
+            className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted-foreground" htmlFor="setupFee">
+            One-time setup fee (USD)
+          </label>
+          <input
+            id="setupFee"
+            type="number"
+            min="0"
+            step="0.01"
+            value={setupFee}
+            onChange={(event) => setSetupFee(event.target.value)}
+            className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+          />
+        </div>
+        {ALL_ADDONS.map((addon) => (
+          <div key={addon}>
+            <label
+              className="block text-xs font-medium text-muted-foreground"
+              htmlFor={`addon-${addon}`}
+            >
+              {ADDON_LABELS[addon]} (USD — blank = not sold)
+            </label>
+            <input
+              id={`addon-${addon}`}
+              type="number"
+              min="0"
+              step="0.01"
+              value={addonPrices[addon]}
+              onChange={(event) =>
+                setAddonPrices((prev) => ({ ...prev, [addon]: event.target.value }))
+              }
+              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+            />
+          </div>
+        ))}
         <div className="sm:col-span-2">
           <button
             type="submit"
@@ -161,6 +288,16 @@ function InvitesAdmin() {
                 <p className="text-xs text-muted-foreground">
                   {invite.email} · {inviteStatusLabel(invite)} · expires{" "}
                   {new Date(invite.expiresAt).toLocaleDateString()}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {invite.terms.planTier} · {formatMoney(invite.terms.subscriptionPriceCents)}{" "}
+                  {invite.terms.billingInterval}
+                  {invite.terms.setupFeeCents > 0
+                    ? ` · setup ${formatMoney(invite.terms.setupFeeCents)}`
+                    : ""}
+                  {invite.terms.addons.map(
+                    (addon) => ` · ${ADDON_LABELS[addon.addon]} ${formatMoney(addon.priceCents)}`,
+                  )}
                 </p>
               </div>
               {invite.status === "pending" ? (

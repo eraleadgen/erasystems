@@ -209,6 +209,20 @@ export const completeOnboarding = createServerFn({ method: "POST" })
       let reclaimAttempted = false;
 
       /**
+       * Commercial terms come from the invite this account was created with — set
+       * by staff on the discovery call, never chosen by the client. Looked up by
+       * the verified session user id, not by anything in the submitted payload.
+       */
+      const { data: originInvite } = await supabaseAdmin
+        .from("invites")
+        .select("id, plan_tier")
+        .eq("accepted_user_id", context.userId)
+        .eq("status", "accepted")
+        .order("accepted_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      /**
        * A slug is held only by a paid business, or by an unpaid one whose 14-day
        * reservation has not lapsed. A lapsed unpaid holder is moved aside (its row and
        * all its data survive — only the address changes) so a paying client can take the
@@ -246,9 +260,11 @@ export const completeOnboarding = createServerFn({ method: "POST" })
             name: payload.basics.displayName.trim(),
             legal_name: payload.basics.legalName.trim(),
             timezone: payload.basics.timezone,
-            // Not live until payment. Tier stays at its default: commercial terms are staff-set.
+            // Not live until payment. Tier is carried from the staff-issued invite.
             is_active: false,
             lifecycle: "pending_payment",
+            plan_tier: originInvite?.plan_tier ?? "basic",
+            origin_invite_id: originInvite?.id ?? null,
             slug_reserved_until: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
             logo_url: payload.branding.logoPath,
             brand_primary: payload.branding.brandPrimary || null,
@@ -281,6 +297,33 @@ export const completeOnboarding = createServerFn({ method: "POST" })
         role: "owner",
       });
       if (memberError) throw new Error(memberError.message);
+
+      /**
+       * Agreed add-ons are copied onto the business INACTIVE. They carry their
+       * per-client amount into checkout, and only the payment activation path
+       * flips them on — a tenant is never entitled to an add-on before paying.
+       */
+      if (originInvite?.id) {
+        const { data: inviteAddons } = await supabaseAdmin
+          .from("invite_addons")
+          .select("addon, price_cents, billing_interval")
+          .eq("invite_id", originInvite.id);
+
+        if (inviteAddons && inviteAddons.length > 0) {
+          const { error: addonError } = await supabaseAdmin.from("business_addons").insert(
+            inviteAddons.map((row) => ({
+              business_id: businessId,
+              addon: row.addon,
+              price_cents: row.price_cents,
+              billing_interval: row.billing_interval,
+              is_active: false,
+              deactivated_at: new Date().toISOString(),
+            })),
+          );
+          if (addonError) throw new Error(addonError.message);
+        }
+      }
+
 
       const services = payload.catalog.services ?? [];
       if (services.length > 0) {
