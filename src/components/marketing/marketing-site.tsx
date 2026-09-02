@@ -325,7 +325,7 @@ export function MarketingSite() {
             </p>
 
             <div className="mt-10 grid items-stretch gap-6 lg:grid-cols-[1fr_auto_1fr]">
-              <div className="rounded-2xl border border-dashed border-border bg-muted/40 p-6">
+              <Reveal className="rounded-2xl border border-dashed border-border bg-muted/40 p-6">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                   Today
                 </p>
