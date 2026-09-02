@@ -5,6 +5,15 @@ import { useState } from "react";
 
 import { createInvite, listInvites, revokeInvite } from "@/lib/invites.functions";
 import { INVITE_TTL_DAYS, inviteStatusLabel, inviteUrl, type InviteSummary } from "@/lib/invites";
+import {
+  ADDON_LABELS,
+  ALL_ADDONS,
+  BILLING_INTERVALS,
+  formatMoney,
+  type AddonKind,
+  type BillingInterval,
+  type PlanTier,
+} from "@/lib/entitlements";
 
 export const Route = createFileRoute("/admin/invites")({
   head: () => ({
