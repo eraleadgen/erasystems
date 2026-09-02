@@ -383,13 +383,16 @@ export function MarketingSite() {
               unlock the basics.
             </p>
             <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
-              {coreCapabilities.map((cap) => (
-                <article key={cap.title} className="bg-card p-6">
-                  <h3 className="font-display text-base font-semibold text-foreground">
-                    {cap.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{cap.body}</p>
-                </article>
+              {coreCapabilities.map((cap, i) => (
+                <Reveal key={cap.title} delay={i * 70}>
+                  <article className="group h-full bg-card p-6 transition-colors hover:bg-card/60">
+                    <span className="block h-0.5 w-8 rounded-full bg-gold transition-all duration-500 group-hover:w-16" />
+                    <h3 className="mt-4 font-display text-base font-semibold text-foreground">
+                      {cap.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{cap.body}</p>
+                  </article>
+                </Reveal>
               ))}
             </div>
           </div>
