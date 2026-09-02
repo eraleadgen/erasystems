@@ -208,10 +208,12 @@ export type Database = {
           id: string
           is_active: boolean
           legal_name: string | null
+          lifecycle: Database["public"]["Enums"]["business_lifecycle"]
           logo_url: string | null
           name: string
           plan_tier: Database["public"]["Enums"]["plan_tier"]
           slug: string
+          slug_reserved_until: string | null
           support_email: string | null
           support_phone: string | null
           timezone: string
@@ -224,10 +226,12 @@ export type Database = {
           id?: string
           is_active?: boolean
           legal_name?: string | null
+          lifecycle?: Database["public"]["Enums"]["business_lifecycle"]
           logo_url?: string | null
           name: string
           plan_tier?: Database["public"]["Enums"]["plan_tier"]
           slug: string
+          slug_reserved_until?: string | null
           support_email?: string | null
           support_phone?: string | null
           timezone?: string
@@ -240,10 +244,12 @@ export type Database = {
           id?: string
           is_active?: boolean
           legal_name?: string | null
+          lifecycle?: Database["public"]["Enums"]["business_lifecycle"]
           logo_url?: string | null
           name?: string
           plan_tier?: Database["public"]["Enums"]["plan_tier"]
           slug?: string
+          slug_reserved_until?: string | null
           support_email?: string | null
           support_phone?: string | null
           timezone?: string
@@ -493,6 +499,7 @@ export type Database = {
         | "completed"
         | "cancelled"
         | "no_show"
+      business_lifecycle: "pending_payment" | "active" | "suspended" | "expired"
       business_role: "owner" | "admin" | "specialist" | "customer"
       invite_status: "pending" | "accepted" | "revoked"
       onboarding_status: "in_progress" | "completed"
@@ -647,6 +654,7 @@ export const Constants = {
         "cancelled",
         "no_show",
       ],
+      business_lifecycle: ["pending_payment", "active", "suspended", "expired"],
       business_role: ["owner", "admin", "specialist", "customer"],
       invite_status: ["pending", "accepted", "revoked"],
       onboarding_status: ["in_progress", "completed"],
