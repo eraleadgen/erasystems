@@ -198,38 +198,96 @@ function Reveal({
 
 function HeroVisual() {
   const nodes = ["Website", "Chat", "Scheduling", "Customers", "Jobs", "Payments"];
+  const tilt = 0.4; // vertical squash — reads as a ring seen at an angle
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [pointer, setPointer] = useState({ x: 0, y: 0 });
+
   return (
-    <div className="relative flex h-[22rem] items-center justify-center sm:h-[26rem]">
-      <div className="animate-pulse-ring absolute size-64 rounded-full bg-primary/20 blur-3xl sm:size-80" />
-      <div className="absolute size-56 rounded-full border border-primary/25 sm:size-72" />
-      <div className="absolute size-72 rounded-full border border-gold/20 sm:size-[22rem]" />
+    <div
+      ref={ref}
+      onPointerMove={(e) => {
+        const box = ref.current?.getBoundingClientRect();
+        if (!box) return;
+        setPointer({
+          x: ((e.clientX - box.left) / box.width - 0.5) * 2,
+          y: ((e.clientY - box.top) / box.height - 0.5) * 2,
+        });
+      }}
+      onPointerLeave={() => setPointer({ x: 0, y: 0 })}
+      className="scene-3d relative flex h-[24rem] w-full items-center justify-center sm:h-[30rem]"
+    >
+      <div className="grid-floor" aria-hidden />
 
-      <div className="animate-orbit absolute size-56 sm:size-72">
-        {nodes.map((label, i) => {
-          const angle = (360 / nodes.length) * i;
-          return (
-            <span
-              key={label}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-              style={{ transform: `rotate(${angle}deg) translateY(-9rem) rotate(-${angle}deg)` }}
-            >
-              <span
-                className="animate-orbit block rounded-full border border-metal/60 bg-card/90 px-3 py-1.5 text-[11px] font-medium text-muted-foreground shadow-elevated backdrop-blur"
-                style={{ animationDirection: "reverse" }}
-              >
-                {label}
-              </span>
-            </span>
-          );
-        })}
-      </div>
+      <div
+        className="relative flex size-full items-center justify-center transition-transform duration-700 ease-out"
+        style={{
+          transform: `rotateX(${pointer.y * -5}deg) rotateY(${pointer.x * 7}deg)`,
+          transformStyle: "preserve-3d",
+        }}
+      >
+        {/* soft volumetric glow */}
+        <div className="animate-breathe absolute size-72 rounded-full bg-primary/25 blur-[70px] sm:size-96" />
+        <div
+          className="animate-drift absolute size-56 rounded-full bg-gold/15 blur-[60px]"
+          style={{ transform: "translate3d(3rem,-3rem,0)" }}
+        />
 
-      <div className="animate-float glow-ring relative rounded-2xl border border-primary/30 bg-card/85 px-7 py-6 text-center backdrop-blur">
-        <p className="font-display text-xs uppercase tracking-[0.3em] text-gold">ERA Core</p>
-        <p className="mt-2 font-display text-2xl font-semibold text-foreground">One record</p>
-        <p className="mt-1 text-xs text-muted-foreground">Everything writes here</p>
+        {/* tilted 3D rings */}
+        <div className="ring-3d absolute size-[19rem] rounded-full border border-primary/30 sm:size-[24rem]" />
+        <div
+          className="ring-3d absolute size-[14rem] rounded-full border border-gold/25 sm:size-[18rem]"
+          style={{ animationDuration: "36s", animationDirection: "reverse" }}
+        />
+        <div
+          className="animate-spin-slow absolute size-[22rem] rounded-full border border-metal/25 sm:size-[27rem]"
+          style={{ transform: `rotateX(74deg)` }}
+        />
+
+        {/* orbiting capability nodes on an elliptical path */}
+        <div
+          className="absolute size-[18rem] sm:size-[23rem]"
+          style={{ transform: `scaleY(${tilt})` }}
+        >
+          <div className="animate-orbit relative size-full" style={{ animationDuration: "34s" }}>
+            {nodes.map((label, i) => {
+              const angle = (360 / nodes.length) * i;
+              return (
+                <span
+                  key={label}
+                  className="absolute left-1/2 top-1/2"
+                  style={{
+                    transform: `rotate(${angle}deg) translate(0, -50%) translateY(-4rem)`,
+                  }}
+                >
+                  <span
+                    className="animate-orbit block"
+                    style={{ animationDuration: "34s", animationDirection: "reverse" }}
+                  >
+                    <span
+                      className="block whitespace-nowrap rounded-full border border-metal/60 bg-card/85 px-3 py-1.5 text-[11px] font-medium text-muted-foreground shadow-elevated backdrop-blur"
+                      style={{ transform: `rotate(${-angle}deg) scaleY(${1 / tilt})` }}
+                    >
+                      {label}
+                    </span>
+                  </span>
+                </span>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* core */}
+        <div
+          className="animate-float glow-ring relative rounded-2xl border border-primary/30 bg-card/85 px-7 py-6 text-center backdrop-blur"
+          style={{ transform: "translateZ(60px)" }}
+        >
+          <p className="font-display text-xs uppercase tracking-[0.3em] text-gold">ERA Core</p>
+          <p className="mt-2 font-display text-2xl font-semibold text-foreground">One record</p>
+          <p className="mt-1 text-xs text-muted-foreground">Everything writes here</p>
+        </div>
       </div>
     </div>
+
   );
 }
 
