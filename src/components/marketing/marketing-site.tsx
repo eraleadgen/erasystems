@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState, type ReactNode } from "react";
+
 import logoAsset from "@/assets/era-logo.png.asset.json";
 import { DiscoveryForm } from "./discovery-form";
 
@@ -137,6 +139,85 @@ function Logo({ className = "h-9" }: { className?: string }) {
   return <img src={logoAsset.url} alt="ERA Systems" className={`${className} w-auto`} />;
 }
 
+function Reveal({
+  children,
+  delay = 0,
+  className = "",
+}: {
+  children: ReactNode;
+  delay?: number;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setVisible(true);
+            io.disconnect();
+          }
+        }
+      },
+      { rootMargin: "0px 0px -12% 0px", threshold: 0.12 },
+    );
+    io.observe(node);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      data-visible={visible}
+      style={{ transitionDelay: `${delay}ms` }}
+      className={`reveal ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function HeroVisual() {
+  const nodes = ["Website", "Chat", "Scheduling", "Customers", "Jobs", "Payments"];
+  return (
+    <div className="relative flex h-[22rem] items-center justify-center sm:h-[26rem]">
+      <div className="animate-pulse-ring absolute size-64 rounded-full bg-primary/20 blur-3xl sm:size-80" />
+      <div className="absolute size-56 rounded-full border border-primary/25 sm:size-72" />
+      <div className="absolute size-72 rounded-full border border-gold/20 sm:size-[22rem]" />
+
+      <div className="animate-orbit absolute size-56 sm:size-72">
+        {nodes.map((label, i) => {
+          const angle = (360 / nodes.length) * i;
+          return (
+            <span
+              key={label}
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+              style={{ transform: `rotate(${angle}deg) translateY(-9rem) rotate(-${angle}deg)` }}
+            >
+              <span
+                className="animate-orbit block rounded-full border border-metal/60 bg-card/90 px-3 py-1.5 text-[11px] font-medium text-muted-foreground shadow-elevated backdrop-blur"
+                style={{ animationDirection: "reverse" }}
+              >
+                {label}
+              </span>
+            </span>
+          );
+        })}
+      </div>
+
+      <div className="animate-float glow-ring relative rounded-2xl border border-primary/30 bg-card/85 px-7 py-6 text-center backdrop-blur">
+        <p className="font-display text-xs uppercase tracking-[0.3em] text-gold">ERA Core</p>
+        <p className="mt-2 font-display text-2xl font-semibold text-foreground">One record</p>
+        <p className="mt-1 text-xs text-muted-foreground">Everything writes here</p>
+      </div>
+    </div>
+  );
+}
+
 function Check() {
   return (
     <svg
@@ -154,7 +235,7 @@ function Check() {
 
 export function MarketingSite() {
   return (
-    <div className="min-h-screen bg-background font-body">
+    <div className="dark min-h-screen bg-background font-body text-foreground">
       <header className="sticky top-0 z-40 border-b border-border/80 bg-background/85 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3">
           <Logo />
@@ -174,7 +255,7 @@ export function MarketingSite() {
           </nav>
           <a
             href={CTA}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+            className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-elevated transition-all hover:-translate-y-0.5 hover:bg-primary/90"
           >
             Book a discovery call
           </a>
@@ -184,45 +265,51 @@ export function MarketingSite() {
       <main>
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-border bg-gradient-hero">
-          <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-[1.15fr_0.85fr] lg:py-28">
+          <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:py-28">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-accent-foreground/80">
-                ERA Core
-              </p>
-              <h1 className="mt-4 font-display text-4xl font-semibold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                One operating system for the whole business.
-              </h1>
-              <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
-                Most local service businesses run on a patchwork: a booking app, a CRM nobody
-                updates, an invoicing tool, a website someone built once, an email blaster, a phone,
-                and a spreadsheet holding it together. ERA Core replaces the patchwork with a single
-                system where the site, the schedule, the customer, the job, and the money are all
-                the same record.
-              </p>
-              <div className="mt-9 flex flex-wrap items-center gap-4">
-                <a
-                  href={CTA}
-                  className="rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-elevated transition-colors hover:bg-primary/90"
-                >
-                  Book a discovery call
-                </a>
-                <a
-                  href="#pricing"
-                  className="rounded-md border border-metal px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
-                >
-                  See the three tiers
-                </a>
-              </div>
-              <p className="mt-5 text-xs text-muted-foreground">
-                No sign-up form. Every ERA account starts with a conversation.
-              </p>
+              <Reveal>
+                <p className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-gold">
+                  ERA Core
+                </p>
+              </Reveal>
+              <Reveal delay={80}>
+                <h1 className="text-gradient-emerald mt-5 font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+                  One operating system for the whole business.
+                </h1>
+              </Reveal>
+              <Reveal delay={160}>
+                <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
+                  Most local service businesses run on a patchwork: a booking app, a CRM nobody
+                  updates, an invoicing tool, a website someone built once, an email blaster, a
+                  phone, and a spreadsheet holding it together. ERA Core replaces the patchwork with
+                  a single system where the site, the schedule, the customer, the job, and the money
+                  are all the same record.
+                </p>
+              </Reveal>
+              <Reveal delay={240}>
+                <div className="mt-9 flex flex-wrap items-center gap-4">
+                  <a
+                    href={CTA}
+                    className="rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-elevated transition-all hover:-translate-y-0.5 hover:bg-primary/90"
+                  >
+                    Book a discovery call
+                  </a>
+                  <a
+                    href="#pricing"
+                    className="rounded-md border border-gold/40 px-6 py-3 text-sm font-semibold text-gold transition-all hover:-translate-y-0.5 hover:bg-gold/10"
+                  >
+                    See the three tiers
+                  </a>
+                </div>
+                <p className="mt-5 text-xs text-muted-foreground">
+                  No sign-up form. Every ERA account starts with a conversation.
+                </p>
+              </Reveal>
             </div>
 
-            <div className="flex items-center justify-center">
-              <div className="rounded-3xl border border-metal bg-card/70 p-10 shadow-elevated">
-                <Logo className="h-40" />
-              </div>
-            </div>
+            <Reveal delay={200} className="flex items-center justify-center">
+              <HeroVisual />
+            </Reveal>
           </div>
         </section>
 
@@ -238,7 +325,7 @@ export function MarketingSite() {
             </p>
 
             <div className="mt-10 grid items-stretch gap-6 lg:grid-cols-[1fr_auto_1fr]">
-              <div className="rounded-2xl border border-dashed border-border bg-muted/40 p-6">
+              <Reveal className="rounded-2xl border border-dashed border-border bg-muted/40 p-6">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                   Today
                 </p>
@@ -246,8 +333,11 @@ export function MarketingSite() {
                   {scattered.map((tool, i) => (
                     <li
                       key={tool}
-                      className="rounded-md border border-border bg-card px-3 py-2 text-xs text-muted-foreground"
-                      style={{ transform: `rotate(${(i % 3) - 1}deg)` }}
+                      className="animate-float rounded-md border border-border bg-card px-3 py-2 text-xs text-muted-foreground transition-colors hover:border-destructive/40 hover:text-foreground"
+                      style={{
+                        transform: `rotate(${(i % 3) - 1}deg)`,
+                        animationDelay: `${i * 320}ms`,
+                      }}
                     >
                       {tool}
                     </li>
@@ -256,13 +346,18 @@ export function MarketingSite() {
                 <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
                   Eight logins, no shared record, and re-entry between every one of them.
                 </p>
+              </Reveal>
+
+              <div className="flex items-center justify-center text-2xl text-gold">
+                <span aria-hidden className="animate-pulse-ring">
+                  →
+                </span>
               </div>
 
-              <div className="flex items-center justify-center text-2xl text-muted-foreground">
-                <span aria-hidden>→</span>
-              </div>
-
-              <div className="rounded-2xl border border-metal bg-primary p-6 text-primary-foreground shadow-elevated">
+              <Reveal
+                delay={140}
+                className="glow-ring rounded-2xl border border-primary/40 bg-primary p-6 text-primary-foreground"
+              >
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground/70">
                   With ERA Core
                 </p>
@@ -272,7 +367,7 @@ export function MarketingSite() {
                   the same data. A booking made on your site is the same object your invoice, your
                   reminder, and your dashboard are looking at.
                 </p>
-              </div>
+              </Reveal>
             </div>
           </div>
         </section>
@@ -288,13 +383,16 @@ export function MarketingSite() {
               unlock the basics.
             </p>
             <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
-              {coreCapabilities.map((cap) => (
-                <article key={cap.title} className="bg-card p-6">
-                  <h3 className="font-display text-base font-semibold text-foreground">
-                    {cap.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{cap.body}</p>
-                </article>
+              {coreCapabilities.map((cap, i) => (
+                <Reveal key={cap.title} delay={i * 70}>
+                  <article className="group h-full bg-card p-6 transition-colors hover:bg-card/60">
+                    <span className="block h-0.5 w-8 rounded-full bg-gold transition-all duration-500 group-hover:w-16" />
+                    <h3 className="mt-4 font-display text-base font-semibold text-foreground">
+                      {cap.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{cap.body}</p>
+                  </article>
+                </Reveal>
               ))}
             </div>
           </div>
@@ -311,12 +409,12 @@ export function MarketingSite() {
             </p>
 
             <div className="mt-10 grid gap-6 lg:grid-cols-3">
-              {tiers.map((tier) => (
+              {tiers.map((tier, i) => (
+                <Reveal key={tier.name} delay={i * 110} className="h-full">
                 <article
-                  key={tier.name}
-                  className={`flex flex-col rounded-2xl border p-7 ${
+                  className={`lift flex h-full flex-col rounded-2xl border p-7 ${
                     tier.highlighted
-                      ? "border-primary bg-card shadow-elevated"
+                      ? "glow-ring border-primary/60 bg-card"
                       : "border-border bg-card"
                   }`}
                 >
@@ -325,7 +423,7 @@ export function MarketingSite() {
                       {tier.name}
                     </h3>
                     {tier.highlighted && (
-                      <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary">
+                      <span className="animate-shimmer rounded-full border border-gold/30 bg-gradient-to-r from-primary/15 via-gold/30 to-primary/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-gold">
                         Common starting point
                       </span>
                     )}
@@ -354,15 +452,16 @@ export function MarketingSite() {
 
                   <a
                     href={CTA}
-                    className={`mt-8 rounded-md px-4 py-2.5 text-center text-sm font-semibold transition-colors ${
+                    className={`mt-8 rounded-md px-4 py-2.5 text-center text-sm font-semibold transition-all hover:-translate-y-0.5 ${
                       tier.highlighted
                         ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                        : "border border-metal text-foreground hover:bg-muted"
+                        : "border border-metal text-foreground hover:border-gold/50 hover:text-gold"
                     }`}
                   >
                     Book a discovery call
                   </a>
                 </article>
+                </Reveal>
               ))}
             </div>
           </div>
@@ -379,19 +478,21 @@ export function MarketingSite() {
               granted by upgrading — the price is quoted for your business on the discovery call.
             </p>
             <div className="mt-10 grid gap-6 md:grid-cols-2">
-              {addons.map((addon) => (
-                <article key={addon.name} className="rounded-2xl border border-metal bg-card p-7">
+              {addons.map((addon, i) => (
+                <Reveal key={addon.name} delay={i * 120}>
+                <article className="lift h-full rounded-2xl border border-gold/30 bg-card p-7">
                   <div className="flex items-baseline justify-between gap-4">
                     <h3 className="font-display text-lg font-semibold text-foreground">
                       {addon.name}
                     </h3>
-                    <span className="shrink-0 text-xs font-semibold uppercase tracking-widest text-primary">
+                    <span className="shrink-0 text-xs font-semibold uppercase tracking-widest text-gold">
                       Custom pricing
                     </span>
                   </div>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{addon.body}</p>
                   <p className="mt-5 text-xs text-muted-foreground">Available on any tier</p>
                 </article>
+                </Reveal>
               ))}
             </div>
           </div>
@@ -405,14 +506,20 @@ export function MarketingSite() {
             </h2>
             <ol className="mt-10 grid gap-6 md:grid-cols-3">
               {steps.map((step, i) => (
-                <li key={step.title} className="rounded-2xl border border-border bg-card p-7">
-                  <span className="font-display text-sm font-semibold text-primary">
-                    0{i + 1}
-                  </span>
-                  <h3 className="mt-3 font-display text-lg font-semibold text-foreground">
-                    {step.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+                <li key={step.title}>
+                  <Reveal delay={i * 130}>
+                    <div className="lift h-full rounded-2xl border border-border bg-card p-7">
+                      <span className="inline-flex size-9 items-center justify-center rounded-full border border-gold/40 font-display text-sm font-semibold text-gold">
+                        0{i + 1}
+                      </span>
+                      <h3 className="mt-4 font-display text-lg font-semibold text-foreground">
+                        {step.title}
+                      </h3>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        {step.body}
+                      </p>
+                    </div>
+                  </Reveal>
                 </li>
               ))}
             </ol>
@@ -440,11 +547,15 @@ export function MarketingSite() {
               Questions
             </h2>
             <dl className="mt-10 divide-y divide-border rounded-2xl border border-border bg-card">
-              {faqs.map((item) => (
-                <div key={item.q} className="p-6">
-                  <dt className="font-display text-base font-semibold text-foreground">{item.q}</dt>
-                  <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.a}</dd>
-                </div>
+              {faqs.map((item, i) => (
+                <Reveal key={item.q} delay={i * 60}>
+                  <div className="p-6 transition-colors hover:bg-muted/40">
+                    <dt className="font-display text-base font-semibold text-foreground">
+                      {item.q}
+                    </dt>
+                    <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.a}</dd>
+                  </div>
+                </Reveal>
               ))}
             </dl>
           </div>
