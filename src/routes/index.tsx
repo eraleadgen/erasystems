@@ -68,13 +68,22 @@ function money(cents: number) {
  */
 function EntitlementMatrix({ businessId }: { businessId: string }) {
   const fetchEntitlements = useServerFn(getMyEntitlements);
-  const { data, isPending } = useQuery({
-    queryKey: ["my-entitlements", businessId],
-    queryFn: () => fetchEntitlements({ data: { businessId } }),
+
+  // Anonymous visitors have no bearer token; the authenticated fn would 401.
+  const { data: hasSession } = useQuery({
+    queryKey: ["has-session"],
+    queryFn: async () => Boolean((await supabase.auth.getSession()).data.session),
     retry: false,
   });
 
-  if (isPending || !data) return null;
+  const { data } = useQuery({
+    queryKey: ["my-entitlements", businessId],
+    queryFn: () => fetchEntitlements({ data: { businessId } }).catch(() => null),
+    enabled: hasSession === true,
+    retry: false,
+  });
+
+  if (!data) return null;
 
   return (
     <>
