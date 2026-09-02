@@ -4,8 +4,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { z } from "zod";
 
+import { supabase } from "@/integrations/supabase/client";
 import { resolveTenant } from "@/lib/tenant.functions";
 import { getBusinessAddons, saveBusinessAddon } from "@/lib/entitlements.functions";
+
 import {
   ADDON_LABELS,
   ALL_ADDONS,
