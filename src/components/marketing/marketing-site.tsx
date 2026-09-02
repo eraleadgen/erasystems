@@ -506,14 +506,20 @@ export function MarketingSite() {
             </h2>
             <ol className="mt-10 grid gap-6 md:grid-cols-3">
               {steps.map((step, i) => (
-                <li key={step.title} className="rounded-2xl border border-border bg-card p-7">
-                  <span className="font-display text-sm font-semibold text-primary">
-                    0{i + 1}
-                  </span>
-                  <h3 className="mt-3 font-display text-lg font-semibold text-foreground">
-                    {step.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+                <li key={step.title}>
+                  <Reveal delay={i * 130}>
+                    <div className="lift h-full rounded-2xl border border-border bg-card p-7">
+                      <span className="inline-flex size-9 items-center justify-center rounded-full border border-gold/40 font-display text-sm font-semibold text-gold">
+                        0{i + 1}
+                      </span>
+                      <h3 className="mt-4 font-display text-lg font-semibold text-foreground">
+                        {step.title}
+                      </h3>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        {step.body}
+                      </p>
+                    </div>
+                  </Reveal>
                 </li>
               ))}
             </ol>
