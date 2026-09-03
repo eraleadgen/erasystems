@@ -99,7 +99,7 @@ export const selectMyPlan = createServerFn({ method: "POST" })
     }
 
     const price = PLAN_PRICING[data.tier];
-    // Enterprise app builds are scoped on a call before any money is collected.
+    // App builds on every tier are scoped on a call before any money is collected.
     const includeApp = data.includeApp && !price.appRequiresCall;
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

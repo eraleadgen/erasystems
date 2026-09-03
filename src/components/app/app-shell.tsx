@@ -88,11 +88,23 @@ export function AppShell({
           <div className="mt-8 flex-1">
             <NavList items={items} />
           </div>
-          <p className="era-hairline pt-4 text-xs text-muted-foreground">
-            {variant === "staff"
-              ? "ERA Systems LLC, agency operations."
-              : "Need a change? Your ERA representative can help."}
-          </p>
+          {variant === "staff" ? (
+            <p className="era-hairline pt-4 text-xs text-muted-foreground">
+              ERA Systems LLC, agency operations.
+            </p>
+          ) : (
+            <div className="era-hairline space-y-2 pt-4">
+              <p className="text-xs text-muted-foreground">
+                Need a change? Your ERA representative can help.
+              </p>
+              <a
+                href="mailto:support@eraleadgen.com"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-secondary px-3 py-2 text-xs font-semibold text-secondary-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+              >
+                Contact support
+              </a>
+            </div>
+          )}
         </aside>
 
         <div className="min-w-0 flex-1">

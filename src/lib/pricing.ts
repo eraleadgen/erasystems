@@ -18,7 +18,7 @@ export interface PlanPrice {
   setupFeeCents: number;
   /** One-time price of the downloadable app add-on on this tier. */
   appAddonCents: number;
-  /** Enterprise app builds are scoped on a call before any money changes hands. */
+  /** Every app build is scoped on a call before any money changes hands. */
   appRequiresCall: boolean;
   summary: string;
 }
@@ -30,7 +30,7 @@ export const PLAN_PRICING: Record<PlanTier, PlanPrice> = {
     monthlyCents: 20000,
     setupFeeCents: 100000,
     appAddonCents: 500000,
-    appRequiresCall: false,
+    appRequiresCall: true,
     summary: "Website, AI chat, core engines, payments, admin dashboard and email automations.",
   },
   growth: {
@@ -39,7 +39,7 @@ export const PLAN_PRICING: Record<PlanTier, PlanPrice> = {
     monthlyCents: 50000,
     setupFeeCents: 200000,
     appAddonCents: 750000,
-    appRequiresCall: false,
+    appRequiresCall: true,
     summary: "Everything in Basic plus the customer member portal and specialist portal.",
   },
   enterprise: {
