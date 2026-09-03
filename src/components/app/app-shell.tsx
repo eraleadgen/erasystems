@@ -26,10 +26,16 @@ const STAFF_NAV: NavItem[] = [
 
 export type ShellVariant = "client" | "staff";
 
-function NavList({ onNavigate }: { onNavigate?: () => void }) {
+function NavList({
+  items,
+  onNavigate,
+}: {
+  items: NavItem[];
+  onNavigate?: () => void;
+}) {
   return (
     <nav className="space-y-1">
-      {NAV.map((item) =>
+      {items.map((item) =>
         item.to ? (
           <Link
             key={item.label}
@@ -56,27 +62,30 @@ export function AppShell({
   title,
   status,
   role,
+  variant = "client",
   children,
 }: {
   title: string;
   status?: { label: string; tone: "live" | "waiting" | "halted" };
   role?: string;
+  variant?: ShellVariant;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const items = variant === "staff" ? STAFF_NAV : CLIENT_NAV;
 
   return (
     <div className="era-app min-h-screen bg-background text-foreground">
       <div className="mx-auto flex w-full max-w-[92rem]">
         <aside className="era-rail hidden w-64 shrink-0 flex-col px-5 py-7 lg:flex">
-          <Link to="/dashboard" className="flex items-center gap-3">
+          <Link to={variant === "staff" ? "/admin/invites" : "/dashboard"} className="flex items-center gap-3">
             <img src={logoAsset.url} alt="ERA Systems" className="h-9 w-auto" />
           </Link>
           <p className="mt-2 text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
-            Client portal
+            {variant === "staff" ? "Agency console" : "Client portal"}
           </p>
           <div className="mt-8 flex-1">
-            <NavList />
+            <NavList items={items} />
           </div>
           <p className="era-hairline pt-4 text-xs text-muted-foreground">
             Need a change? Your ERA representative can help.
