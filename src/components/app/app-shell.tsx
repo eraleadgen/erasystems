@@ -64,16 +64,20 @@ export function AppShell({
   status,
   role,
   variant = "client",
+  navItems,
   children,
 }: {
   title: string;
   status?: { label: string; tone: "live" | "waiting" | "halted" };
   role?: string;
   variant?: ShellVariant;
+  /** Client tabs derived from the tenant's entitlements; falls back to defaults. */
+  navItems?: NavItem[];
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const items = variant === "staff" ? STAFF_NAV : CLIENT_NAV;
+  const items = navItems ?? (variant === "staff" ? STAFF_NAV : CLIENT_NAV);
+
 
   return (
     <div className="era-app min-h-screen bg-background text-foreground">
