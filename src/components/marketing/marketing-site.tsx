@@ -297,10 +297,11 @@ function HeroVisual() {
       <div className="relative z-10 rounded-xl border border-primary/40 bg-card px-6 py-5 text-center">
         <span className="pulse-halo" aria-hidden />
         <p className="font-display text-[10px] uppercase tracking-[0.32em] text-gold">ERA Core</p>
-        <p className="mt-2 font-display text-2xl font-semibold text-foreground">One record</p>
+        <p className="mt-2 font-display text-2xl font-semibold text-foreground">v2.0</p>
         <p className="mt-1 text-[11px] text-muted-foreground">
-          {active ? `${active} writes here` : "Everything writes here"}
+          {active ? `${active} runs on ERA Core v2.0` : "The engine running your business"}
         </p>
+
       </div>
     </div>
   );
