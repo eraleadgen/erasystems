@@ -65,12 +65,25 @@ function Shell({
   status?: { label: string; tone: "live" | "waiting" | "halted" };
   role?: string;
 }) {
+  const fetchEntitlements = useServerFn(getMyEntitlements);
+  const entitlements = useQuery({
+    queryKey: ["my-entitlements"],
+    queryFn: () => fetchEntitlements(),
+    retry: false,
+  });
+
   return (
-    <AppShell title={title} {...(status ? { status } : {})} {...(role ? { role } : {})}>
+    <AppShell
+      title={title}
+      navItems={buildClientNav(entitlements.data?.features)}
+      {...(status ? { status } : {})}
+      {...(role ? { role } : {})}
+    >
       {children}
     </AppShell>
   );
 }
+
 
 const TONE: Record<MyBusiness["lifecycle"], "live" | "waiting" | "halted"> = {
   pending_payment: "waiting",
