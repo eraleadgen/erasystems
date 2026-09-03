@@ -247,10 +247,11 @@ function Dashboard() {
 }
 
 
-/** Delivery windows for whatever this business is actually entitled to. */
-function DeliverySection({ businessId, startedAt }: { businessId: string; startedAt: string | null }) {
+/** Live/pending lights for whatever this business is actually entitled to. */
+function StatusSection({ businessId }: { businessId: string }) {
   const fetchEntitlements = useServerFn(getMyEntitlements);
   const fetchAddons = useServerFn(getBusinessAddons);
+  const fetchStatus = useServerFn(getLaunchStatus);
 
   const entitlements = useQuery({
     queryKey: ["my-entitlements", businessId],
@@ -262,18 +263,24 @@ function DeliverySection({ businessId, startedAt }: { businessId: string; starte
     queryFn: () => fetchAddons({ data: { businessId } }),
     retry: false,
   });
+  const statuses = useQuery({
+    queryKey: ["launch-status", businessId],
+    queryFn: () => fetchStatus({ data: { businessId } }),
+    retry: false,
+  });
 
   if (entitlements.isPending) return <div className="era-skeleton h-56 w-full" />;
   if (!entitlements.data) return null;
 
   return (
-    <DeliveryTimeline
+    <LaunchStatusPanel
       features={entitlements.data.features}
       addons={(addons.data ?? []).filter((a) => a.isActive).map((a) => a.addon)}
-      startedAt={startedAt}
+      rows={statuses.data ?? []}
     />
   );
 }
+
 
 /**
  * Checkout for a business that is waiting on payment.
