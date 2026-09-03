@@ -7,6 +7,11 @@ import { getMyBusiness, type MyBusiness } from "@/lib/business.functions";
 import { createCheckoutSession, getMyTerms, verifyMyPayment } from "@/lib/payments.functions";
 import { ADDON_LABELS, formatMoney } from "@/lib/entitlements";
 import { intervalLabel } from "@/lib/payments";
+import { AppShell } from "@/components/app/app-shell";
+import { StatusBanner } from "@/components/app/status-banner";
+import { StatTile, CopyRow } from "@/components/app/stat-tile";
+import { SetupProgress, type StepState } from "@/components/app/setup-progress";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -40,13 +45,31 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   ),
 });
 
-function Shell({ children }: { children: React.ReactNode }) {
+function Shell({
+  children,
+  title = "Your business",
+  status,
+  role,
+}: {
+  children: React.ReactNode;
+  title?: string;
+  status?: { label: string; tone: "live" | "waiting" | "halted" };
+  role?: string;
+}) {
   return (
-    <main className="mx-auto min-h-screen max-w-3xl px-6 py-16">
-      <div className="space-y-6">{children}</div>
-    </main>
+    <AppShell title={title} {...(status ? { status } : {})} {...(role ? { role } : {})}>
+      {children}
+    </AppShell>
   );
 }
+
+const TONE: Record<MyBusiness["lifecycle"], "live" | "waiting" | "halted"> = {
+  pending_payment: "waiting",
+  expired: "waiting",
+  suspended: "halted",
+  active: "live",
+};
+
 
 function formatDate(value: string | null) {
   if (!value) return null;
@@ -94,7 +117,13 @@ function Dashboard() {
   if (isPending) {
     return (
       <Shell>
-        <p className="text-sm text-muted-foreground">Loading your business…</p>
+        <div className="era-skeleton h-28 w-full" />
+        <div className="grid gap-4 sm:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="era-skeleton h-24 w-full" />
+          ))}
+        </div>
+        <div className="era-skeleton h-44 w-full" />
       </Shell>
     );
   }
@@ -102,7 +131,9 @@ function Dashboard() {
   if (error) {
     return (
       <Shell>
-        <p className="text-sm text-destructive">{(error as Error).message}</p>
+        <div className="era-card p-6">
+          <p className="text-sm text-destructive">{(error as Error).message}</p>
+        </div>
       </Shell>
     );
   }
@@ -110,64 +141,83 @@ function Dashboard() {
   if (!data) {
     return (
       <Shell>
-        <h1 className="text-2xl font-semibold text-foreground">No business yet</h1>
-        <p className="text-sm text-muted-foreground">
-          You haven&apos;t finished business setup. Everything you enter saves as you go.
-        </p>
-        <Link
-          to="/onboarding"
-          className="inline-block rounded-md border border-border px-4 py-2 text-sm text-foreground underline-offset-4 hover:underline"
-        >
-          Continue setup
-        </Link>
+        <div className="era-card p-8">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground">No business yet</h2>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+            You haven&apos;t finished business setup. Everything you enter saves as you go.
+          </p>
+          <Link
+            to="/onboarding"
+            className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+          >
+            Continue setup
+          </Link>
+        </div>
       </Shell>
     );
   }
 
   const copy = STATE_COPY[data.lifecycle];
   const reservedUntil = formatDate(data.slugReservedUntil);
+  const paid = data.lifecycle === "active";
+  const steps: { label: string; state: StepState }[] = [
+    { label: "Account created", state: "done" },
+    { label: "Business setup", state: "done" },
+    { label: "Payment", state: paid ? "done" : "current" },
+    { label: "Live", state: paid && data.isActive ? "done" : "upcoming" },
+  ];
 
   return (
-    <Shell>
-      <div>
-        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{copy.label}</p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">{data.name}</h1>
-        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{copy.body}</p>
-      </div>
+    <Shell title={data.name} status={{ label: copy.label, tone: TONE[data.lifecycle] }} role={data.role}>
+      <StatusBanner
+        tone={TONE[data.lifecycle]}
+        label={copy.label}
+        headline={copy.headline}
+        body={copy.body}
+        {...(data.lifecycle === "pending_payment" && reservedUntil
+          ? {
+              footnote: (
+                <>
+                  Your address <code className="text-foreground">{data.slug}</code> is reserved
+                  until {reservedUntil}.
+                </>
+              ),
+            }
+          : {})}
+      />
 
-      <div className="rounded-lg border border-border bg-card px-5 py-4">
-        <p className="text-sm font-medium text-foreground">{copy.headline}</p>
-        {data.lifecycle === "pending_payment" && reservedUntil && (
-          <p className="mt-2 text-xs text-muted-foreground">
-            Your address <code className="text-foreground">{data.slug}</code> is reserved until{" "}
-            {reservedUntil}.
-          </p>
-        )}
+      <SetupProgress steps={steps} />
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatTile label="Plan" value={data.planTier} />
+        <StatTile label="Services" value={String(data.serviceCount)} hint="in your catalog" />
+        <StatTile label="Timezone" value={data.timezone} />
+        <StatTile label="Site published" value={data.isActive ? "Yes" : "Not yet"} />
       </div>
 
       {(data.lifecycle === "pending_payment" || data.lifecycle === "expired") && (
         <CheckoutPanel canPay={data.role === "owner" || data.role === "admin"} />
       )}
 
-
-      <dl className="grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2">
-        {[
-          ["Web address", data.slug],
-          ["Plan", data.planTier],
-          ["Timezone", data.timezone],
-          ["Services in catalog", String(data.serviceCount)],
-          ["Your role", data.role],
-          ["Site published", data.isActive ? "Yes" : "No"],
-        ].map(([label, value]) => (
-          <div key={label} className="bg-card px-5 py-4">
-            <dt className="text-xs uppercase tracking-wide text-muted-foreground">{label}</dt>
-            <dd className="mt-1 break-all text-sm text-foreground">{value}</dd>
+      <section className="era-card px-5 py-2">
+        <CopyRow label="Web address" value={data.slug} />
+        <div className="era-hairline border-t" />
+        <div className="flex items-center justify-between gap-4 py-3">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+              Your role
+            </p>
+            <p className="mt-1 text-sm text-foreground">{data.role}</p>
           </div>
-        ))}
-      </dl>
+          <Link to="/onboarding" className="era-ghost-button">
+            Edit setup
+          </Link>
+        </div>
+      </section>
     </Shell>
   );
 }
+
 
 /**
  * Checkout for a business that is waiting on payment.
@@ -215,8 +265,13 @@ function CheckoutPanel({ canPay }: { canPay: boolean }) {
   const terms = termsQuery.data;
 
   return (
-    <div className="rounded-lg border border-border bg-card px-5 py-5">
-      <p className="text-sm font-medium text-foreground">Activate your business</p>
+    <div className="era-card p-6 sm:p-7">
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-base font-semibold tracking-tight text-foreground">
+          Activate your business
+        </p>
+        <span className="era-chip">Secure checkout</span>
+      </div>
 
       {search.checkout === "cancelled" && (
         <p className="mt-2 text-xs text-muted-foreground">
@@ -235,7 +290,10 @@ function CheckoutPanel({ canPay }: { canPay: boolean }) {
       )}
 
       {termsQuery.isPending ? (
-        <p className="mt-3 text-xs text-muted-foreground">Loading your agreed terms…</p>
+        <div className="mt-4 space-y-2">
+          <div className="era-skeleton h-4 w-2/3" />
+          <div className="era-skeleton h-4 w-1/2" />
+        </div>
       ) : !terms || terms.totalCents <= 0 ? (
         <p className="mt-3 text-xs text-muted-foreground">
           Your pricing hasn&apos;t been finalised yet. Your ERA Systems representative will set it
@@ -243,22 +301,39 @@ function CheckoutPanel({ canPay }: { canPay: boolean }) {
         </p>
       ) : (
         <>
-          <ul className="mt-4 space-y-1 text-xs text-muted-foreground">
-            <li>
-              {terms.planTier} plan, {formatMoney(terms.subscriptionPriceCents)}{" "}
-              {intervalLabel(terms.billingInterval)}
+          <ul className="mt-5 space-y-0 text-sm">
+            <li className="era-hairline flex items-center justify-between gap-4 border-b py-2.5">
+              <span className="text-foreground">{terms.planTier} plan</span>
+              <span className="text-muted-foreground">
+                {formatMoney(terms.subscriptionPriceCents)} {intervalLabel(terms.billingInterval)}
+              </span>
             </li>
-            {terms.setupFeeCents > 0 && <li>Setup fee, {formatMoney(terms.setupFeeCents)}</li>}
+            {terms.setupFeeCents > 0 && (
+              <li className="era-hairline flex items-center justify-between gap-4 border-b py-2.5">
+                <span className="text-foreground">Setup fee</span>
+                <span className="text-muted-foreground">{formatMoney(terms.setupFeeCents)}</span>
+              </li>
+            )}
             {terms.addons.map((addon) => (
-              <li key={addon.addon}>
-                {ADDON_LABELS[addon.addon]}, {formatMoney(addon.priceCents)}{" "}
-                {intervalLabel(addon.billingInterval)}
+              <li
+                key={addon.addon}
+                className="era-hairline flex items-center justify-between gap-4 border-b py-2.5"
+              >
+                <span className="text-foreground">{ADDON_LABELS[addon.addon]}</span>
+                <span className="text-muted-foreground">
+                  {formatMoney(addon.priceCents)} {intervalLabel(addon.billingInterval)}
+                </span>
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-sm font-medium text-foreground">
-            Due today: {formatMoney(terms.totalCents)}
-          </p>
+          <div className="mt-4 flex items-baseline justify-between gap-4">
+            <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+              Due today
+            </span>
+            <span className="text-2xl font-semibold tracking-tight text-foreground">
+              {formatMoney(terms.totalCents)}
+            </span>
+          </div>
           {canPay ? (
             <button
               type="button"
@@ -267,7 +342,7 @@ function CheckoutPanel({ canPay }: { canPay: boolean }) {
                 checkout.mutate();
               }}
               disabled={checkout.isPending}
-              className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
+              className="mt-5 w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60 sm:w-auto"
             >
               {checkout.isPending ? "Opening secure checkout…" : "Pay and go live"}
             </button>

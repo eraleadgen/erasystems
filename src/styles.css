@@ -262,3 +262,259 @@
     color: var(--color-foreground);
   }
 }
+
+/* --------------------------------------------------------------------------
+ * ERA App (client portal) surface, scoped to .era-app so marketing and tenant
+ * sites keep their own tokens.
+ * ----------------------------------------------------------------------- */
+
+.era-app {
+  --background: oklch(0.985 0.005 200);
+  --card: oklch(1 0 0);
+  --border: oklch(0.9 0.012 205);
+  --era-rail: linear-gradient(180deg, oklch(0.985 0.008 200), oklch(0.955 0.012 205));
+  --era-silver: oklch(0.78 0.014 215);
+}
+
+.dark .era-app {
+  --background: oklch(0.16 0.02 200);
+  --card: oklch(0.205 0.024 200);
+  --border: oklch(0.8 0.05 200 / 16%);
+  --era-rail: linear-gradient(180deg, oklch(0.19 0.028 200), oklch(0.155 0.02 200));
+  --era-silver: oklch(0.66 0.02 210);
+}
+
+.era-app .era-rail {
+  background-image: var(--era-rail);
+  border-right: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.era-app .era-topbar {
+  background-color: color-mix(in oklab, var(--card) 82%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.era-app .era-hairline {
+  border-color: var(--border);
+}
+
+.era-app .era-card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--era-silver) 24%, transparent);
+}
+
+.era-app .era-rise {
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.era-app .era-rise:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in oklab, var(--primary) 45%, transparent);
+  box-shadow: 0 18px 40px -28px color-mix(in oklab, var(--primary) 70%, transparent);
+}
+
+.era-app .era-banner {
+  position: relative;
+  overflow: hidden;
+}
+
+.era-app .era-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--primary) 85%, transparent),
+    color-mix(in oklab, var(--era-silver) 70%, transparent)
+  );
+}
+
+.era-app .era-banner--live::after {
+  background: linear-gradient(180deg, var(--primary), color-mix(in oklab, var(--gold) 70%, transparent));
+}
+
+.era-app .era-banner--halted::after {
+  background: linear-gradient(180deg, var(--destructive), color-mix(in oklab, var(--era-silver) 60%, transparent));
+}
+
+.era-app .era-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  padding: 0.25rem 0.7rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.era-app .era-status i {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 9999px;
+  background: currentColor;
+}
+
+.era-app .era-status--live {
+  color: var(--primary);
+  border-color: color-mix(in oklab, var(--primary) 40%, transparent);
+  background: color-mix(in oklab, var(--primary) 10%, transparent);
+}
+
+.era-app .era-status--waiting {
+  color: color-mix(in oklab, var(--gold) 75%, var(--foreground));
+  border-color: color-mix(in oklab, var(--gold) 45%, transparent);
+  background: color-mix(in oklab, var(--gold) 12%, transparent);
+}
+
+.era-app .era-status--halted {
+  color: var(--destructive);
+  border-color: color-mix(in oklab, var(--destructive) 40%, transparent);
+  background: color-mix(in oklab, var(--destructive) 10%, transparent);
+}
+
+.era-app .era-status--live i {
+  animation: era-blip 2.4s ease-in-out infinite;
+}
+
+@keyframes era-blip {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.8); }
+}
+
+.era-app .era-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  padding: 0.2rem 0.65rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.era-app .era-nav-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  border-radius: var(--radius-md);
+  padding: 0.55rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.era-app .era-nav-link:hover {
+  background-color: color-mix(in oklab, var(--primary) 8%, transparent);
+  color: var(--foreground);
+}
+
+.era-app .era-nav-link[data-active="true"] {
+  background-color: color-mix(in oklab, var(--primary) 12%, transparent);
+  color: var(--foreground);
+  box-shadow: inset 2px 0 0 var(--primary);
+}
+
+.era-app .era-nav-link--muted {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.era-app .era-nav-link--muted:hover {
+  background-color: transparent;
+  color: var(--muted-foreground);
+}
+
+.era-app .era-nav-note {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--muted-foreground) 80%, transparent);
+}
+
+.era-app .era-icon-button {
+  display: inline-flex;
+  height: 2.25rem;
+  width: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.era-app .era-burger {
+  display: block;
+  width: 1rem;
+  height: 2px;
+  background: currentColor;
+  box-shadow: 0 -5px 0 currentColor, 0 5px 0 currentColor;
+}
+
+.era-app .era-ghost-button {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  padding: 0.3rem 0.7rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.era-app .era-ghost-button:hover {
+  color: var(--foreground);
+  border-color: color-mix(in oklab, var(--primary) 45%, transparent);
+}
+
+.era-app .era-step-dot {
+  display: block;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 9999px;
+  border: 1px solid var(--era-silver);
+}
+
+.era-app .era-step[data-state="done"] .era-step-dot {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.era-app .era-step[data-state="current"] .era-step-dot {
+  background: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--gold) 22%, transparent);
+}
+
+.era-app .era-skeleton {
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--muted) 90%, transparent) 25%,
+    color-mix(in oklab, var(--era-silver) 30%, transparent) 50%,
+    color-mix(in oklab, var(--muted) 90%, transparent) 75%
+  );
+  background-size: 200% 100%;
+  animation: era-shine 1.4s linear infinite;
+}
+
+@keyframes era-shine {
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .era-app .era-rise:hover { transform: none; }
+  .era-app .era-skeleton,
+  .era-app .era-status--live i { animation: none !important; }
+}
