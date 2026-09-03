@@ -88,7 +88,9 @@ export function AppShell({
             <NavList items={items} />
           </div>
           <p className="era-hairline pt-4 text-xs text-muted-foreground">
-            Need a change? Your ERA representative can help.
+            {variant === "staff"
+              ? "ERA Systems LLC, agency operations."
+              : "Need a change? Your ERA representative can help."}
           </p>
         </aside>
 
