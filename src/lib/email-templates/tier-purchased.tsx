@@ -44,7 +44,7 @@ const value: React.CSSProperties = {
   color: "#0f1a17",
 };
 
-function Field({ name, text }: { name: string; text?: string }) {
+function Field({ name, text }: { name: string; text?: string | undefined }) {
   if (!text) return null;
   return (
     <Section>
