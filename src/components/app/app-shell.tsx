@@ -9,13 +9,22 @@ export type NavItem = {
   note?: string;
 };
 
-const NAV: NavItem[] = [
+const CLIENT_NAV: NavItem[] = [
   { label: "Overview", to: "/dashboard" },
   { label: "Business setup", to: "/onboarding" },
   { label: "Catalog", note: "Coming with your plan" },
   { label: "Team", note: "Coming with your plan" },
   { label: "Billing", note: "Coming with your plan" },
 ];
+
+const STAFF_NAV: NavItem[] = [
+  { label: "Invitations", to: "/admin/invites" },
+  { label: "Add-ons", to: "/admin/addons" },
+  { label: "My dashboard", to: "/dashboard" },
+  { label: "Marketing site", to: "/" },
+];
+
+export type ShellVariant = "client" | "staff";
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   return (
