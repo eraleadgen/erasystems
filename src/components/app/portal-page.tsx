@@ -5,8 +5,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
 import { buildClientNav } from "@/components/app/client-nav";
-import { getMyEntitlements } from "@/lib/entitlements.functions";
-import { getPortalWorkspace, type PortalWorkspace } from "@/lib/portal.functions";
+import {
+  getMyPortalContext,
+  getPortalWorkspace,
+  type PortalWorkspace,
+} from "@/lib/portal.functions";
 import type { PlatformFeature } from "@/lib/entitlements";
 
 /**
@@ -24,7 +27,7 @@ export function PortalPage({
   empty: string;
   children: (workspace: PortalWorkspace) => ReactNode;
 }) {
-  const fetchEntitlements = useServerFn(getMyEntitlements);
+  const fetchContext = useServerFn(getMyPortalContext);
   const fetchWorkspace = useServerFn(getPortalWorkspace);
 
   const { data: hasSession } = useQuery({
@@ -34,8 +37,8 @@ export function PortalPage({
   });
 
   const entitlements = useQuery({
-    queryKey: ["my-entitlements"],
-    queryFn: () => fetchEntitlements(),
+    queryKey: ["my-portal-context"],
+    queryFn: () => fetchContext(),
     enabled: hasSession === true,
     retry: false,
   });
