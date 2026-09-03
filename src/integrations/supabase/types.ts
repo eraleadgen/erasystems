@@ -621,20 +621,6 @@ export type Database = {
         Args: { _business_id: string }
         Returns: boolean
       }
-      business_has_addon: {
-        Args: {
-          _addon: Database["public"]["Enums"]["addon_kind"]
-          _business_id: string
-        }
-        Returns: boolean
-      }
-      business_has_feature: {
-        Args: {
-          _business_id: string
-          _feature: Database["public"]["Enums"]["platform_feature"]
-        }
-        Returns: boolean
-      }
       consume_invite: {
         Args: { _token_hash: string }
         Returns: {
@@ -643,17 +629,8 @@ export type Database = {
           id: string
         }[]
       }
-      has_business_role: {
-        Args: {
-          _business_id: string
-          _role: Database["public"]["Enums"]["business_role"]
-        }
-        Returns: boolean
-      }
       invite_throttle_check: { Args: { _ip: string }; Returns: boolean }
       invite_throttle_record: { Args: { _ip: string }; Returns: undefined }
-      is_business_manager: { Args: { _business_id: string }; Returns: boolean }
-      is_member_of: { Args: { _business_id: string }; Returns: boolean }
       is_platform_staff: { Args: never; Returns: boolean }
       release_invite: { Args: { _invite_id: string }; Returns: undefined }
     }
