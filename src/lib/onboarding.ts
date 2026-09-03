@@ -57,6 +57,21 @@ export const basicsSchema = z.object({
   hours: z.record(z.enum(DAYS), hourSchema),
 });
 
+/** Mid-wizard basics tolerate blanks and half-typed emails; completion re-validates strictly. */
+export const draftBasicsSchema = basicsSchema.extend({
+  legalName: z.string().max(160).default(""),
+  displayName: z.string().max(160).default(""),
+  timezone: z.string().max(64).default("America/New_York"),
+  supportEmail: z.string().max(254).default(""),
+});
+
+/** Draft branding accepts partially typed hex colors. */
+export const draftBrandingSchema = z.object({
+  logoPath: z.string().max(400).nullable().default(null),
+  brandPrimary: z.string().max(9).default(""),
+  brandAccent: z.string().max(9).default(""),
+});
+
 export const brandingSchema = z.object({
   logoPath: z.string().max(400).nullable().default(null),
   brandPrimary: z
@@ -80,6 +95,16 @@ export const serviceSchema = z.object({
 
 export const catalogSchema = z.object({ services: z.array(serviceSchema).max(100) });
 
+/** Half-typed rows are normal mid-wizard; completion still uses the strict schemas. */
+const draftServiceSchema = z.object({
+  name: z.string().max(160).default(""),
+  description: z.string().max(2000).default(""),
+  durationMinutes: z.number().int().min(0).max(1440).default(30),
+  priceCents: z.number().int().min(0).max(100_000_000).default(0),
+});
+
+export const draftCatalogSchema = z.object({ services: z.array(draftServiceSchema).max(100) });
+
 export const teamMemberSchema = z.object({
   fullName: z.string().min(1).max(120),
   email: z.string().email().max(254),
@@ -87,6 +112,14 @@ export const teamMemberSchema = z.object({
 });
 
 export const teamSchema = z.object({ members: z.array(teamMemberSchema).max(100) });
+
+const draftTeamMemberSchema = z.object({
+  fullName: z.string().max(120).default(""),
+  email: z.string().max(254).default(""),
+  title: z.string().max(120).default(""),
+});
+
+export const draftTeamSchema = z.object({ members: z.array(draftTeamMemberSchema).max(100) });
 
 export const integrationsSchema = z.object({
   desiredDomain: z.string().max(253).default(""),
@@ -97,12 +130,13 @@ export const integrationsSchema = z.object({
 });
 
 export const draftDataSchema = z.object({
-  basics: basicsSchema.partial().optional(),
-  branding: brandingSchema.partial().optional(),
-  catalog: catalogSchema.partial().optional(),
-  team: teamSchema.partial().optional(),
+  basics: draftBasicsSchema.partial().optional(),
+  branding: draftBrandingSchema.partial().optional(),
+  catalog: draftCatalogSchema.partial().optional(),
+  team: draftTeamSchema.partial().optional(),
   integrations: integrationsSchema.partial().optional(),
 });
+
 
 export type Basics = z.infer<typeof basicsSchema>;
 export type Branding = z.infer<typeof brandingSchema>;
