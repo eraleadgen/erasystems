@@ -57,6 +57,21 @@ export const basicsSchema = z.object({
   hours: z.record(z.enum(DAYS), hourSchema),
 });
 
+/** Mid-wizard basics tolerate blanks and half-typed emails; completion re-validates strictly. */
+export const draftBasicsSchema = basicsSchema.extend({
+  legalName: z.string().max(160).default(""),
+  displayName: z.string().max(160).default(""),
+  timezone: z.string().max(64).default("America/New_York"),
+  supportEmail: z.string().max(254).default(""),
+});
+
+/** Draft branding accepts partially typed hex colors. */
+export const draftBrandingSchema = z.object({
+  logoPath: z.string().max(400).nullable().default(null),
+  brandPrimary: z.string().max(9).default(""),
+  brandAccent: z.string().max(9).default(""),
+});
+
 export const brandingSchema = z.object({
   logoPath: z.string().max(400).nullable().default(null),
   brandPrimary: z
