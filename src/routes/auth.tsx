@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { getAccountRouting } from "@/lib/business.functions";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -27,6 +29,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const routing = useServerFn(getAccountRouting);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -35,8 +38,11 @@ function AuthPage() {
     mutationFn: async () => {
       const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
       if (signInError) throw new Error(signInError.message);
+      // Staff land in the agency console, clients land in their own app.
+      return await routing().catch(() => ({ isStaff: false, hasBusiness: false }));
     },
-    onSuccess: () => navigate({ to: "/" }),
+    onSuccess: (result) =>
+      navigate({ to: result.isStaff ? "/admin/invites" : "/dashboard" }),
     onError: (err: Error) => setError(err.message),
   });
 

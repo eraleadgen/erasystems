@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { AppShell } from "@/components/app/app-shell";
 import { createInvite, listInvites, revokeInvite } from "@/lib/invites.functions";
 import { INVITE_TTL_DAYS, inviteStatusLabel, inviteUrl, type InviteSummary } from "@/lib/invites";
 import {
@@ -37,9 +38,11 @@ export const Route = createFileRoute("/admin/invites")({
   }),
   component: InvitesAdmin,
   errorComponent: ({ error }) => (
-    <main className="flex min-h-screen items-center justify-center p-8">
-      <p className="text-sm text-destructive">{error.message}</p>
-    </main>
+    <AppShell title="Invitations" variant="staff">
+      <div className="era-card p-6">
+        <p className="text-sm text-destructive">{error.message}</p>
+      </div>
+    </AppShell>
   ),
 });
 
@@ -121,15 +124,15 @@ function InvitesAdmin() {
   });
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
-      <h1 className="text-2xl font-semibold text-foreground">Invitations</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
+    <AppShell title="Invitations" variant="staff" role="Platform staff">
+      <p className="text-sm text-muted-foreground">
         Each invite is single-use, tied to one email address, and expires after {INVITE_TTL_DAYS}{" "}
         days. The link is shown once, copy it now, it cannot be retrieved later.
       </p>
 
+
       <form
-        className="mt-8 grid gap-4 rounded-xl border border-border bg-card p-6 sm:grid-cols-2"
+        className="era-card mt-6 grid gap-4 p-6 sm:grid-cols-2"
         onSubmit={(event) => {
           event.preventDefault();
           setError(null);
@@ -290,7 +293,7 @@ function InvitesAdmin() {
           Only platform staff can view invitations. Sign in with a staff account.
         </p>
       ) : (
-        <ul className="mt-4 divide-y divide-border rounded-xl border border-border bg-card">
+        <ul className="era-card mt-4 divide-y divide-border">
           {(invitesQuery.data ?? []).map((invite: InviteSummary) => (
             <li key={invite.id} className="flex items-center justify-between gap-4 px-5 py-4">
               <div>
@@ -326,6 +329,6 @@ function InvitesAdmin() {
           ) : null}
         </ul>
       )}
-    </main>
+    </AppShell>
   );
 }

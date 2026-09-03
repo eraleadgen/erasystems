@@ -85,11 +85,13 @@ export const resolveTenant = createServerFn({ method: "GET" })
       )
       .eq("is_active", true);
 
+    // No implicit default tenant. A platform host with no explicit slug resolves
+    // to nothing, so the marketing site renders instead of some arbitrary business.
     const { data: business } = businessId
       ? await query.eq("id", businessId).maybeSingle()
       : data?.tenant
         ? await query.eq("slug", data.tenant).maybeSingle()
-        : await query.order("created_at", { ascending: true }).limit(1).maybeSingle();
+        : { data: null };
 
     if (!business) return null;
 
