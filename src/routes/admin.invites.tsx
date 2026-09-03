@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
+import { supabase } from "@/integrations/supabase/client";
 import { createInvite, listInvites, revokeInvite } from "@/lib/invites.functions";
 import { INVITE_TTL_DAYS, inviteStatusLabel, inviteUrl, type InviteSummary } from "@/lib/invites";
 import {
@@ -62,9 +63,18 @@ function InvitesAdmin() {
   const [issuedLink, setIssuedLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Anonymous visitors carry no bearer token; the staff-only fn would 401 and
+  // blank the page, so only query once a session exists.
+  const { data: hasSession } = useQuery({
+    queryKey: ["has-session"],
+    queryFn: async () => Boolean((await supabase.auth.getSession()).data.session),
+    retry: false,
+  });
+
   const invitesQuery = useQuery({
     queryKey: ["invites"],
     queryFn: () => fetchInvites(),
+    enabled: hasSession === true,
     retry: false,
   });
 
@@ -273,9 +283,9 @@ function InvitesAdmin() {
       ) : null}
 
       <h2 className="mt-12 text-lg font-semibold text-foreground">Issued invitations</h2>
-      {invitesQuery.isLoading ? (
+      {hasSession === true && invitesQuery.isLoading ? (
         <p className="mt-3 text-sm text-muted-foreground">Loading…</p>
-      ) : invitesQuery.error ? (
+      ) : hasSession === false || invitesQuery.error ? (
         <p className="mt-3 text-sm text-destructive">
           Only platform staff can view invitations. Sign in with a staff account.
         </p>
