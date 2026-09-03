@@ -121,12 +121,12 @@ function InvitesAdmin() {
   });
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
-      <h1 className="text-2xl font-semibold text-foreground">Invitations</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
+    <AppShell title="Invitations" variant="staff" role="Platform staff">
+      <p className="text-sm text-muted-foreground">
         Each invite is single-use, tied to one email address, and expires after {INVITE_TTL_DAYS}{" "}
         days. The link is shown once, copy it now, it cannot be retrieved later.
       </p>
+
 
       <form
         className="mt-8 grid gap-4 rounded-xl border border-border bg-card p-6 sm:grid-cols-2"
