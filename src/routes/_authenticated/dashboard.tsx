@@ -207,8 +207,10 @@ function Dashboard() {
       <DeliverySection businessId={data.id} startedAt={data.isActive ? data.createdAt : null} />
 
       {(data.lifecycle === "pending_payment" || data.lifecycle === "expired") && (
-        <PlanPicker canPay={data.role === "owner" || data.role === "admin"} />
-        <CheckoutPanel canPay={data.role === "owner" || data.role === "admin"} />
+        <>
+          <PlanPicker canPay={data.role === "owner" || data.role === "admin"} />
+          <CheckoutPanel canPay={data.role === "owner" || data.role === "admin"} />
+        </>
       )}
 
       <section className="era-card px-5 py-2">
