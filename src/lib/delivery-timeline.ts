@@ -6,6 +6,9 @@ import type { AddonKind, PlatformFeature } from "./entitlements";
  * Presentation only: these are the committed build windows per capability, not
  * entitlement logic. What a client is entitled to still comes from plan_tier_features
  * and business_addons; this file only says how soon each of those goes live.
+ *
+ * Every window is capped at the platform commitment: everything in a plan is
+ * live within 7 days of kickoff.
  */
 export type DeliveryWindow = {
   /** Business days from kickoff until the capability is live. */
@@ -25,9 +28,12 @@ export const FEATURE_DELIVERY: Record<PlatformFeature, DeliveryWindow> = {
   specialist_portal: { days: 7, label: "5 to 7 days" },
   voice_sms_agent: { days: 7, label: "5 to 7 days" },
   sms_automations: { days: 7, label: "5 to 7 days" },
-  advanced_analytics: { days: 10, label: "7 to 10 days" },
-  partner_network: { days: 10, label: "7 to 10 days" },
+  advanced_analytics: { days: 7, label: "5 to 7 days" },
+  partner_network: { days: 7, label: "5 to 7 days" },
 };
+
+/** Platform commitment: nothing in a plan takes longer than this. */
+export const MAX_DELIVERY_DAYS = 7;
 
 export const ADDON_DELIVERY: Record<AddonKind, DeliveryWindow> = {
   ad_management: { days: 7, label: "5 to 7 days" },
