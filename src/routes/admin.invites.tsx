@@ -282,9 +282,9 @@ function InvitesAdmin() {
       ) : null}
 
       <h2 className="mt-12 text-lg font-semibold text-foreground">Issued invitations</h2>
-      {invitesQuery.isLoading ? (
+      {hasSession === true && invitesQuery.isLoading ? (
         <p className="mt-3 text-sm text-muted-foreground">Loading…</p>
-      ) : invitesQuery.error ? (
+      ) : hasSession === false || invitesQuery.error ? (
         <p className="mt-3 text-sm text-destructive">
           Only platform staff can view invitations. Sign in with a staff account.
         </p>
