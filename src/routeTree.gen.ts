@@ -19,7 +19,6 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AdminAddonsRouteImport } from './routes/admin.addons'
 import { Route as AdminInvitesRouteImport } from './routes/admin.invites'
-import { Route as DemoTenantRouteImport } from './routes/demo.tenant'
 import { Route as ApiPublicCronExpireBusinessesRouteImport } from './routes/api/public/cron/expire-businesses'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
@@ -73,11 +72,6 @@ const AdminInvitesRoute = AdminInvitesRouteImport.update({
   path: '/admin/invites',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoTenantRoute = DemoTenantRouteImport.update({
-  id: '/demo/tenant',
-  path: '/demo/tenant',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicCronExpireBusinessesRoute =
   ApiPublicCronExpireBusinessesRouteImport.update({
     id: '/api/public/cron/expire-businesses',
@@ -106,7 +100,6 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/invites': typeof AdminInvitesRoute
-  '/demo/tenant': typeof DemoTenantRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -121,7 +114,6 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/invites': typeof AdminInvitesRoute
-  '/demo/tenant': typeof DemoTenantRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -138,7 +130,6 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/invites': typeof AdminInvitesRoute
-  '/demo/tenant': typeof DemoTenantRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -155,7 +146,6 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/admin/addons'
     | '/admin/invites'
-    | '/demo/tenant'
     | '/api/public/cron/expire-businesses'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/transactional/preview'
@@ -170,7 +160,6 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/admin/addons'
     | '/admin/invites'
-    | '/demo/tenant'
     | '/api/public/cron/expire-businesses'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/transactional/preview'
@@ -186,7 +175,6 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/admin/addons'
     | '/admin/invites'
-    | '/demo/tenant'
     | '/api/public/cron/expire-businesses'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/transactional/preview'
@@ -201,7 +189,6 @@ export interface RootRouteChildren {
   SpecialistsRoute: typeof SpecialistsRoute
   AdminAddonsRoute: typeof AdminAddonsRoute
   AdminInvitesRoute: typeof AdminInvitesRoute
-  DemoTenantRoute: typeof DemoTenantRoute
   ApiPublicCronExpireBusinessesRoute: typeof ApiPublicCronExpireBusinessesRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -279,13 +266,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInvitesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/tenant': {
-      id: '/demo/tenant'
-      path: '/demo/tenant'
-      fullPath: '/demo/tenant'
-      preLoaderRoute: typeof DemoTenantRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/cron/expire-businesses': {
       id: '/api/public/cron/expire-businesses'
       path: '/api/public/cron/expire-businesses'
@@ -332,7 +312,6 @@ const rootRouteChildren: RootRouteChildren = {
   SpecialistsRoute: SpecialistsRoute,
   AdminAddonsRoute: AdminAddonsRoute,
   AdminInvitesRoute: AdminInvitesRoute,
-  DemoTenantRoute: DemoTenantRoute,
   ApiPublicCronExpireBusinessesRoute: ApiPublicCronExpireBusinessesRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
