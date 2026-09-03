@@ -1,6 +1,7 @@
 import {
   ADDON_DELIVERY,
   FEATURE_DELIVERY,
+  MAX_DELIVERY_DAYS,
   estimatedDate,
   groupByWindow,
   type DeliveryWindow,
@@ -30,6 +31,7 @@ export function DeliveryTimeline({
 
   if (items.length === 0) return null;
   const groups = groupByWindow(items);
+  const fullyLiveOn = estimatedDate(startedAt, MAX_DELIVERY_DAYS);
 
   return (
     <section className="era-card p-6 sm:p-7">
@@ -43,6 +45,17 @@ export function DeliveryTimeline({
               ? "Build windows for everything included in your plan, counted from kickoff."
               : "Build windows for everything included in your plan. The clock starts once payment completes."}
           </p>
+        </div>
+        <div className="era-hairline rounded-lg border px-4 py-3 sm:text-right">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+            Fully live within
+          </p>
+          <p className="text-sm font-semibold text-foreground">{MAX_DELIVERY_DAYS} days</p>
+          {fullyLiveOn && (
+            <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+              by {fullyLiveOn}
+            </p>
+          )}
         </div>
       </div>
 
@@ -71,7 +84,7 @@ export function DeliveryTimeline({
       </ol>
 
       <p className="mt-5 text-xs text-muted-foreground">
-        Windows assume we have what we need from you. Anything waiting on your domain, content or
+        Every feature in your plan is live within 7 days of kickoff. Windows assume we have what we need from you. Anything waiting on your domain, content or
         approvals starts when that arrives.
       </p>
     </section>
