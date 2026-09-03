@@ -130,8 +130,8 @@ export const integrationsSchema = z.object({
 });
 
 export const draftDataSchema = z.object({
-  basics: basicsSchema.partial().optional(),
-  branding: brandingSchema.partial().optional(),
+  basics: draftBasicsSchema.partial().optional(),
+  branding: draftBrandingSchema.partial().optional(),
   catalog: draftCatalogSchema.partial().optional(),
   team: draftTeamSchema.partial().optional(),
   integrations: integrationsSchema.partial().optional(),
