@@ -101,7 +101,6 @@ export function AppShell({
                 href="mailto:support@eraleadgen.com"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-secondary px-3 py-2 text-xs font-semibold text-secondary-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
               >
-                <Mail className="h-3.5 w-3.5" />
                 Contact support
               </a>
             </div>
