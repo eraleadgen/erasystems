@@ -119,7 +119,7 @@ export function AppShell({
 
           {open && (
             <div className="era-hairline border-b px-5 py-3 lg:hidden">
-              <NavList onNavigate={() => setOpen(false)} />
+              <NavList items={items} onNavigate={() => setOpen(false)} />
             </div>
           )}
 
