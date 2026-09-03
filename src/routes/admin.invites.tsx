@@ -62,9 +62,18 @@ function InvitesAdmin() {
   const [issuedLink, setIssuedLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Anonymous visitors carry no bearer token; the staff-only fn would 401 and
+  // blank the page, so only query once a session exists.
+  const { data: hasSession } = useQuery({
+    queryKey: ["has-session"],
+    queryFn: async () => Boolean((await supabase.auth.getSession()).data.session),
+    retry: false,
+  });
+
   const invitesQuery = useQuery({
     queryKey: ["invites"],
     queryFn: () => fetchInvites(),
+    enabled: hasSession === true,
     retry: false,
   });
 
