@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { checkTenantFeature } from "@/lib/entitlements.functions";
 import { resolveTenant } from "@/lib/tenant.functions";
+import { TenantSurface } from "@/components/tenant-surface";
 
 const searchSchema = z.object({
   tenant: z
@@ -41,24 +42,22 @@ export const Route = createFileRoute("/specialists")({
   }),
   component: Specialists,
   errorComponent: ({ error }) => (
-    <div className="flex min-h-screen items-center justify-center p-8">
+    <div className="era-app flex min-h-screen items-center justify-center bg-background p-8">
       <p className="text-sm text-destructive">{error.message}</p>
     </div>
   ),
 });
 
 function Specialists() {
-  const { tenant } = Route.useLoaderData();
+  const { tenant, allowed } = Route.useLoaderData();
   return (
-    <main className="mx-auto min-h-screen max-w-3xl px-6 py-16">
-      <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Growth feature</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">
-        {tenant.name} specialist portal
-      </h1>
-      <p className="mt-4 text-sm text-muted-foreground">
-        Gated on <code className="text-foreground">specialist_portal</code>. Data inside is still
-        scoped by row-level security on <code className="text-foreground">business_id</code>.
-      </p>
-    </main>
+    <TenantSurface
+      kicker="Growth feature"
+      title={tenant ? `${tenant.name} specialist portal` : "Specialist portal"}
+      tenant={tenant}
+      allowed={allowed}
+      feature="specialist_portal"
+      body="Schedules, assigned jobs and availability for this business's specialists."
+    />
   );
 }
