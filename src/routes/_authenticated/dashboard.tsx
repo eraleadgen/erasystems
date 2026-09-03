@@ -354,14 +354,6 @@ function CheckoutPanel({ canPay }: { canPay: boolean }) {
         </>
       )}
 
-          ) : (
-            <p className="mt-4 text-xs text-muted-foreground">
-              Only the business owner can complete payment.
-            </p>
-          )}
-        </>
-      )}
-
       {error && <p className="mt-3 text-xs text-destructive">{error}</p>}
     </div>
   );
