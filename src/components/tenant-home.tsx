@@ -147,18 +147,11 @@ export function TenantHome({
 
         {tenant.isPlatformHost && (
           <p className="mt-6 rounded-md border border-border bg-muted px-4 py-3 text-xs text-muted-foreground">
-            Platform hostname detected (preview/dev), so there is no tenant domain to resolve. Switch
-            tenants with{" "}
-            <Link to="/demo/tenant" search={{ tenant: "apex-detail" }} className="underline">
-              ?tenant=apex-detail
-            </Link>{" "}
-            or{" "}
-            <Link to="/demo/tenant" search={{ tenant: "northwind-hvac" }} className="underline">
-              ?tenant=northwind-hvac
-            </Link>
-            . This override is ignored on real tenant domains.
+            Platform hostname detected (preview/dev), so there is no tenant domain to resolve. On a
+            real tenant domain the business resolves from the incoming hostname.
           </p>
         )}
+
 
         <EntitlementMatrix businessId={tenant.businessId} />
 
