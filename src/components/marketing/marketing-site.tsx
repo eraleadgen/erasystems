@@ -104,7 +104,7 @@ const addons = [
   },
   {
     name: "Downloadable Apps",
-    body: "The platform presents entirely as your brand: your domain, your marks, your customer-facing surfaces, with ERA out of the way.",
+    body: "Two branded apps under your name. A customer app that carries your website, booking and accounts into a download your clients keep on their phone, and a business operations app your team runs the day from. Scoped on a call before anything is built.",
   },
 ];
 
