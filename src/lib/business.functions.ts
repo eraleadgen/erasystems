@@ -8,6 +8,8 @@ export type MyBusiness = {
   id: string;
   name: string;
   slug: string;
+  /** Custom hostname mapped to this business, when one has been connected. */
+  primaryDomain: string | null;
   timezone: string;
   planTier: string;
   isActive: boolean;
@@ -17,6 +19,7 @@ export type MyBusiness = {
   serviceCount: number;
   role: string;
 };
+
 
 /**
  * The caller's own business, resolved through their membership row. RLS-scoped —
