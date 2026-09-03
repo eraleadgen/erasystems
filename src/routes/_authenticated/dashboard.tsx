@@ -218,7 +218,7 @@ function Dashboard() {
         <StatTile label="Site published" value={data.isActive ? "Yes" : "Not yet"} />
       </div>
 
-      <DeliverySection businessId={data.id} startedAt={data.isActive ? data.createdAt : null} />
+      <StatusSection businessId={data.id} />
 
       {(data.lifecycle === "pending_payment" || data.lifecycle === "expired") && (
         <>
@@ -228,7 +228,11 @@ function Dashboard() {
       )}
 
       <section className="era-card px-5 py-2">
-        <CopyRow label="Web address" value={data.slug} />
+        <CopyRow
+          label="Web address"
+          value={data.primaryDomain ?? `${data.slug} (domain pending)`}
+        />
+
         <div className="era-hairline border-t" />
         <div className="flex items-center justify-between gap-4 py-3">
           <div>
