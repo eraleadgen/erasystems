@@ -1,11 +1,11 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { z } from "zod";
 
 import { supabase } from "@/integrations/supabase/client";
-import { resolveTenant } from "@/lib/tenant.functions";
+import { AppShell } from "@/components/app/app-shell";
+import { listVisibleBusinesses } from "@/lib/business.functions";
 import { getBusinessAddons, saveBusinessAddon } from "@/lib/entitlements.functions";
 
 import {
@@ -18,23 +18,7 @@ import {
   type BusinessAddon,
 } from "@/lib/entitlements";
 
-const searchSchema = z.object({
-  tenant: z
-    .string()
-    .regex(/^[a-z0-9-]+$/)
-    .optional(),
-});
-
 export const Route = createFileRoute("/admin/addons")({
-  validateSearch: searchSchema,
-  loaderDeps: ({ search }) => ({ tenant: search.tenant }),
-  // Public loader: resolves WHICH tenant only. Add-on rows and amounts are fetched
-  // client-side through an authenticated server fn, gated by RLS.
-  loader: async ({ deps }) => {
-    const tenant = await resolveTenant({ data: { tenant: deps.tenant } });
-    if (!tenant) throw notFound();
-    return { tenant };
-  },
   head: () => ({
     meta: [
       { title: "Add-on management | ERA Systems" },
@@ -50,21 +34,25 @@ export const Route = createFileRoute("/admin/addons")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: AddonsAdmin,
   errorComponent: ({ error }) => (
-    <div className="flex min-h-screen items-center justify-center p-8">
-      <p className="text-sm text-destructive">{error.message}</p>
-    </div>
+    <AppShell title="Add-ons" variant="staff">
+      <div className="era-card p-6">
+        <p className="text-sm text-destructive">{error.message}</p>
+      </div>
+    </AppShell>
   ),
 });
 
 function AddonsAdmin() {
-  const { tenant } = Route.useLoaderData();
   const fetchAddons = useServerFn(getBusinessAddons);
+  const fetchBusinesses = useServerFn(listVisibleBusinesses);
   const saveAddon = useServerFn(saveBusinessAddon);
   const queryClient = useQueryClient();
+  const [selected, setSelected] = useState<string | null>(null);
 
   // Anonymous visitors carry no bearer token; the authenticated fn would 401
   // and blank the page, so only query once a session exists.
@@ -74,13 +62,23 @@ function AddonsAdmin() {
     retry: false,
   });
 
-  const addonsQuery = useQuery({
-    queryKey: ["business-addons", tenant.businessId],
-    queryFn: () => fetchAddons({ data: { businessId: tenant.businessId } }),
+  const businessesQuery = useQuery({
+    queryKey: ["visible-businesses"],
+    queryFn: () => fetchBusinesses(),
     enabled: hasSession === true,
     retry: false,
   });
 
+  const businesses = businessesQuery.data ?? [];
+  const businessId = selected ?? businesses[0]?.id ?? null;
+  const business = businesses.find((b) => b.id === businessId) ?? null;
+
+  const addonsQuery = useQuery({
+    queryKey: ["business-addons", businessId],
+    queryFn: () => fetchAddons({ data: { businessId: businessId! } }),
+    enabled: Boolean(businessId),
+    retry: false,
+  });
 
   const mutation = useMutation({
     mutationFn: (input: {
@@ -88,51 +86,90 @@ function AddonsAdmin() {
       priceCents: number;
       billingInterval: BillingInterval;
       isActive: boolean;
-    }) => saveAddon({ data: { businessId: tenant.businessId, ...input } }),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["business-addons", tenant.businessId] }),
+    }) => saveAddon({ data: { businessId: businessId!, ...input } }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["business-addons", businessId] }),
   });
 
   const rows = addonsQuery.data ?? [];
 
   return (
-    <main className="mx-auto min-h-screen max-w-3xl px-6 py-14">
-      <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Platform staff</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">
-        Add-ons for {tenant.name}
-      </h1>
-      <p className="mt-4 max-w-2xl text-sm text-muted-foreground">
-        Add-ons are independent of plan tier: this business is on{" "}
-        <code className="text-foreground">{tenant.planTier}</code> and either add-on can be active
-        or not regardless. Amounts are entered per client; there is no platform-wide rate.
+    <AppShell
+      title={business ? `Add-ons, ${business.name}` : "Add-ons"}
+      variant="staff"
+      role="Platform staff"
+    >
+      <p className="max-w-2xl text-sm text-muted-foreground">
+        Add-ons are independent of plan tier: a business on any tier can have either add-on active
+        or not. Amounts are entered per client; there is no platform-wide rate.
       </p>
 
-      {(addonsQuery.isError || hasSession === false) && (
-        <p className="mt-8 rounded-md border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
-          Add-on records are readable only to members of this business and platform staff. Sign in
-          with an authorized account to view or edit them.
-        </p>
-      )}
+      {hasSession === false ? (
+        <div className="era-card p-6">
+          <p className="text-sm text-muted-foreground">
+            Add-on records are readable only to members of a business and platform staff. Sign in
+            with an authorized account to view or edit them.
+          </p>
+        </div>
+      ) : businessesQuery.isLoading ? (
+        <div className="era-skeleton h-24 w-full" />
+      ) : businesses.length === 0 ? (
+        <div className="era-card p-6">
+          <p className="text-sm text-muted-foreground">
+            No businesses yet. A business appears here once an invited client completes setup.
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="era-card flex flex-wrap items-end gap-3 p-5">
+            <label className="text-xs text-muted-foreground">
+              Business
+              <select
+                value={businessId ?? ""}
+                onChange={(e) => setSelected(e.target.value)}
+                className="mt-1 block min-w-64 rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+              >
+                {businesses.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {business && (
+              <span className="era-chip">
+                {business.planTier} · {business.lifecycle.replace("_", " ")}
+              </span>
+            )}
+          </div>
 
-      {addonsQuery.isSuccess && (
-        <div className="mt-8 space-y-4">
-          {ALL_ADDONS.map((addon) => (
-            <AddonRow
-              key={addon}
-              addon={addon}
-              existing={rows.find((r) => r.addon === addon) ?? null}
-              saving={mutation.isPending}
-              onSave={(input) => mutation.mutate({ addon, ...input })}
-            />
-          ))}
-          {mutation.isError && (
-            <p className="text-xs text-destructive">
-              {(mutation.error as Error).message}, only platform staff may write add-on records.
+          {addonsQuery.isError && (
+            <p className="text-sm text-destructive">
+              {(addonsQuery.error as Error).message}
             </p>
           )}
-        </div>
+
+          {addonsQuery.isSuccess && (
+            <div className="space-y-4">
+              {ALL_ADDONS.map((addon) => (
+                <AddonRow
+                  key={`${businessId}-${addon}`}
+                  addon={addon}
+                  existing={rows.find((r) => r.addon === addon) ?? null}
+                  saving={mutation.isPending}
+                  onSave={(input) => mutation.mutate({ addon, ...input })}
+                />
+              ))}
+              {mutation.isError && (
+                <p className="text-xs text-destructive">
+                  {(mutation.error as Error).message}, only platform staff may write add-on
+                  records.
+                </p>
+              )}
+            </div>
+          )}
+        </>
       )}
-    </main>
+    </AppShell>
   );
 }
 
@@ -160,7 +197,7 @@ function AddonRow({
   const [isActive, setIsActive] = useState(existing?.isActive ?? false);
 
   return (
-    <div className="rounded-lg border border-border bg-card p-5">
+    <div className="era-card p-5">
       <div className="flex items-baseline justify-between gap-4">
         <h2 className="text-sm font-semibold text-foreground">{ADDON_LABELS[addon]}</h2>
         <span className="text-xs text-muted-foreground">
