@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react'
 
 import { template as discoveryRequestTemplate } from './discovery-request'
+import { template as tierPurchasedTemplate } from './tier-purchased'
 
 
 export interface TemplateEntry {
@@ -22,5 +23,6 @@ export interface TemplateEntry {
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'discovery-request': discoveryRequestTemplate,
+  'tier-purchased': tierPurchasedTemplate,
 }
 
