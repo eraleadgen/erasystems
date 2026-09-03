@@ -117,7 +117,13 @@ function Dashboard() {
   if (isPending) {
     return (
       <Shell>
-        <p className="text-sm text-muted-foreground">Loading your business…</p>
+        <div className="era-skeleton h-28 w-full" />
+        <div className="grid gap-4 sm:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="era-skeleton h-24 w-full" />
+          ))}
+        </div>
+        <div className="era-skeleton h-44 w-full" />
       </Shell>
     );
   }
@@ -125,7 +131,9 @@ function Dashboard() {
   if (error) {
     return (
       <Shell>
-        <p className="text-sm text-destructive">{(error as Error).message}</p>
+        <div className="era-card p-6">
+          <p className="text-sm text-destructive">{(error as Error).message}</p>
+        </div>
       </Shell>
     );
   }
@@ -133,64 +141,83 @@ function Dashboard() {
   if (!data) {
     return (
       <Shell>
-        <h1 className="text-2xl font-semibold text-foreground">No business yet</h1>
-        <p className="text-sm text-muted-foreground">
-          You haven&apos;t finished business setup. Everything you enter saves as you go.
-        </p>
-        <Link
-          to="/onboarding"
-          className="inline-block rounded-md border border-border px-4 py-2 text-sm text-foreground underline-offset-4 hover:underline"
-        >
-          Continue setup
-        </Link>
+        <div className="era-card p-8">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground">No business yet</h2>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+            You haven&apos;t finished business setup. Everything you enter saves as you go.
+          </p>
+          <Link
+            to="/onboarding"
+            className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+          >
+            Continue setup
+          </Link>
+        </div>
       </Shell>
     );
   }
 
   const copy = STATE_COPY[data.lifecycle];
   const reservedUntil = formatDate(data.slugReservedUntil);
+  const paid = data.lifecycle === "active";
+  const steps: { label: string; state: StepState }[] = [
+    { label: "Account created", state: "done" },
+    { label: "Business setup", state: "done" },
+    { label: "Payment", state: paid ? "done" : "current" },
+    { label: "Live", state: paid && data.isActive ? "done" : "upcoming" },
+  ];
 
   return (
-    <Shell>
-      <div>
-        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{copy.label}</p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">{data.name}</h1>
-        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{copy.body}</p>
-      </div>
+    <Shell title={data.name} status={{ label: copy.label, tone: TONE[data.lifecycle] }} role={data.role}>
+      <StatusBanner
+        tone={TONE[data.lifecycle]}
+        label={copy.label}
+        headline={copy.headline}
+        body={copy.body}
+        {...(data.lifecycle === "pending_payment" && reservedUntil
+          ? {
+              footnote: (
+                <>
+                  Your address <code className="text-foreground">{data.slug}</code> is reserved
+                  until {reservedUntil}.
+                </>
+              ),
+            }
+          : {})}
+      />
 
-      <div className="rounded-lg border border-border bg-card px-5 py-4">
-        <p className="text-sm font-medium text-foreground">{copy.headline}</p>
-        {data.lifecycle === "pending_payment" && reservedUntil && (
-          <p className="mt-2 text-xs text-muted-foreground">
-            Your address <code className="text-foreground">{data.slug}</code> is reserved until{" "}
-            {reservedUntil}.
-          </p>
-        )}
+      <SetupProgress steps={steps} />
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatTile label="Plan" value={data.planTier} />
+        <StatTile label="Services" value={String(data.serviceCount)} hint="in your catalog" />
+        <StatTile label="Timezone" value={data.timezone} />
+        <StatTile label="Site published" value={data.isActive ? "Yes" : "Not yet"} />
       </div>
 
       {(data.lifecycle === "pending_payment" || data.lifecycle === "expired") && (
         <CheckoutPanel canPay={data.role === "owner" || data.role === "admin"} />
       )}
 
-
-      <dl className="grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2">
-        {[
-          ["Web address", data.slug],
-          ["Plan", data.planTier],
-          ["Timezone", data.timezone],
-          ["Services in catalog", String(data.serviceCount)],
-          ["Your role", data.role],
-          ["Site published", data.isActive ? "Yes" : "No"],
-        ].map(([label, value]) => (
-          <div key={label} className="bg-card px-5 py-4">
-            <dt className="text-xs uppercase tracking-wide text-muted-foreground">{label}</dt>
-            <dd className="mt-1 break-all text-sm text-foreground">{value}</dd>
+      <section className="era-card px-5 py-2">
+        <CopyRow label="Web address" value={data.slug} />
+        <div className="era-hairline border-t" />
+        <div className="flex items-center justify-between gap-4 py-3">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+              Your role
+            </p>
+            <p className="mt-1 text-sm text-foreground">{data.role}</p>
           </div>
-        ))}
-      </dl>
+          <Link to="/onboarding" className="era-ghost-button">
+            Edit setup
+          </Link>
+        </div>
+      </section>
     </Shell>
   );
 }
+
 
 /**
  * Checkout for a business that is waiting on payment.
