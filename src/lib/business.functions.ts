@@ -13,6 +13,7 @@ export type MyBusiness = {
   isActive: boolean;
   lifecycle: BusinessLifecycle;
   slugReservedUntil: string | null;
+  createdAt: string;
   serviceCount: number;
   role: string;
 };
@@ -36,7 +37,7 @@ export const getMyBusiness = createServerFn({ method: "GET" })
 
     const { data: business, error } = await context.supabase
       .from("businesses")
-      .select("id, name, slug, timezone, plan_tier, is_active, lifecycle, slug_reserved_until")
+      .select("id, name, slug, timezone, plan_tier, is_active, lifecycle, slug_reserved_until, created_at")
       .eq("id", membership.business_id)
       .maybeSingle();
 
@@ -57,6 +58,7 @@ export const getMyBusiness = createServerFn({ method: "GET" })
       isActive: business.is_active,
       lifecycle: business.lifecycle as BusinessLifecycle,
       slugReservedUntil: business.slug_reserved_until,
+      createdAt: business.created_at,
       serviceCount: count ?? 0,
       role: membership.role,
     };
