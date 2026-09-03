@@ -268,13 +268,33 @@
  * sites keep their own tokens.
  * ----------------------------------------------------------------------- */
 
+/* The portal is always dark, so it carries its own complete token set rather
+ * than inheriting light text colours from :root. */
 .era-app,
 .dark .era-app {
   --background: oklch(0.16 0.02 200);
-  --card: oklch(0.205 0.024 200);
-  --border: oklch(0.8 0.05 200 / 16%);
-  --era-rail: linear-gradient(180deg, oklch(0.19 0.028 200), oklch(0.155 0.02 200));
-  --era-silver: oklch(0.66 0.02 210);
+  --foreground: oklch(0.97 0.006 190);
+  --card: oklch(0.215 0.025 200);
+  --card-foreground: oklch(0.97 0.006 190);
+  --popover: oklch(0.215 0.025 200);
+  --popover-foreground: oklch(0.97 0.006 190);
+  --primary: oklch(0.78 0.13 178);
+  --primary-foreground: oklch(0.16 0.03 200);
+  --secondary: oklch(0.27 0.028 200);
+  --secondary-foreground: oklch(0.96 0.008 190);
+  --muted: oklch(0.26 0.024 200);
+  --muted-foreground: oklch(0.8 0.02 195);
+  --accent: oklch(0.3 0.035 200);
+  --accent-foreground: oklch(0.97 0.006 190);
+  --destructive: oklch(0.72 0.17 22);
+  --destructive-foreground: oklch(0.98 0.003 248);
+  --border: oklch(0.85 0.04 195 / 24%);
+  --input: oklch(0.85 0.04 195 / 28%);
+  --ring: oklch(0.78 0.13 178);
+  --era-rail: linear-gradient(180deg, oklch(0.205 0.03 200), oklch(0.165 0.022 200));
+  --era-silver: oklch(0.82 0.018 210);
+  --metal: oklch(0.45 0.03 195);
+  --metal-foreground: oklch(0.95 0.01 190);
 }
 
 .era-app .era-rail {
