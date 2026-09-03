@@ -80,10 +80,10 @@ export const getOrCreateDraft = createServerFn({ method: "POST" })
   });
 
 const stepPayload = z.discriminatedUnion("step", [
-  z.object({ step: z.literal("basics"), value: basicsSchema.partial() }),
-  z.object({ step: z.literal("branding"), value: brandingSchema.partial() }),
-  z.object({ step: z.literal("catalog"), value: catalogSchema.partial() }),
-  z.object({ step: z.literal("team"), value: teamSchema.partial() }),
+  z.object({ step: z.literal("basics"), value: draftBasicsSchema.partial() }),
+  z.object({ step: z.literal("branding"), value: draftBrandingSchema.partial() }),
+  z.object({ step: z.literal("catalog"), value: draftCatalogSchema.partial() }),
+  z.object({ step: z.literal("team"), value: draftTeamSchema.partial() }),
   z.object({ step: z.literal("integrations"), value: integrationsSchema.partial() }),
 ]);
 
