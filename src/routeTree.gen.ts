@@ -19,6 +19,7 @@ import { Route as AuthenticatedBookingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedCatalogRouteImport } from './routes/_authenticated/catalog'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 import { Route as AdminAddonsRouteImport } from './routes/admin.addons'
 import { Route as AdminClientsRouteImport } from './routes/admin.clients'
 import { Route as AdminInvitesRouteImport } from './routes/admin.invites'
@@ -76,6 +77,11 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTeamRoute = AuthenticatedTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AdminAddonsRoute = AdminAddonsRouteImport.update({
   id: '/admin/addons',
   path: '/admin/addons',
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/catalog': typeof AuthenticatedCatalogRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/team': typeof AuthenticatedTeamRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/clients': typeof AdminClientsRouteWithChildren
   '/admin/invites': typeof AdminInvitesRoute
@@ -142,6 +149,7 @@ export interface FileRoutesByTo {
   '/catalog': typeof AuthenticatedCatalogRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/team': typeof AuthenticatedTeamRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/clients': typeof AdminClientsRouteWithChildren
   '/admin/invites': typeof AdminInvitesRoute
@@ -162,6 +170,7 @@ export interface FileRoutesById {
   '/_authenticated/catalog': typeof AuthenticatedCatalogRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/team': typeof AuthenticatedTeamRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/clients': typeof AdminClientsRouteWithChildren
   '/admin/invites': typeof AdminInvitesRoute
@@ -182,6 +191,7 @@ export interface FileRouteTypes {
     | '/catalog'
     | '/dashboard'
     | '/onboarding'
+    | '/team'
     | '/admin/addons'
     | '/admin/clients'
     | '/admin/invites'
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/catalog'
     | '/dashboard'
     | '/onboarding'
+    | '/team'
     | '/admin/addons'
     | '/admin/clients'
     | '/admin/invites'
@@ -219,6 +230,7 @@ export interface FileRouteTypes {
     | '/_authenticated/catalog'
     | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
+    | '/_authenticated/team'
     | '/admin/addons'
     | '/admin/clients'
     | '/admin/invites'
@@ -315,6 +327,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/team': {
+      id: '/_authenticated/team'
+      path: '/team'
+      fullPath: '/team'
+      preLoaderRoute: typeof AuthenticatedTeamRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/admin/addons': {
       id: '/admin/addons'
       path: '/admin/addons'
@@ -372,6 +391,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCatalogRoute: typeof AuthenticatedCatalogRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -379,6 +399,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCatalogRoute: AuthenticatedCatalogRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedTeamRoute: AuthenticatedTeamRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
