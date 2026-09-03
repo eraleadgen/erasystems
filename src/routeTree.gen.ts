@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SpecialistsRouteImport } from './routes/specialists'
+import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedBookingsRouteImport } from './routes/_authenticated/bookings'
 import { Route as AuthenticatedCatalogRouteImport } from './routes/_authenticated/catalog'
@@ -58,6 +59,11 @@ const SpecialistsRoute = SpecialistsRouteImport.update({
   id: '/specialists',
   path: '/specialists',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAnalyticsRoute = AuthenticatedAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedBillingRoute = AuthenticatedBillingRouteImport.update({
   id: '/billing',
@@ -138,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/portal': typeof PortalRoute
   '/register': typeof RegisterRoute
   '/specialists': typeof SpecialistsRoute
+  '/analytics': typeof AuthenticatedAnalyticsRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/bookings': typeof AuthenticatedBookingsRoute
   '/catalog': typeof AuthenticatedCatalogRoute
@@ -159,6 +166,7 @@ export interface FileRoutesByTo {
   '/portal': typeof PortalRoute
   '/register': typeof RegisterRoute
   '/specialists': typeof SpecialistsRoute
+  '/analytics': typeof AuthenticatedAnalyticsRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/bookings': typeof AuthenticatedBookingsRoute
   '/catalog': typeof AuthenticatedCatalogRoute
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   '/portal': typeof PortalRoute
   '/register': typeof RegisterRoute
   '/specialists': typeof SpecialistsRoute
+  '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/bookings': typeof AuthenticatedBookingsRoute
   '/_authenticated/catalog': typeof AuthenticatedCatalogRoute
@@ -205,6 +214,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/register'
     | '/specialists'
+    | '/analytics'
     | '/billing'
     | '/bookings'
     | '/catalog'
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/register'
     | '/specialists'
+    | '/analytics'
     | '/billing'
     | '/bookings'
     | '/catalog'
@@ -248,6 +259,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/register'
     | '/specialists'
+    | '/_authenticated/analytics'
     | '/_authenticated/billing'
     | '/_authenticated/bookings'
     | '/_authenticated/catalog'
@@ -322,6 +334,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/specialists'
       preLoaderRoute: typeof SpecialistsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/analytics': {
+      id: '/_authenticated/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AuthenticatedAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/billing': {
       id: '/_authenticated/billing'
@@ -425,6 +444,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedBookingsRoute: typeof AuthenticatedBookingsRoute
   AuthenticatedCatalogRoute: typeof AuthenticatedCatalogRoute
@@ -435,6 +455,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedBookingsRoute: AuthenticatedBookingsRoute,
   AuthenticatedCatalogRoute: AuthenticatedCatalogRoute,
