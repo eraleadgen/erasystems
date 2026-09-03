@@ -76,7 +76,7 @@ function Shell({
   return (
     <AppShell
       title={title}
-      navItems={buildClientNav(entitlements.data?.features)}
+      navItems={buildClientNav(portal.data?.features)}
       {...(status ? { status } : {})}
       {...(role ? { role } : {})}
     >
