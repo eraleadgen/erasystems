@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { AddonKind, PlatformFeature } from "@/lib/entitlements";
 
 export type PortalWorkspace = {
   businessId: string;
@@ -82,5 +83,43 @@ export const getPortalWorkspace = createServerFn({ method: "GET" })
         amountCents: p.amount_cents,
         createdAt: p.created_at,
       })),
+    };
+  });
+
+export type MyPortalContext = {
+  businessId: string;
+  features: PlatformFeature[];
+  addons: AddonKind[];
+};
+
+/**
+ * Entitlements for the caller's own business, resolved from their membership so
+ * client pages don't need a business id to render their tabs.
+ */
+export const getMyPortalContext = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<MyPortalContext | null> => {
+    const { data: membership } = await context.supabase
+      .from("business_members")
+      .select("business_id")
+      .eq("user_id", context.userId)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (!membership) return null;
+
+    const { fetchTierEntitlements } = await import("./entitlements.server");
+    const entitlements = await fetchTierEntitlements(membership.business_id);
+
+    const { data: addonRows } = await context.supabase
+      .from("business_addons")
+      .select("addon, is_active")
+      .eq("business_id", membership.business_id)
+      .eq("is_active", true);
+
+    return {
+      businessId: membership.business_id,
+      features: entitlements?.features ?? [],
+      addons: (addonRows ?? []).map((r) => r.addon as AddonKind),
     };
   });
