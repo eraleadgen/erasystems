@@ -7,6 +7,11 @@ import { getMyBusiness, type MyBusiness } from "@/lib/business.functions";
 import { createCheckoutSession, getMyTerms, verifyMyPayment } from "@/lib/payments.functions";
 import { ADDON_LABELS, formatMoney } from "@/lib/entitlements";
 import { intervalLabel } from "@/lib/payments";
+import { AppShell } from "@/components/app/app-shell";
+import { StatusBanner } from "@/components/app/status-banner";
+import { StatTile, CopyRow } from "@/components/app/stat-tile";
+import { SetupProgress, type StepState } from "@/components/app/setup-progress";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
