@@ -265,8 +265,13 @@ function CheckoutPanel({ canPay }: { canPay: boolean }) {
   const terms = termsQuery.data;
 
   return (
-    <div className="rounded-lg border border-border bg-card px-5 py-5">
-      <p className="text-sm font-medium text-foreground">Activate your business</p>
+    <div className="era-card p-6 sm:p-7">
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-base font-semibold tracking-tight text-foreground">
+          Activate your business
+        </p>
+        <span className="era-chip">Secure checkout</span>
+      </div>
 
       {search.checkout === "cancelled" && (
         <p className="mt-2 text-xs text-muted-foreground">
@@ -285,7 +290,10 @@ function CheckoutPanel({ canPay }: { canPay: boolean }) {
       )}
 
       {termsQuery.isPending ? (
-        <p className="mt-3 text-xs text-muted-foreground">Loading your agreed terms…</p>
+        <div className="mt-4 space-y-2">
+          <div className="era-skeleton h-4 w-2/3" />
+          <div className="era-skeleton h-4 w-1/2" />
+        </div>
       ) : !terms || terms.totalCents <= 0 ? (
         <p className="mt-3 text-xs text-muted-foreground">
           Your pricing hasn&apos;t been finalised yet. Your ERA Systems representative will set it
@@ -293,22 +301,39 @@ function CheckoutPanel({ canPay }: { canPay: boolean }) {
         </p>
       ) : (
         <>
-          <ul className="mt-4 space-y-1 text-xs text-muted-foreground">
-            <li>
-              {terms.planTier} plan, {formatMoney(terms.subscriptionPriceCents)}{" "}
-              {intervalLabel(terms.billingInterval)}
+          <ul className="mt-5 space-y-0 text-sm">
+            <li className="era-hairline flex items-center justify-between gap-4 border-b py-2.5">
+              <span className="text-foreground">{terms.planTier} plan</span>
+              <span className="text-muted-foreground">
+                {formatMoney(terms.subscriptionPriceCents)} {intervalLabel(terms.billingInterval)}
+              </span>
             </li>
-            {terms.setupFeeCents > 0 && <li>Setup fee, {formatMoney(terms.setupFeeCents)}</li>}
+            {terms.setupFeeCents > 0 && (
+              <li className="era-hairline flex items-center justify-between gap-4 border-b py-2.5">
+                <span className="text-foreground">Setup fee</span>
+                <span className="text-muted-foreground">{formatMoney(terms.setupFeeCents)}</span>
+              </li>
+            )}
             {terms.addons.map((addon) => (
-              <li key={addon.addon}>
-                {ADDON_LABELS[addon.addon]}, {formatMoney(addon.priceCents)}{" "}
-                {intervalLabel(addon.billingInterval)}
+              <li
+                key={addon.addon}
+                className="era-hairline flex items-center justify-between gap-4 border-b py-2.5"
+              >
+                <span className="text-foreground">{ADDON_LABELS[addon.addon]}</span>
+                <span className="text-muted-foreground">
+                  {formatMoney(addon.priceCents)} {intervalLabel(addon.billingInterval)}
+                </span>
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-sm font-medium text-foreground">
-            Due today: {formatMoney(terms.totalCents)}
-          </p>
+          <div className="mt-4 flex items-baseline justify-between gap-4">
+            <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+              Due today
+            </span>
+            <span className="text-2xl font-semibold tracking-tight text-foreground">
+              {formatMoney(terms.totalCents)}
+            </span>
+          </div>
           {canPay ? (
             <button
               type="button"
@@ -317,10 +342,18 @@ function CheckoutPanel({ canPay }: { canPay: boolean }) {
                 checkout.mutate();
               }}
               disabled={checkout.isPending}
-              className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
+              className="mt-5 w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60 sm:w-auto"
             >
               {checkout.isPending ? "Opening secure checkout…" : "Pay and go live"}
             </button>
+          ) : (
+            <p className="mt-4 text-xs text-muted-foreground">
+              Only the business owner can complete payment.
+            </p>
+          )}
+        </>
+      )}
+
           ) : (
             <p className="mt-4 text-xs text-muted-foreground">
               Only the business owner can complete payment.
