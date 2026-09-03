@@ -57,5 +57,27 @@ export const submitDiscoveryRequest = createServerFn({ method: "POST" })
 
     if (error) throw new Error("We couldn't submit that just now. Please try again.");
 
+    // Notify staff so they can schedule the discovery call. A failed notification
+    // must never lose the stored request.
+    try {
+      const { sendTemplateEmail } = await import("./email-templates/send-email");
+      await sendTemplateEmail("discovery-request", "support@eraleadgen.com", {
+        replyTo: data.email,
+        templateData: {
+          fullName: data.fullName,
+          businessName: data.businessName,
+          email: data.email,
+          phone: data.phone || undefined,
+          businessType: data.businessType || undefined,
+          message: data.message || undefined,
+          submittedAt: new Date().toUTCString(),
+          sourceHostname: hostname,
+        },
+      });
+    } catch (notifyError) {
+      console.error("discovery notification failed", notifyError);
+    }
+
     return { ok: true as const };
   });
+
