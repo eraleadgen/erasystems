@@ -6,7 +6,15 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
 import { getClientProfile, saveClientProvisioning } from "@/lib/clients.functions";
-import { ADDON_LABELS, formatMoney } from "@/lib/entitlements";
+import { ADDON_LABELS, FEATURE_LABELS, formatMoney } from "@/lib/entitlements";
+import { getBusinessAddons, getMyEntitlements } from "@/lib/entitlements.functions";
+import {
+  getLaunchStatus,
+  setLaunchStatus,
+  LAUNCH_STATUSES,
+  type LaunchStatus,
+} from "@/lib/launch-status.functions";
+import { StatusLight, statusFor } from "@/components/app/launch-status";
 
 export const Route = createFileRoute("/admin/clients/$businessId")({
   head: () => ({
@@ -262,8 +270,108 @@ function ClientProfilePage() {
               )}
             </div>
           </section>
+
+          <LaunchStatusEditor businessId={businessId} />
         </div>
       </div>
     </AppShell>
   );
 }
+
+/**
+ * Staff control for what the client sees on their portal: one switch per
+ * capability in that client's plan. Writes are authorized by the
+ * is_platform_staff() policy on business_launch_status.
+ */
+function LaunchStatusEditor({ businessId }: { businessId: string }) {
+  const fetchEntitlements = useServerFn(getMyEntitlements);
+  const fetchAddons = useServerFn(getBusinessAddons);
+  const fetchStatus = useServerFn(getLaunchStatus);
+  const setStatus = useServerFn(setLaunchStatus);
+  const queryClient = useQueryClient();
+
+  const entitlements = useQuery({
+    queryKey: ["client-entitlements", businessId],
+    queryFn: () => fetchEntitlements({ data: { businessId } }),
+    retry: false,
+  });
+  const addons = useQuery({
+    queryKey: ["client-addons", businessId],
+    queryFn: () => fetchAddons({ data: { businessId } }),
+    retry: false,
+  });
+  const statuses = useQuery({
+    queryKey: ["launch-status", businessId],
+    queryFn: () => fetchStatus({ data: { businessId } }),
+    retry: false,
+  });
+
+  const mutation = useMutation({
+    mutationFn: (vars: { itemKey: string; status: LaunchStatus }) =>
+      setStatus({ data: { businessId, ...vars } }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["launch-status", businessId] });
+    },
+  });
+
+  const items = [
+    ...(entitlements.data?.features ?? []).map((f) => ({ key: f as string, label: FEATURE_LABELS[f] })),
+    ...(addons.data ?? [])
+      .filter((a) => a.isActive)
+      .map((a) => ({ key: a.addon as string, label: ADDON_LABELS[a.addon] })),
+  ];
+
+  const rows = statuses.data ?? [];
+
+  return (
+    <section className="era-card p-5">
+      <h2 className="text-base font-semibold">Client-visible status</h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Flip each part of the build as you finish it. The client sees these lights on their
+        portal.
+      </p>
+
+      {items.length === 0 ? (
+        <p className="mt-4 text-sm text-muted-foreground">No entitled features yet.</p>
+      ) : (
+        <ul className="mt-4">
+          {items.map((item) => {
+            const current = statusFor(rows, item.key);
+            return (
+              <li
+                key={item.key}
+                className="era-hairline grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-b py-3 last:border-b-0"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm text-foreground">{item.label}</p>
+                  <StatusLight status={current} />
+                </div>
+                <div className="flex shrink-0 gap-1">
+                  {LAUNCH_STATUSES.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      disabled={mutation.isPending}
+                      onClick={() => mutation.mutate({ itemKey: item.key, status: s })}
+                      className={`rounded-md border px-2.5 py-1 text-xs transition ${
+                        current === s
+                          ? "border-primary bg-primary/15 text-foreground"
+                          : "border-border/70 text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {s === "in_progress" ? "In progress" : s === "live" ? "Live" : "Pending"}
+                    </button>
+                  ))}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {mutation.isError && (
+        <p className="mt-3 text-sm text-destructive">{(mutation.error as Error).message}</p>
+      )}
+    </section>
+  );
+}
+

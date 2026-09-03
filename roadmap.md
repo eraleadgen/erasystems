@@ -7,3 +7,7 @@
 - [x] Purchase notification email to support@eraleadgen.com with details + link to admin client profile
 - [x] Admin client profile (domain, A2P, customer website, final overview)
 - [ ] Reduce mobile scale across app/site (less scrolling)
+- [x] Client-visible feature status lights, staff-controlled from admin client profile
+- [x] Web address shows connected domain
+- [x] Entitlement-derived client portal tabs
+- [x] Mobile burger nav on eraleadgen.com

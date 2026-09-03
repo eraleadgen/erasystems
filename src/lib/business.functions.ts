@@ -8,6 +8,8 @@ export type MyBusiness = {
   id: string;
   name: string;
   slug: string;
+  /** Custom hostname mapped to this business, when one has been connected. */
+  primaryDomain: string | null;
   timezone: string;
   planTier: string;
   isActive: boolean;
@@ -17,6 +19,7 @@ export type MyBusiness = {
   serviceCount: number;
   role: string;
 };
+
 
 /**
  * The caller's own business, resolved through their membership row. RLS-scoped —
@@ -49,10 +52,17 @@ export const getMyBusiness = createServerFn({ method: "GET" })
       .select("id", { count: "exact", head: true })
       .eq("business_id", business.id);
 
+    const { data: domains } = await context.supabase
+      .from("business_domains")
+      .select("hostname, is_primary, verified_at")
+      .eq("business_id", business.id)
+      .order("is_primary", { ascending: false });
+
     return {
       id: business.id,
       name: business.name,
       slug: business.slug,
+      primaryDomain: domains?.[0]?.hostname ?? null,
       timezone: business.timezone,
       planTier: business.plan_tier,
       isActive: business.is_active,
@@ -63,6 +73,7 @@ export const getMyBusiness = createServerFn({ method: "GET" })
       role: membership.role,
     };
   });
+
 
 export type AccountRouting = {
   isStaff: boolean;

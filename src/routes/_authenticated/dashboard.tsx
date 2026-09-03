@@ -18,7 +18,10 @@ import { AppShell } from "@/components/app/app-shell";
 import { StatusBanner } from "@/components/app/status-banner";
 import { StatTile, CopyRow } from "@/components/app/stat-tile";
 import { SetupProgress, type StepState } from "@/components/app/setup-progress";
-import { DeliveryTimeline } from "@/components/app/delivery-timeline";
+import { LaunchStatusPanel } from "@/components/app/launch-status";
+import { getLaunchStatus } from "@/lib/launch-status.functions";
+import { buildClientNav } from "@/components/app/client-nav";
+import { getMyPortalContext } from "@/lib/portal.functions";
 import { getBusinessAddons, getMyEntitlements } from "@/lib/entitlements.functions";
 
 
@@ -65,12 +68,26 @@ function Shell({
   status?: { label: string; tone: "live" | "waiting" | "halted" };
   role?: string;
 }) {
+  const fetchContext = useServerFn(getMyPortalContext);
+  const portal = useQuery({
+    queryKey: ["my-portal-context"],
+    queryFn: () => fetchContext(),
+    retry: false,
+  });
+
+
   return (
-    <AppShell title={title} {...(status ? { status } : {})} {...(role ? { role } : {})}>
+    <AppShell
+      title={title}
+      navItems={buildClientNav(portal.data?.features)}
+      {...(status ? { status } : {})}
+      {...(role ? { role } : {})}
+    >
       {children}
     </AppShell>
   );
 }
+
 
 const TONE: Record<MyBusiness["lifecycle"], "live" | "waiting" | "halted"> = {
   pending_payment: "waiting",
@@ -204,7 +221,7 @@ function Dashboard() {
         <StatTile label="Site published" value={data.isActive ? "Yes" : "Not yet"} />
       </div>
 
-      <DeliverySection businessId={data.id} startedAt={data.isActive ? data.createdAt : null} />
+      <StatusSection businessId={data.id} />
 
       {(data.lifecycle === "pending_payment" || data.lifecycle === "expired") && (
         <>
@@ -214,7 +231,11 @@ function Dashboard() {
       )}
 
       <section className="era-card px-5 py-2">
-        <CopyRow label="Web address" value={data.slug} />
+        <CopyRow
+          label="Web address"
+          value={data.primaryDomain ?? `${data.slug} (domain pending)`}
+        />
+
         <div className="era-hairline border-t" />
         <div className="flex items-center justify-between gap-4 py-3">
           <div>
@@ -233,10 +254,11 @@ function Dashboard() {
 }
 
 
-/** Delivery windows for whatever this business is actually entitled to. */
-function DeliverySection({ businessId, startedAt }: { businessId: string; startedAt: string | null }) {
+/** Live/pending lights for whatever this business is actually entitled to. */
+function StatusSection({ businessId }: { businessId: string }) {
   const fetchEntitlements = useServerFn(getMyEntitlements);
   const fetchAddons = useServerFn(getBusinessAddons);
+  const fetchStatus = useServerFn(getLaunchStatus);
 
   const entitlements = useQuery({
     queryKey: ["my-entitlements", businessId],
@@ -248,18 +270,24 @@ function DeliverySection({ businessId, startedAt }: { businessId: string; starte
     queryFn: () => fetchAddons({ data: { businessId } }),
     retry: false,
   });
+  const statuses = useQuery({
+    queryKey: ["launch-status", businessId],
+    queryFn: () => fetchStatus({ data: { businessId } }),
+    retry: false,
+  });
 
   if (entitlements.isPending) return <div className="era-skeleton h-56 w-full" />;
   if (!entitlements.data) return null;
 
   return (
-    <DeliveryTimeline
+    <LaunchStatusPanel
       features={entitlements.data.features}
       addons={(addons.data ?? []).filter((a) => a.isActive).map((a) => a.addon)}
-      startedAt={startedAt}
+      rows={statuses.data ?? []}
     />
   );
 }
+
 
 /**
  * Checkout for a business that is waiting on payment.

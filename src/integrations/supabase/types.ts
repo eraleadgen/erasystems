@@ -168,6 +168,35 @@ export type Database = {
           },
         ]
       }
+      business_launch_status: {
+        Row: {
+          business_id: string
+          item_key: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          item_key: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          item_key?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_launch_status_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_members: {
         Row: {
           business_id: string
