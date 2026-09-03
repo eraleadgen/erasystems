@@ -1,5 +1,8 @@
 import type { ComponentType } from 'react'
 
+import { template as discoveryRequestTemplate } from './discovery-request'
+
+
 export interface TemplateEntry {
   component: ComponentType<any>
   subject: string | ((data: Record<string, any>) => string)
