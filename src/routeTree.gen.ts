@@ -18,7 +18,9 @@ import { Route as SpecialistsRouteImport } from './routes/specialists'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AdminAddonsRouteImport } from './routes/admin.addons'
+import { Route as AdminClientsRouteImport } from './routes/admin.clients'
 import { Route as AdminInvitesRouteImport } from './routes/admin.invites'
+import { Route as AdminClientsBusinessIdRouteImport } from './routes/admin.clients.$businessId'
 import { Route as ApiPublicCronExpireBusinessesRouteImport } from './routes/api/public/cron/expire-businesses'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
@@ -67,10 +69,20 @@ const AdminAddonsRoute = AdminAddonsRouteImport.update({
   path: '/admin/addons',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminClientsRoute = AdminClientsRouteImport.update({
+  id: '/admin/clients',
+  path: '/admin/clients',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminInvitesRoute = AdminInvitesRouteImport.update({
   id: '/admin/invites',
   path: '/admin/invites',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminClientsBusinessIdRoute = AdminClientsBusinessIdRouteImport.update({
+  id: '/$businessId',
+  path: '/$businessId',
+  getParentRoute: () => AdminClientsRoute,
 } as any)
 const ApiPublicCronExpireBusinessesRoute =
   ApiPublicCronExpireBusinessesRouteImport.update({
@@ -99,7 +111,9 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/admin/addons': typeof AdminAddonsRoute
+  '/admin/clients': typeof AdminClientsRouteWithChildren
   '/admin/invites': typeof AdminInvitesRoute
+  '/admin/clients/$businessId': typeof AdminClientsBusinessIdRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -113,7 +127,9 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/admin/addons': typeof AdminAddonsRoute
+  '/admin/clients': typeof AdminClientsRouteWithChildren
   '/admin/invites': typeof AdminInvitesRoute
+  '/admin/clients/$businessId': typeof AdminClientsBusinessIdRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -129,7 +145,9 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/admin/addons': typeof AdminAddonsRoute
+  '/admin/clients': typeof AdminClientsRouteWithChildren
   '/admin/invites': typeof AdminInvitesRoute
+  '/admin/clients/$businessId': typeof AdminClientsBusinessIdRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -145,7 +163,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/onboarding'
     | '/admin/addons'
+    | '/admin/clients'
     | '/admin/invites'
+    | '/admin/clients/$businessId'
     | '/api/public/cron/expire-businesses'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/transactional/preview'
@@ -159,7 +179,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/onboarding'
     | '/admin/addons'
+    | '/admin/clients'
     | '/admin/invites'
+    | '/admin/clients/$businessId'
     | '/api/public/cron/expire-businesses'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/transactional/preview'
@@ -174,7 +196,9 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
     | '/admin/addons'
+    | '/admin/clients'
     | '/admin/invites'
+    | '/admin/clients/$businessId'
     | '/api/public/cron/expire-businesses'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/transactional/preview'
@@ -188,6 +212,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   SpecialistsRoute: typeof SpecialistsRoute
   AdminAddonsRoute: typeof AdminAddonsRoute
+  AdminClientsRoute: typeof AdminClientsRouteWithChildren
   AdminInvitesRoute: typeof AdminInvitesRoute
   ApiPublicCronExpireBusinessesRoute: typeof ApiPublicCronExpireBusinessesRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
@@ -259,12 +284,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAddonsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/clients': {
+      id: '/admin/clients'
+      path: '/admin/clients'
+      fullPath: '/admin/clients'
+      preLoaderRoute: typeof AdminClientsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/invites': {
       id: '/admin/invites'
       path: '/admin/invites'
       fullPath: '/admin/invites'
       preLoaderRoute: typeof AdminInvitesRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/clients/$businessId': {
+      id: '/admin/clients/$businessId'
+      path: '/$businessId'
+      fullPath: '/admin/clients/$businessId'
+      preLoaderRoute: typeof AdminClientsBusinessIdRouteImport
+      parentRoute: typeof AdminClientsRoute
     }
     '/api/public/cron/expire-businesses': {
       id: '/api/public/cron/expire-businesses'
@@ -303,6 +342,18 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface AdminClientsRouteChildren {
+  AdminClientsBusinessIdRoute: typeof AdminClientsBusinessIdRoute
+}
+
+const AdminClientsRouteChildren: AdminClientsRouteChildren = {
+  AdminClientsBusinessIdRoute: AdminClientsBusinessIdRoute,
+}
+
+const AdminClientsRouteWithChildren = AdminClientsRoute._addFileChildren(
+  AdminClientsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -311,6 +362,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   SpecialistsRoute: SpecialistsRoute,
   AdminAddonsRoute: AdminAddonsRoute,
+  AdminClientsRoute: AdminClientsRouteWithChildren,
   AdminInvitesRoute: AdminInvitesRoute,
   ApiPublicCronExpireBusinessesRoute: ApiPublicCronExpireBusinessesRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,

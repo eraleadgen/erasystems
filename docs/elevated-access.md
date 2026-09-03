@@ -224,3 +224,33 @@ Inside the already-registered `completeOnboarding` path. Looks up the accepted i
 by `accepted_user_id = context.userId` (verified session user, not payload), stamps
 `plan_tier` and `origin_invite_id` on the new business, and copies the invite's
 add-on rows onto that `business_id` **inactive** — only payment activation turns them on.
+
+### Client plan selection (2026-09-03)
+
+`src/lib/plan-selection.functions.ts` → `selectMyPlan`. `businesses.plan_tier` and
+`business_addons` are staff-guarded under RLS, but a client must be able to pick
+their own tier before paying.
+
+- Caller authorized first through the RLS-scoped client: must be `owner`/`admin` of
+  the business, and the business must still be `pending_payment` or `expired`.
+- `business_id` is the id from that membership row; the tier is validated against a
+  fixed enum and the amount is read from the server's `PLAN_PRICING` table, never
+  from the request body.
+- Writes: one `.eq("id", business.id)` update on `businesses` (also re-guarded with
+  `.in("lifecycle", [...])`), and one `business_id`-scoped upsert/delete on
+  `business_addons`. Add-ons are written `is_active: false`; only verified payment
+  activates them.
+- Refuses when the originating invite already carries staff-agreed pricing.
+
+### Purchase notification (2026-09-03)
+
+`src/lib/purchase-notification.server.ts` → `notifyTierPurchased`, called only from
+`verifyAndActivate` after a payment transitioned a business to active.
+
+- No end-user session exists on the webhook path; the tenant is the `business_id`
+  from the local `payments` row, never from the provider payload.
+- Reads only, each one `.eq("business_id", businessId)` / `.eq("id", businessId)`:
+  business row, its add-ons, its service count, its owner membership, and that
+  owner's auth email. No listing, no writes.
+- The email goes to the fixed internal address `support@eraleadgen.com`; a send
+  failure is logged and never fails the payment.

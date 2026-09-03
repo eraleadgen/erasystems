@@ -1,0 +1,269 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useState } from "react";
+
+import { supabase } from "@/integrations/supabase/client";
+import { AppShell } from "@/components/app/app-shell";
+import { getClientProfile, saveClientProvisioning } from "@/lib/clients.functions";
+import { ADDON_LABELS, formatMoney } from "@/lib/entitlements";
+
+export const Route = createFileRoute("/admin/clients/$businessId")({
+  head: () => ({
+    meta: [
+      { title: "Client profile | ERA Systems" },
+      {
+        name: "description",
+        content:
+          "Finish a paid ERA client account: requested domain, A2P registration, customer website and the final launch overview.",
+      },
+      { property: "og:title", content: "Client profile | ERA Systems" },
+      {
+        property: "og:description",
+        content: "Provisioning checklist for a paid ERA client account.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  component: ClientProfilePage,
+  errorComponent: ({ error }) => (
+    <AppShell title="Client profile" variant="staff">
+      <div className="era-card p-6">
+        <p className="text-sm text-destructive">{error.message}</p>
+      </div>
+    </AppShell>
+  ),
+});
+
+const inputClass =
+  "w-full rounded-lg border border-border/70 bg-background px-3 py-2 text-sm outline-none focus:border-primary";
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 py-2 text-sm">
+      <span className="min-w-0 text-muted-foreground">{label}</span>
+      <span className="shrink-0 font-medium">{value}</span>
+    </div>
+  );
+}
+
+function ClientProfilePage() {
+  const { businessId } = Route.useParams();
+  const fetchProfile = useServerFn(getClientProfile);
+  const saveProvisioning = useServerFn(saveClientProvisioning);
+  const queryClient = useQueryClient();
+
+  const { data: hasSession } = useQuery({
+    queryKey: ["has-session"],
+    queryFn: async () => Boolean((await supabase.auth.getSession()).data.session),
+    retry: false,
+  });
+
+  const profileQuery = useQuery({
+    queryKey: ["client-profile", businessId],
+    queryFn: () => fetchProfile({ data: { businessId } }),
+    enabled: hasSession === true,
+    retry: false,
+  });
+
+  const profile = profileQuery.data ?? null;
+  const [form, setForm] = useState(profile?.provisioning ?? null);
+
+  useEffect(() => {
+    if (profile) setForm(profile.provisioning);
+  }, [profile]);
+
+  const mutation = useMutation({
+    mutationFn: (markComplete: boolean) =>
+      saveProvisioning({ data: { businessId, ...form!, markComplete } }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["client-profile", businessId] }),
+  });
+
+  if (hasSession === false) {
+    return (
+      <AppShell title="Client profile" variant="staff">
+        <div className="era-card p-6">
+          <p className="text-sm text-muted-foreground">Sign in with your ERA staff account.</p>
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (profileQuery.isLoading || !profile || !form) {
+    return (
+      <AppShell title="Client profile" variant="staff">
+        <div className="era-card p-6">
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        </div>
+      </AppShell>
+    );
+  }
+
+  return (
+    <AppShell title={profile.name} variant="staff">
+      <div className="space-y-6">
+        <Link to="/admin/clients" className="text-xs text-muted-foreground hover:text-foreground">
+          ← All clients
+        </Link>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <section className="era-card p-6">
+            <h2 className="text-base font-semibold">Business</h2>
+            <div className="mt-3 divide-y divide-border/50">
+              <Row label="Legal name" value={profile.legalName ?? "Not provided"} />
+              <Row label="Web address" value={`/${profile.slug}`} />
+              <Row label="Tier" value={profile.planTier} />
+              <Row label="Lifecycle" value={profile.lifecycle} />
+              <Row label="Timezone" value={profile.timezone} />
+              <Row label="Contact email" value={profile.supportEmail ?? "Not provided"} />
+              <Row label="Contact phone" value={profile.supportPhone ?? "Not provided"} />
+              <Row
+                label="Add-ons"
+                value={
+                  profile.addons.length
+                    ? profile.addons
+                        .map(
+                          (a) =>
+                            `${ADDON_LABELS[a.addon]} (${a.isActive ? "active" : "pending"}, ${formatMoney(a.priceCents)})`,
+                        )
+                        .join(", ")
+                    : "None"
+                }
+              />
+              <Row label="Services" value={String(profile.services.length)} />
+              <Row
+                label="Last payment"
+                value={
+                  profile.payments[0]
+                    ? `${formatMoney(profile.payments[0].amountCents)} · ${profile.payments[0].status}`
+                    : "None"
+                }
+              />
+            </div>
+          </section>
+
+          <section className="era-card p-6">
+            <h2 className="text-base font-semibold">Finish provisioning</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Everything this account needs before it runs on autopilot.
+            </p>
+
+            <div className="mt-4 space-y-4">
+              <div>
+                <label className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Requested domain
+                </label>
+                <input
+                  className={inputClass}
+                  value={form.requestedDomain}
+                  onChange={(e) => setForm({ ...form, requestedDomain: e.target.value })}
+                  placeholder="clientdomain.com"
+                />
+                <select
+                  className={`${inputClass} mt-2`}
+                  value={form.domainStatus}
+                  onChange={(e) => setForm({ ...form, domainStatus: e.target.value })}
+                >
+                  <option value="not_started">Domain: not started</option>
+                  <option value="in_progress">Domain: in progress</option>
+                  <option value="live">Domain: live</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={form.a2pRequired}
+                    onChange={(e) => setForm({ ...form, a2pRequired: e.target.checked })}
+                  />
+                  A2P registration required (AI voice or SMS agents)
+                </label>
+                <select
+                  className={`${inputClass} mt-2`}
+                  value={form.a2pStatus}
+                  onChange={(e) => setForm({ ...form, a2pStatus: e.target.value })}
+                >
+                  <option value="not_started">A2P: not started</option>
+                  <option value="submitted">A2P: submitted</option>
+                  <option value="approved">A2P: approved</option>
+                  <option value="not_applicable">A2P: not applicable</option>
+                </select>
+                <textarea
+                  className={`${inputClass} mt-2`}
+                  rows={2}
+                  value={form.a2pNotes}
+                  onChange={(e) => setForm({ ...form, a2pNotes: e.target.value })}
+                  placeholder="Campaign notes, brand id, carrier feedback"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Customer website
+                </label>
+                <input
+                  className={inputClass}
+                  value={form.websiteUrl}
+                  onChange={(e) => setForm({ ...form, websiteUrl: e.target.value })}
+                  placeholder="https://…"
+                />
+                <select
+                  className={`${inputClass} mt-2`}
+                  value={form.websiteStatus}
+                  onChange={(e) => setForm({ ...form, websiteStatus: e.target.value })}
+                >
+                  <option value="not_started">Website: not started</option>
+                  <option value="in_progress">Website: in progress</option>
+                  <option value="live">Website: live</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Final overview
+                </label>
+                <textarea
+                  className={inputClass}
+                  rows={4}
+                  value={form.overviewNotes}
+                  onChange={(e) => setForm({ ...form, overviewNotes: e.target.value })}
+                  placeholder="What was configured, what the client was walked through, anything outstanding."
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  className="era-button-primary"
+                  disabled={mutation.isPending}
+                  onClick={() => mutation.mutate(false)}
+                >
+                  {mutation.isPending ? "Saving…" : "Save"}
+                </button>
+                <button
+                  type="button"
+                  className="rounded-lg border border-border/70 px-4 py-2 text-sm"
+                  disabled={mutation.isPending}
+                  onClick={() => mutation.mutate(true)}
+                >
+                  Mark provisioning complete
+                </button>
+              </div>
+              {form.completedAt && (
+                <p className="text-xs text-muted-foreground">
+                  Completed {new Date(form.completedAt).toLocaleString()}
+                </p>
+              )}
+              {mutation.isError && (
+                <p className="text-sm text-destructive">{(mutation.error as Error).message}</p>
+              )}
+            </div>
+          </section>
+        </div>
+      </div>
+    </AppShell>
+  );
+}

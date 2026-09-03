@@ -185,5 +185,11 @@ export async function verifyAndActivate(sessionId: string): Promise<Verification
     })
     .eq("id", payment.id);
 
+  // Internal hand-off: staff get the full picture plus a link to finish provisioning.
+  if (transitioned) {
+    const { notifyTierPurchased } = await import("./purchase-notification.server");
+    await notifyTierPurchased(payment.business_id, payment.amount_cents);
+  }
+
   return { ok: true };
 }

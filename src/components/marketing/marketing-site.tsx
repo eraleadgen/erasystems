@@ -103,8 +103,8 @@ const addons = [
     body: "We run and maintain your paid acquisition against the same pipeline the platform tracks, so spend is measured against booked jobs rather than clicks.",
   },
   {
-    name: "White-Label Branding",
-    body: "The platform presents entirely as your brand: your domain, your marks, your customer-facing surfaces, with ERA out of the way.",
+    name: "Downloadable Apps",
+    body: "Two branded apps under your name. A customer app that carries your website, booking and accounts into a download your clients keep on their phone, and a business operations app your team runs the day from. Scoped on a call before anything is built.",
   },
 ];
 
@@ -134,7 +134,7 @@ const faqs = [
   },
   {
     q: "Are add-ons tied to a tier?",
-    a: "No. Ad Management and White-Label Branding are available on any tier, including Basic, and are never bundled into a higher plan. They're quoted per business.",
+    a: "No. Ad Management and Downloadable Apps are available on any tier, including Basic, and are never bundled into a higher plan. They're quoted per business.",
   },
   {
     q: "Can I change tiers later?",

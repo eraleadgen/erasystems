@@ -11,6 +11,22 @@
 
 import type { AddonKind, PlanTier } from "./entitlements";
 import type { AgreedTerms } from "./payments";
+import { PLAN_PRICING } from "./pricing";
+
+/**
+ * True when staff fixed the commercial terms on the originating invite. When they
+ * did, the client cannot pick their own tier; when they didn't, list pricing applies.
+ */
+export async function hasAgreedInviteTerms(originInviteId: string | null): Promise<boolean> {
+  if (!originInviteId) return false;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin
+    .from("invites")
+    .select("subscription_price_cents, setup_fee_cents")
+    .eq("id", originInviteId)
+    .maybeSingle();
+  return Boolean(data && (data.subscription_price_cents > 0 || data.setup_fee_cents > 0));
+}
 
 export async function resolveAgreedTerms(
   businessId: string,
@@ -19,8 +35,10 @@ export async function resolveAgreedTerms(
 ): Promise<AgreedTerms> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  let subscriptionPriceCents = 0;
-  let setupFeeCents = 0;
+  // List pricing is the default; staff-agreed invite pricing overrides it.
+  const list = PLAN_PRICING[planTier];
+  let subscriptionPriceCents = list.monthlyCents;
+  let setupFeeCents = list.setupFeeCents;
   let billingInterval = "monthly";
 
   if (originInviteId) {
@@ -29,7 +47,7 @@ export async function resolveAgreedTerms(
       .select("subscription_price_cents, setup_fee_cents, billing_interval")
       .eq("id", originInviteId)
       .maybeSingle();
-    if (invite) {
+    if (invite && (invite.subscription_price_cents > 0 || invite.setup_fee_cents > 0)) {
       subscriptionPriceCents = invite.subscription_price_cents;
       setupFeeCents = invite.setup_fee_cents;
       billingInterval = invite.billing_interval;

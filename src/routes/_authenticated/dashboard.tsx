@@ -5,7 +5,14 @@ import { useEffect, useState } from "react";
 
 import { getMyBusiness, type MyBusiness } from "@/lib/business.functions";
 import { createCheckoutSession, getMyTerms, verifyMyPayment } from "@/lib/payments.functions";
-import { ADDON_LABELS, formatMoney } from "@/lib/entitlements";
+import { ADDON_LABELS, formatMoney, type PlanTier } from "@/lib/entitlements";
+import { getMyPlanSelection, selectMyPlan } from "@/lib/plan-selection.functions";
+import {
+  APP_ADDON_BLURB,
+  APP_ADDON_NAME,
+  PLAN_PRICING,
+  SELECTABLE_TIERS,
+} from "@/lib/pricing";
 import { intervalLabel } from "@/lib/payments";
 import { AppShell } from "@/components/app/app-shell";
 import { StatusBanner } from "@/components/app/status-banner";
@@ -200,7 +207,10 @@ function Dashboard() {
       <DeliverySection businessId={data.id} startedAt={data.isActive ? data.createdAt : null} />
 
       {(data.lifecycle === "pending_payment" || data.lifecycle === "expired") && (
-        <CheckoutPanel canPay={data.role === "owner" || data.role === "admin"} />
+        <>
+          <PlanPicker canPay={data.role === "owner" || data.role === "admin"} />
+          <CheckoutPanel canPay={data.role === "owner" || data.role === "admin"} />
+        </>
       )}
 
       <section className="era-card px-5 py-2">
@@ -259,6 +269,112 @@ function DeliverySection({ businessId, startedAt }: { businessId: string; starte
  * treated as a hint only: the state below reflects webhook + live API
  * verification, not the URL the browser landed on.
  */
+/**
+ * Tier and add-on picker. It stays available until payment: a client can change
+ * their mind right up to checkout. When staff already agreed pricing on the
+ * invite, the selection is locked and only the agreed terms show.
+ */
+function PlanPicker({ canPay }: { canPay: boolean }) {
+  const fetchSelection = useServerFn(getMyPlanSelection);
+  const select = useServerFn(selectMyPlan);
+  const queryClient = useQueryClient();
+
+  const selectionQuery = useQuery({
+    queryKey: ["my-plan-selection"],
+    queryFn: () => fetchSelection(),
+    retry: false,
+  });
+
+  const mutation = useMutation({
+    mutationFn: (next: { tier: PlanTier; includeApp: boolean }) => select({ data: next }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["my-plan-selection"] });
+      void queryClient.invalidateQueries({ queryKey: ["my-terms"] });
+      void queryClient.invalidateQueries({ queryKey: ["my-entitlements"] });
+    },
+  });
+
+  const selection = selectionQuery.data;
+  if (!selection || selection.locked) return null;
+
+  const current = PLAN_PRICING[selection.tier];
+
+  return (
+    <div className="era-card p-6 sm:p-7">
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-base font-semibold tracking-tight text-foreground">Choose your plan</p>
+        <span className="era-chip">Changeable until you pay</span>
+      </div>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Setup is a one time build fee. The monthly covers the platform running your business. You
+        can switch tiers any time before payment.
+      </p>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        {SELECTABLE_TIERS.map((tier) => {
+          const price = PLAN_PRICING[tier];
+          const isSelected = selection.tier === tier;
+          return (
+            <button
+              key={tier}
+              type="button"
+              disabled={!canPay || mutation.isPending}
+              onClick={() => mutation.mutate({ tier, includeApp: selection.includeApp })}
+              className={`rounded-lg border p-4 text-left transition disabled:opacity-60 ${
+                isSelected
+                  ? "border-primary bg-primary/5"
+                  : "border-border/70 hover:border-primary/50"
+              }`}
+            >
+              <p className="text-sm font-semibold text-foreground">{price.name}</p>
+              <p className="mt-1 text-lg font-semibold tracking-tight text-foreground">
+                {formatMoney(price.monthlyCents)}
+                <span className="text-xs font-normal text-muted-foreground"> /mo</span>
+              </p>
+              <p className="text-xs text-muted-foreground">
+                + {formatMoney(price.setupFeeCents)} setup
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">{price.summary}</p>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="era-hairline mt-5 border-t pt-4">
+        <p className="text-sm font-medium text-foreground">{APP_ADDON_NAME}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{APP_ADDON_BLURB}</p>
+        {current.appRequiresCall ? (
+          <p className="mt-3 text-xs text-muted-foreground">
+            On Enterprise the apps are scoped on a call with your ERA representative before they are
+            quoted, so they aren&apos;t bought here.
+          </p>
+        ) : (
+          <label className="mt-3 flex items-center gap-2 text-sm text-foreground">
+            <input
+              type="checkbox"
+              checked={selection.includeApp}
+              disabled={!canPay || mutation.isPending}
+              onChange={(e) =>
+                mutation.mutate({ tier: selection.tier, includeApp: e.target.checked })
+              }
+            />
+            Add for {formatMoney(current.appAddonCents)} one time, no monthly fee
+          </label>
+        )}
+      </div>
+
+      {mutation.isError && (
+        <p className="mt-3 text-xs text-destructive">{(mutation.error as Error).message}</p>
+      )}
+      {!canPay && (
+        <p className="mt-3 text-xs text-muted-foreground">
+          Only the business owner can change the plan.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function CheckoutPanel({ canPay }: { canPay: boolean }) {
   const search = useSearch({ from: "/_authenticated/dashboard" });
   const fetchTerms = useServerFn(getMyTerms);

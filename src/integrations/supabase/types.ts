@@ -268,6 +268,59 @@ export type Database = {
           },
         ]
       }
+      client_provisioning: {
+        Row: {
+          a2p_notes: string | null
+          a2p_required: boolean
+          a2p_status: string
+          business_id: string
+          completed_at: string | null
+          created_at: string
+          domain_status: string
+          overview_notes: string | null
+          requested_domain: string | null
+          updated_at: string
+          website_status: string
+          website_url: string | null
+        }
+        Insert: {
+          a2p_notes?: string | null
+          a2p_required?: boolean
+          a2p_status?: string
+          business_id: string
+          completed_at?: string | null
+          created_at?: string
+          domain_status?: string
+          overview_notes?: string | null
+          requested_domain?: string | null
+          updated_at?: string
+          website_status?: string
+          website_url?: string | null
+        }
+        Update: {
+          a2p_notes?: string | null
+          a2p_required?: boolean
+          a2p_status?: string
+          business_id?: string
+          completed_at?: string | null
+          created_at?: string
+          domain_status?: string
+          overview_notes?: string | null
+          requested_domain?: string | null
+          updated_at?: string
+          website_status?: string
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_provisioning_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       discovery_requests: {
         Row: {
           business_name: string
