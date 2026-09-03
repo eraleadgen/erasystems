@@ -29,6 +29,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const routing = useServerFn(getAccountRouting);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -37,8 +38,11 @@ function AuthPage() {
     mutationFn: async () => {
       const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
       if (signInError) throw new Error(signInError.message);
+      // Staff land in the agency console, clients land in their own app.
+      return await routing().catch(() => ({ isStaff: false, hasBusiness: false }));
     },
-    onSuccess: () => navigate({ to: "/" }),
+    onSuccess: (result) =>
+      navigate({ to: result.isStaff ? "/admin/invites" : "/dashboard" }),
     onError: (err: Error) => setError(err.message),
   });
 
