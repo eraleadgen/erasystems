@@ -6,7 +6,15 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
 import { getClientProfile, saveClientProvisioning } from "@/lib/clients.functions";
-import { ADDON_LABELS, formatMoney } from "@/lib/entitlements";
+import { ADDON_LABELS, FEATURE_LABELS, formatMoney } from "@/lib/entitlements";
+import { getBusinessAddons, getMyEntitlements } from "@/lib/entitlements.functions";
+import {
+  getLaunchStatus,
+  setLaunchStatus,
+  LAUNCH_STATUSES,
+  type LaunchStatus,
+} from "@/lib/launch-status.functions";
+import { StatusLight, statusFor } from "@/components/app/launch-status";
 
 export const Route = createFileRoute("/admin/clients/$businessId")({
   head: () => ({
