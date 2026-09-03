@@ -65,12 +65,13 @@ function Shell({
   status?: { label: string; tone: "live" | "waiting" | "halted" };
   role?: string;
 }) {
-  const fetchEntitlements = useServerFn(getMyEntitlements);
-  const entitlements = useQuery({
-    queryKey: ["my-entitlements"],
-    queryFn: () => fetchEntitlements(),
+  const fetchContext = useServerFn(getMyPortalContext);
+  const portal = useQuery({
+    queryKey: ["my-portal-context"],
+    queryFn: () => fetchContext(),
     retry: false,
   });
+
 
   return (
     <AppShell
