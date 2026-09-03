@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SpecialistsRouteImport } from './routes/specialists'
+import { Route as AuthenticatedBookingsRouteImport } from './routes/_authenticated/bookings'
 import { Route as AuthenticatedCatalogRouteImport } from './routes/_authenticated/catalog'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
@@ -54,6 +55,11 @@ const SpecialistsRoute = SpecialistsRouteImport.update({
   id: '/specialists',
   path: '/specialists',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedBookingsRoute = AuthenticatedBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedCatalogRoute = AuthenticatedCatalogRouteImport.update({
   id: '/catalog',
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/portal': typeof PortalRoute
   '/register': typeof RegisterRoute
   '/specialists': typeof SpecialistsRoute
+  '/bookings': typeof AuthenticatedBookingsRoute
   '/catalog': typeof AuthenticatedCatalogRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/portal': typeof PortalRoute
   '/register': typeof RegisterRoute
   '/specialists': typeof SpecialistsRoute
+  '/bookings': typeof AuthenticatedBookingsRoute
   '/catalog': typeof AuthenticatedCatalogRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -150,6 +158,7 @@ export interface FileRoutesById {
   '/portal': typeof PortalRoute
   '/register': typeof RegisterRoute
   '/specialists': typeof SpecialistsRoute
+  '/_authenticated/bookings': typeof AuthenticatedBookingsRoute
   '/_authenticated/catalog': typeof AuthenticatedCatalogRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/register'
     | '/specialists'
+    | '/bookings'
     | '/catalog'
     | '/dashboard'
     | '/onboarding'
@@ -186,6 +196,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/register'
     | '/specialists'
+    | '/bookings'
     | '/catalog'
     | '/dashboard'
     | '/onboarding'
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/register'
     | '/specialists'
+    | '/_authenticated/bookings'
     | '/_authenticated/catalog'
     | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
@@ -274,6 +286,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/specialists'
       preLoaderRoute: typeof SpecialistsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/bookings': {
+      id: '/_authenticated/bookings'
+      path: '/bookings'
+      fullPath: '/bookings'
+      preLoaderRoute: typeof AuthenticatedBookingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/catalog': {
       id: '/_authenticated/catalog'
@@ -349,12 +368,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBookingsRoute: typeof AuthenticatedBookingsRoute
   AuthenticatedCatalogRoute: typeof AuthenticatedCatalogRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBookingsRoute: AuthenticatedBookingsRoute,
   AuthenticatedCatalogRoute: AuthenticatedCatalogRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
