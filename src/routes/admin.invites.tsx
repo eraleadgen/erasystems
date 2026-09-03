@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
+import { supabase } from "@/integrations/supabase/client";
 import { createInvite, listInvites, revokeInvite } from "@/lib/invites.functions";
 import { INVITE_TTL_DAYS, inviteStatusLabel, inviteUrl, type InviteSummary } from "@/lib/invites";
 import {
