@@ -1,4 +1,4 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { checkTenantFeature } from "@/lib/entitlements.functions";
@@ -16,13 +16,12 @@ export const Route = createFileRoute("/portal")({
   loaderDeps: ({ search }) => ({ tenant: search.tenant }),
   loader: async ({ deps }) => {
     const tenant = await resolveTenant({ data: { tenant: deps.tenant } });
-    if (!tenant) throw notFound();
+    if (!tenant || tenant.isPlatformHost) return { tenant: null, allowed: false };
     const allowed = await checkTenantFeature({
       data: { businessId: tenant.businessId, feature: "customer_portal" },
     });
-    // Growth+ feature. Gating is UX; the portal's own tables stay RLS-gated.
-    if (!allowed) throw notFound();
-    return { tenant };
+    // Plan gating is UX only; the underlying tables stay RLS-gated per business.
+    return { tenant, allowed };
   },
   head: () => ({
     meta: [
