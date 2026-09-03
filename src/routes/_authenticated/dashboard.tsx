@@ -45,13 +45,31 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   ),
 });
 
-function Shell({ children }: { children: React.ReactNode }) {
+function Shell({
+  children,
+  title = "Your business",
+  status,
+  role,
+}: {
+  children: React.ReactNode;
+  title?: string;
+  status?: { label: string; tone: "live" | "waiting" | "halted" };
+  role?: string;
+}) {
   return (
-    <main className="mx-auto min-h-screen max-w-3xl px-6 py-16">
-      <div className="space-y-6">{children}</div>
-    </main>
+    <AppShell title={title} {...(status ? { status } : {})} {...(role ? { role } : {})}>
+      {children}
+    </AppShell>
   );
 }
+
+const TONE: Record<MyBusiness["lifecycle"], "live" | "waiting" | "halted"> = {
+  pending_payment: "waiting",
+  expired: "waiting",
+  suspended: "halted",
+  active: "live",
+};
+
 
 function formatDate(value: string | null) {
   if (!value) return null;
