@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { getAccountRouting } from "@/lib/business.functions";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
