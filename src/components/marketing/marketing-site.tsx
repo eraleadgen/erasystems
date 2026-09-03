@@ -322,38 +322,79 @@ function Check() {
   );
 }
 
+const NAV_LINKS = [
+  { href: "#platform", label: "Platform" },
+  { href: "#pricing", label: "Pricing" },
+  { href: "#addons", label: "Add-ons" },
+  { href: "#proof", label: "Proof" },
+  { href: "#faq", label: "FAQ" },
+];
+
 export function MarketingSite() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <div className="dark min-h-screen bg-background font-body text-foreground">
       <header className="sticky top-0 z-40 border-b border-border/80 bg-background/85 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
           <Logo />
           <nav className="hidden items-center gap-7 text-sm text-muted-foreground md:flex">
-            <a href="#platform" className="hover:text-foreground">
-              Platform
-            </a>
-            <a href="#pricing" className="hover:text-foreground">
-              Pricing
-            </a>
-            <a href="#addons" className="hover:text-foreground">
-              Add-ons
-            </a>
-            <a href="#proof" className="hover:text-foreground">
-              Proof
-            </a>
-
-            <a href="#faq" className="hover:text-foreground">
-              FAQ
-            </a>
+            {NAV_LINKS.map((link) => (
+              <a key={link.href} href={link.href} className="hover:text-foreground">
+                {link.label}
+              </a>
+            ))}
           </nav>
-          <a
-            href={CTA}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-elevated transition-all hover:-translate-y-0.5 hover:bg-primary/90"
-          >
-            Book a discovery call
-          </a>
+          <div className="flex items-center gap-2">
+            <a
+              href={CTA}
+              className="hidden rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-elevated transition-all hover:-translate-y-0.5 hover:bg-primary/90 sm:inline-flex"
+            >
+              Book a discovery call
+            </a>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label="Toggle navigation"
+              aria-expanded={menuOpen}
+              className="inline-flex size-10 items-center justify-center rounded-md border border-border text-foreground md:hidden"
+            >
+              <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                {menuOpen ? (
+                  <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+                ) : (
+                  <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
+
+        {menuOpen && (
+          <div className="border-t border-border/80 bg-background px-6 py-4 md:hidden">
+            <nav className="flex flex-col gap-1 text-sm">
+              {NAV_LINKS.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-md px-2 py-2 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                >
+                  {link.label}
+                </a>
+              ))}
+              <a
+                href={CTA}
+                onClick={() => setMenuOpen(false)}
+                className="mt-2 rounded-md bg-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground"
+              >
+                Book a discovery call
+              </a>
+            </nav>
+          </div>
+        )}
       </header>
+
 
       <main>
         {/* Hero */}
