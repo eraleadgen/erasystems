@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SpecialistsRouteImport } from './routes/specialists'
+import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedBookingsRouteImport } from './routes/_authenticated/bookings'
 import { Route as AuthenticatedCatalogRouteImport } from './routes/_authenticated/catalog'
 import { Route as AuthenticatedCustomersRouteImport } from './routes/_authenticated/customers'
@@ -57,6 +58,11 @@ const SpecialistsRoute = SpecialistsRouteImport.update({
   id: '/specialists',
   path: '/specialists',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedBillingRoute = AuthenticatedBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedBookingsRoute = AuthenticatedBookingsRouteImport.update({
   id: '/bookings',
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/portal': typeof PortalRoute
   '/register': typeof RegisterRoute
   '/specialists': typeof SpecialistsRoute
+  '/billing': typeof AuthenticatedBillingRoute
   '/bookings': typeof AuthenticatedBookingsRoute
   '/catalog': typeof AuthenticatedCatalogRoute
   '/customers': typeof AuthenticatedCustomersRoute
@@ -152,6 +159,7 @@ export interface FileRoutesByTo {
   '/portal': typeof PortalRoute
   '/register': typeof RegisterRoute
   '/specialists': typeof SpecialistsRoute
+  '/billing': typeof AuthenticatedBillingRoute
   '/bookings': typeof AuthenticatedBookingsRoute
   '/catalog': typeof AuthenticatedCatalogRoute
   '/customers': typeof AuthenticatedCustomersRoute
@@ -174,6 +182,7 @@ export interface FileRoutesById {
   '/portal': typeof PortalRoute
   '/register': typeof RegisterRoute
   '/specialists': typeof SpecialistsRoute
+  '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/bookings': typeof AuthenticatedBookingsRoute
   '/_authenticated/catalog': typeof AuthenticatedCatalogRoute
   '/_authenticated/customers': typeof AuthenticatedCustomersRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/register'
     | '/specialists'
+    | '/billing'
     | '/bookings'
     | '/catalog'
     | '/customers'
@@ -216,6 +226,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/register'
     | '/specialists'
+    | '/billing'
     | '/bookings'
     | '/catalog'
     | '/customers'
@@ -237,6 +248,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/register'
     | '/specialists'
+    | '/_authenticated/billing'
     | '/_authenticated/bookings'
     | '/_authenticated/catalog'
     | '/_authenticated/customers'
@@ -310,6 +322,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/specialists'
       preLoaderRoute: typeof SpecialistsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/billing': {
+      id: '/_authenticated/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof AuthenticatedBillingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/bookings': {
       id: '/_authenticated/bookings'
@@ -406,6 +425,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedBookingsRoute: typeof AuthenticatedBookingsRoute
   AuthenticatedCatalogRoute: typeof AuthenticatedCatalogRoute
   AuthenticatedCustomersRoute: typeof AuthenticatedCustomersRoute
@@ -415,6 +435,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedBookingsRoute: AuthenticatedBookingsRoute,
   AuthenticatedCatalogRoute: AuthenticatedCatalogRoute,
   AuthenticatedCustomersRoute: AuthenticatedCustomersRoute,
