@@ -345,7 +345,7 @@ function PlanPicker({ canPay }: { canPay: boolean }) {
         <p className="mt-1 text-xs text-muted-foreground">{APP_ADDON_BLURB}</p>
         {current.appRequiresCall ? (
           <p className="mt-3 text-xs text-muted-foreground">
-            On Enterprise the apps are scoped on a call with your ERA representative before they are
+            The apps are scoped on a call with your ERA representative before they are
             quoted, so they aren&apos;t bought here.
           </p>
         ) : (
