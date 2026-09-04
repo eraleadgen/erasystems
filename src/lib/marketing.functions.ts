@@ -13,9 +13,27 @@ const discoverySchema = z.object({
   phone: z.string().trim().max(40).optional().or(z.literal("")),
   businessType: z.string().trim().max(120).optional().or(z.literal("")),
   message: z.string().trim().max(2000).optional().or(z.literal("")),
+  /** ISO UTC start of the chosen discovery-call slot, when scheduling is live. */
+  slotStart: z.string().datetime().optional().or(z.literal("")),
 });
 
 export type DiscoveryRequestInput = z.infer<typeof discoverySchema>;
+
+/**
+ * Open 60 minute discovery-call slots on the ERA calendar, Mon–Fri 10:00–18:00 ET.
+ * Returns an empty list when scheduling isn't available; the form then falls
+ * back to "we'll email you a time".
+ */
+export const listDiscoverySlots = createServerFn({ method: "GET" }).handler(async () => {
+  try {
+    const { getOpenSlots } = await import("./google-calendar.server");
+    const slots = await getOpenSlots();
+    return { slots: slots.slice(0, 60) };
+  } catch (error) {
+    console.error("discovery slot lookup failed", error);
+    return { slots: [] as { start: string; end: string }[] };
+  }
+});
 
 /**
  * Public marketing contact form. Writes through the anon-scoped Data API — no
