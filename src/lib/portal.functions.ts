@@ -5,7 +5,14 @@ import type { AddonKind, PlatformFeature } from "@/lib/entitlements";
 
 export type PortalWorkspace = {
   businessId: string;
-  services: { id: string; name: string; basePriceCents: number; durationMinutes: number; isActive: boolean }[];
+  services: {
+    id: string;
+    name: string;
+    description: string;
+    basePriceCents: number;
+    durationMinutes: number;
+    isActive: boolean;
+  }[];
   bookings: {
     id: string;
     customerName: string;
@@ -39,7 +46,7 @@ export const getPortalWorkspace = createServerFn({ method: "GET" })
     const [services, bookings, team, payments] = await Promise.all([
       context.supabase
         .from("services")
-        .select("id, name, base_price_cents, duration_minutes, is_active")
+        .select("id, name, description, base_price_cents, duration_minutes, is_active")
         .eq("business_id", businessId)
         .order("sort_order", { ascending: true }),
       context.supabase
@@ -65,6 +72,7 @@ export const getPortalWorkspace = createServerFn({ method: "GET" })
       services: (services.data ?? []).map((s) => ({
         id: s.id,
         name: s.name,
+        description: s.description ?? "",
         basePriceCents: s.base_price_cents,
         durationMinutes: s.duration_minutes,
         isActive: s.is_active,
