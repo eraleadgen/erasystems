@@ -30,7 +30,7 @@ function PlatformPage() {
         lede="Most local service businesses run on a patchwork: a booking app, a CRM nobody updates, an invoicing tool, a website someone built once, an email blaster, a phone, and a spreadsheet holding it together. ERA Core replaces the patchwork with a single system where the site, the schedule, the customer, the job, and the money are all the same record."
       />
 
-      <section className="border-b border-border">
+      <section className="section-glow">
         <div className="mx-auto max-w-6xl px-6 py-16">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {outcomes.map((item, i) => (
@@ -61,7 +61,7 @@ function PlatformPage() {
         </div>
       </section>
 
-      <section className="border-b border-border bg-muted/30">
+      <section className="section-deep">
         <div className="mx-auto max-w-6xl px-6 py-16">
           <h2 className="text-center font-display text-3xl font-semibold tracking-tight text-foreground lg:text-left">
             What that looks like day to day
@@ -86,7 +86,7 @@ function PlatformPage() {
         </div>
       </section>
 
-      <section className="border-b border-border">
+      <section className="section-glow">
         <div className="mx-auto max-w-6xl px-6 py-16">
           <h2 className="text-center font-display text-3xl font-semibold tracking-tight text-foreground lg:text-left">
             How you get started

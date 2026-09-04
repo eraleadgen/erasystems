@@ -41,7 +41,7 @@ export function MarketingSite() {
   return (
     <MarketingShell>
       {/* Hero */}
-      <section className="hero-veil relative overflow-hidden border-b border-border">
+      <section className="hero-veil relative overflow-hidden section-glow">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-14 sm:gap-12 sm:py-20 lg:grid-cols-[1.1fr_0.9fr] lg:py-28">
           <div className="text-center lg:text-left">
             <Reveal>
@@ -82,7 +82,7 @@ export function MarketingSite() {
       </section>
 
       {/* Outcomes, short form */}
-      <section className="border-b border-border">
+      <section className="section-deep">
         <div className="mx-auto max-w-6xl px-6 py-16">
           <h2 className="text-center font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl lg:text-left">
             What it buys you
@@ -103,7 +103,7 @@ export function MarketingSite() {
       </section>
 
       {/* Section map */}
-      <section className="border-b border-border bg-muted/30">
+      <section className="section-glow">
         <div className="mx-auto max-w-6xl px-6 py-16">
           <h2 className="text-center font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl lg:text-left">
             Read the detail

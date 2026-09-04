@@ -44,7 +44,7 @@ function FaqPage() {
         lede="The things prospects ask before a discovery call, answered plainly."
       />
 
-      <section className="border-b border-border">
+      <section className="section-glow">
         <div className="mx-auto max-w-4xl px-6 py-16">
           <dl className="divide-y divide-border rounded-2xl border border-border bg-card">
             {faqs.map((item, i) => (

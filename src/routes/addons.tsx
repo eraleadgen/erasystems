@@ -30,7 +30,7 @@ function AddonsPage() {
         lede="Available on any tier, including Basic. They are never included in a plan and never granted by upgrading. The price is quoted for your business on the discovery call."
       />
 
-      <section className="border-b border-border">
+      <section className="section-glow">
         <div className="mx-auto max-w-6xl px-6 py-16">
           <div className="grid gap-6 md:grid-cols-2">
             {addons.map((addon, i) => (
