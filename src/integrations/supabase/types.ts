@@ -350,6 +350,7 @@ export type Database = {
           completed_at: string | null
           created_at: string
           id: string
+          is_override: boolean
           notes: string | null
           owner: string
           status: string
@@ -361,6 +362,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           id?: string
+          is_override?: boolean
           notes?: string | null
           owner?: string
           status?: string
@@ -372,6 +374,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           id?: string
+          is_override?: boolean
           notes?: string | null
           owner?: string
           status?: string
