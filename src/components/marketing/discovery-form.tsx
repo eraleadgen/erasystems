@@ -132,6 +132,53 @@ export function DiscoveryForm() {
         />
       </label>
 
+      <div className="grid gap-2 rounded-lg border border-border bg-background/40 p-4">
+        <div className="flex items-baseline justify-between gap-3">
+          <span className="text-sm font-medium text-foreground">Pick a time</span>
+          <span className="text-xs text-muted-foreground">60 minutes, Mon–Fri 10am–6pm ET</span>
+        </div>
+
+        {slotsQuery.isLoading ? (
+          <p className="text-sm text-muted-foreground">Loading open times…</p>
+        ) : slots.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No open times to show right now. Send the form and we&apos;ll email you options.
+          </p>
+        ) : (
+          <div className="grid max-h-64 gap-3 overflow-y-auto pr-1">
+            {days.map((day) => (
+              <div key={day}>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {day}
+                </p>
+                <div className="mt-1.5 flex flex-wrap gap-2">
+                  {slots
+                    .filter((slot) => formatSlotDay(slot.start) === day)
+                    .map((slot) => {
+                      const selected = slotStart === slot.start;
+                      return (
+                        <button
+                          key={slot.start}
+                          type="button"
+                          aria-pressed={selected}
+                          onClick={() => setSlotStart(selected ? "" : slot.start)}
+                          className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
+                            selected
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-border bg-card text-foreground hover:border-primary/60"
+                          }`}
+                        >
+                          {slotTime(slot.start)}
+                        </button>
+                      );
+                    })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {status === "error" && error ? (
         <p className="text-sm text-destructive" role="alert">
           {error}
