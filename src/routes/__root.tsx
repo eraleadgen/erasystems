@@ -77,12 +77,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "ERA Systems" },
-      {
-        name: "description",
-        content:
-          "ERA Core, one operating system for local service businesses. Website, AI chat, scheduling, payments and automations in a single platform.",
-      },
+      { title: "ERA Systems — Operating system for local service businesses" },
       { name: "author", content: "ERA Systems" },
       { property: "og:site_name", content: "ERA Systems" },
       { property: "og:type", content: "website" },
