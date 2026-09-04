@@ -171,12 +171,20 @@ function OnboardingWizard() {
           Your business is set up and waiting to go live. Billing is the next step, your ERA
           Systems representative will take it from here.
         </p>
-        <Link
-          to="/dashboard"
-          className="mt-5 inline-block rounded-md border border-border px-4 py-2 text-sm text-foreground underline-offset-4 hover:underline"
-        >
-          Go to your dashboard
-        </Link>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link
+            to="/business"
+            className="inline-block rounded-md border border-border px-4 py-2 text-sm text-foreground underline-offset-4 hover:underline"
+          >
+            View or update your business information
+          </Link>
+          <Link
+            to="/dashboard"
+            className="inline-block rounded-md border border-border px-4 py-2 text-sm text-foreground underline-offset-4 hover:underline"
+          >
+            Go to your dashboard
+          </Link>
+        </div>
       </Shell>
     );
   }
