@@ -1,23 +1,48 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 
-import { submitDiscoveryRequest } from "@/lib/marketing.functions";
+import { listDiscoverySlots, submitDiscoveryRequest } from "@/lib/marketing.functions";
+import { formatSlotDay, formatSlotLabel } from "@/lib/booking";
 
 const field =
   "w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/40";
 
+function slotTime(startIso: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(startIso));
+}
+
 export function DiscoveryForm() {
   const submit = useServerFn(submitDiscoveryRequest);
+  const slotsFn = useServerFn(listDiscoverySlots);
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+  const [slotStart, setSlotStart] = useState<string>("");
+  const [bookedFor, setBookedFor] = useState<string | null>(null);
+
+  const slotsQuery = useQuery({
+    queryKey: ["discovery-slots"],
+    queryFn: () => slotsFn(),
+    staleTime: 60_000,
+  });
+  const slots = slotsQuery.data?.slots ?? [];
+  const days = Array.from(new Set(slots.map((s) => formatSlotDay(s.start))));
 
   if (status === "sent") {
     return (
       <div className="rounded-xl border border-primary/30 bg-primary/5 p-8 text-center">
-        <h3 className="text-lg font-semibold text-foreground">Request received</h3>
+        <h3 className="text-lg font-semibold text-foreground">
+          {bookedFor ? "Your call is booked" : "Request received"}
+        </h3>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-          A member of the ERA team will reply by email to schedule your discovery call. No account
-          has been created. Accounts are only issued by invite after we&apos;ve spoken.
+          {bookedFor
+            ? `You're on the ERA calendar for ${formatSlotLabel(bookedFor)}. A calendar invite with the meeting link is on its way to your inbox.`
+            : "A member of the ERA team will reply by email to schedule your discovery call."}{" "}
+          No account has been created. Accounts are only issued by invite after we&apos;ve spoken.
         </p>
       </div>
     );
