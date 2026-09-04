@@ -565,3 +565,34 @@
   );
   background-attachment: scroll;
 }
+
+/* Section rhythm: soft contrast bands that fade into each other instead of hard rules */
+@utility section-deep {
+  position: relative;
+  isolation: isolate;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-color: color-mix(in oklab, var(--background) 78%, black);
+    mask-image: linear-gradient(180deg, transparent 0%, black 14%, black 86%, transparent 100%);
+  }
+}
+
+@utility section-glow {
+  position: relative;
+  isolation: isolate;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      radial-gradient(58rem 26rem at 50% 40%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 70%),
+      radial-gradient(38rem 20rem at 12% 90%, color-mix(in oklab, var(--gold) 8%, transparent), transparent 72%);
+    mask-image: linear-gradient(180deg, transparent 0%, black 18%, black 82%, transparent 100%);
+  }
+}
