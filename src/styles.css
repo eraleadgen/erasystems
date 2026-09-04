@@ -566,10 +566,21 @@
   background-attachment: scroll;
 }
 
-/* Section rhythm: soft contrast bands that fade into each other instead of hard rules */
+/* Section rhythm: hard-edged bands framed with a shiny silver trim */
 @utility section-deep {
   position: relative;
   isolation: isolate;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  border-image: linear-gradient(
+      90deg,
+      oklch(0.55 0.01 210 / 0.25) 0%,
+      oklch(0.92 0.008 210 / 0.85) 22%,
+      oklch(1 0 0 / 0.95) 50%,
+      oklch(0.92 0.008 210 / 0.85) 78%,
+      oklch(0.55 0.01 210 / 0.25) 100%
+    )
+    1;
   &::before {
     content: "";
     position: absolute;
@@ -577,13 +588,23 @@
     z-index: -1;
     pointer-events: none;
     background-color: color-mix(in oklab, var(--background) 78%, black);
-    mask-image: linear-gradient(180deg, transparent 0%, black 14%, black 86%, transparent 100%);
   }
 }
 
 @utility section-glow {
   position: relative;
   isolation: isolate;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  border-image: linear-gradient(
+      90deg,
+      oklch(0.55 0.01 210 / 0.2) 0%,
+      oklch(0.9 0.008 210 / 0.7) 25%,
+      oklch(1 0 0 / 0.9) 50%,
+      oklch(0.9 0.008 210 / 0.7) 75%,
+      oklch(0.55 0.01 210 / 0.2) 100%
+    )
+    1;
   &::before {
     content: "";
     position: absolute;
@@ -593,6 +614,6 @@
     background-image:
       radial-gradient(58rem 26rem at 50% 40%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 70%),
       radial-gradient(38rem 20rem at 12% 90%, color-mix(in oklab, var(--gold) 8%, transparent), transparent 72%);
-    mask-image: linear-gradient(180deg, transparent 0%, black 18%, black 82%, transparent 100%);
   }
 }
+
