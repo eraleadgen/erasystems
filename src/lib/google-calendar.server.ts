@@ -73,9 +73,9 @@ export type BookingDetails = {
   fullName: string;
   businessName: string;
   email: string;
-  phone?: string;
-  businessType?: string;
-  message?: string;
+  phone?: string | undefined;
+  businessType?: string | undefined;
+  message?: string | undefined;
 };
 
 /**
