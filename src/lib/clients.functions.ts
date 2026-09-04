@@ -152,6 +152,18 @@ export const getClientProfile = createServerFn({ method: "GET" })
       supportEmail: business.support_email,
       supportPhone: business.support_phone,
       createdAt: business.created_at,
+      primaryDomain: domainRows.find((d) => d.is_primary)?.hostname ?? null,
+      domains: domainRows.map((d) => ({
+        hostname: d.hostname,
+        isPrimary: d.is_primary,
+        verifiedAt: d.verified_at,
+      })),
+      members: (members.data ?? []).map((m) => ({
+        userId: m.user_id,
+        role: m.role,
+        createdAt: m.created_at,
+      })),
+      membership,
       addons: (addons.data ?? []).map((a) => ({
         addon: a.addon as AddonKind,
         isActive: a.is_active,
