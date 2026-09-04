@@ -1,132 +1,237 @@
 /**
- * "Chaos into flow": tangled, noisy strands on the left are pulled through the
- * ERA Core and leave as one calm, bright stream. It shows the promise of the
- * product (efficiency) rather than decorating the page. No grids, no orbits.
+ * "Convergence": scattered, restless strands are drawn into the ERA Core and
+ * leave as three clean, lit beams. Light does the work — no grids, no orbits.
+ * Everything is SVG + SMIL so it stays crisp at any size and identical on
+ * mobile and desktop.
  */
 
-const TANGLE = [
-  "M -10 40 C 70 20, 60 96, 130 70 C 168 56, 150 118, 196 92",
-  "M -10 96 C 60 84, 74 40, 132 96 C 164 128, 154 74, 196 108",
-  "M -10 160 C 72 158, 58 106, 126 138 C 170 158, 148 150, 196 132",
-  "M -10 224 C 64 236, 78 176, 134 208 C 172 230, 152 178, 196 152",
-  "M -10 280 C 74 300, 56 224, 128 246 C 170 258, 146 200, 196 168",
+const STRANDS = [
+  "M -20 34 C 78 18, 52 92, 138 66 C 172 56, 158 112, 196 96",
+  "M -20 92 C 62 82, 80 38, 136 92 C 166 122, 156 78, 196 112",
+  "M -20 152 C 74 152, 56 104, 128 134 C 172 152, 150 146, 196 130",
+  "M -20 214 C 66 228, 80 172, 136 202 C 174 224, 154 176, 196 150",
+  "M -20 272 C 76 292, 54 220, 130 242 C 172 254, 148 198, 196 166",
 ];
 
-const FLOW = [
-  "M 214 130 C 268 118, 316 112, 396 108",
-  "M 214 130 C 272 130, 320 132, 396 132",
-  "M 214 130 C 268 142, 316 150, 396 156",
+const BEAMS = [
+  "M 218 130 C 272 116, 320 108, 404 102",
+  "M 218 130 C 274 130, 322 132, 404 132",
+  "M 218 130 C 272 144, 320 152, 404 162",
 ];
 
 export function HeroVisual() {
   return (
-    <div className="relative flex h-[22rem] w-full items-center justify-center sm:h-[28rem]">
+    <div className="relative flex aspect-[400/280] w-full max-w-[34rem] items-center justify-center">
       <svg
-        viewBox="0 0 400 260"
-        className="size-full"
+        viewBox="0 0 400 280"
+        className="size-full overflow-visible"
         aria-hidden
         preserveAspectRatio="xMidYMid meet"
       >
         <defs>
-          <linearGradient id="era-tangle" x1="0" y1="0" x2="1" y2="0">
+          <linearGradient id="era-strand" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="currentColor" stopOpacity="0" />
-            <stop offset="55%" stopColor="currentColor" stopOpacity="0.45" />
-            <stop offset="100%" stopColor="currentColor" stopOpacity="0.1" />
+            <stop offset="60%" stopColor="currentColor" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0.06" />
           </linearGradient>
-          <linearGradient id="era-flow" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="currentColor" stopOpacity="0.95" />
-            <stop offset="100%" stopColor="currentColor" stopOpacity="0.05" />
+          <linearGradient id="era-beam" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="currentColor" stopOpacity="1" />
+            <stop offset="55%" stopColor="currentColor" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
           </linearGradient>
-          <radialGradient id="era-core-glow">
-            <stop offset="0%" stopColor="currentColor" stopOpacity="0.55" />
+          <radialGradient id="era-bloom">
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.5" />
+            <stop offset="45%" stopColor="currentColor" stopOpacity="0.16" />
             <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
           </radialGradient>
+          <filter id="era-glow" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="3.2" result="b" />
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
         </defs>
 
-        {/* incoming noise */}
+        {/* restless inbound strands */}
         <g className="text-muted-foreground">
-          {TANGLE.map((d, i) => (
+          {STRANDS.map((d, i) => (
             <g key={d}>
               <path
                 d={d}
                 fill="none"
-                stroke="url(#era-tangle)"
-                strokeWidth={1.1}
+                stroke="url(#era-strand)"
+                strokeWidth={1}
                 strokeLinecap="round"
               />
-              <circle r={2.2} className="fill-muted-foreground/70">
-                <animateMotion
-                  dur={`${5.4 + i * 0.6}s`}
-                  begin={`${i * 0.45}s`}
+              <path
+                d={d}
+                fill="none"
+                stroke="currentColor"
+                strokeOpacity={0.85}
+                strokeWidth={1.3}
+                strokeLinecap="round"
+                strokeDasharray="26 300"
+              >
+                <animate
+                  attributeName="stroke-dashoffset"
+                  from="326"
+                  to="0"
+                  dur={`${5 + i * 0.7}s`}
+                  begin={`${i * 0.55}s`}
                   repeatCount="indefinite"
-                  path={d}
-                  calcMode="spline"
-                  keyPoints="0;1"
-                  keyTimes="0;1"
-                  keySplines="0.6 0 0.2 1"
                 />
                 <animate
-                  attributeName="opacity"
-                  values="0;0.9;0"
-                  dur={`${5.4 + i * 0.6}s`}
-                  begin={`${i * 0.45}s`}
+                  attributeName="stroke-opacity"
+                  values="0;0.75;0"
+                  dur={`${5 + i * 0.7}s`}
+                  begin={`${i * 0.55}s`}
                   repeatCount="indefinite"
                 />
-              </circle>
+              </path>
             </g>
           ))}
         </g>
 
         {/* the core */}
         <g className="text-primary">
-          <circle cx="205" cy="130" r="70" fill="url(#era-core-glow)">
-            <animate
-              attributeName="r"
-              values="58;76;58"
-              dur="6s"
-              repeatCount="indefinite"
-            />
+          <circle cx="207" cy="130" r="96" fill="url(#era-bloom)">
+            <animate attributeName="r" values="84;104;84" dur="7s" repeatCount="indefinite" />
           </circle>
-          <circle cx="205" cy="130" r="16" className="fill-primary/25 stroke-primary/70" />
-          <circle cx="205" cy="130" r="6" className="fill-gold" />
+
+          {/* expanding rings of light */}
+          {[0, 1, 2].map((i) => (
+            <circle
+              key={i}
+              cx="207"
+              cy="130"
+              r="18"
+              fill="none"
+              className="stroke-primary"
+              strokeWidth={0.9}
+            >
+              <animate
+                attributeName="r"
+                values="18;64"
+                dur="4.5s"
+                begin={`${i * 1.5}s`}
+                repeatCount="indefinite"
+              />
+              <animate
+                attributeName="stroke-opacity"
+                values="0.55;0"
+                dur="4.5s"
+                begin={`${i * 1.5}s`}
+                repeatCount="indefinite"
+              />
+            </circle>
+          ))}
+
+          {/* counter-rotating aperture blades */}
+          <g filter="url(#era-glow)">
+            <g>
+              <circle
+                cx="207"
+                cy="130"
+                r="30"
+                fill="none"
+                className="stroke-primary/50"
+                strokeWidth={1.1}
+                strokeDasharray="14 10"
+              />
+              <animateTransform
+                attributeName="transform"
+                type="rotate"
+                from="0 207 130"
+                to="360 207 130"
+                dur="26s"
+                repeatCount="indefinite"
+              />
+            </g>
+            <g>
+              <circle
+                cx="207"
+                cy="130"
+                r="21"
+                fill="none"
+                className="stroke-gold/60"
+                strokeWidth={1}
+                strokeDasharray="4 12"
+              />
+              <animateTransform
+                attributeName="transform"
+                type="rotate"
+                from="360 207 130"
+                to="0 207 130"
+                dur="15s"
+                repeatCount="indefinite"
+              />
+            </g>
+            <circle cx="207" cy="130" r="12" className="fill-primary/20 stroke-primary/80" />
+            <circle cx="207" cy="130" r="4.6" className="fill-gold">
+              <animate
+                attributeName="r"
+                values="4.2;6;4.2"
+                dur="3.2s"
+                repeatCount="indefinite"
+              />
+            </circle>
+          </g>
         </g>
 
-        {/* calm outgoing flow */}
+        {/* clean outbound beams */}
         <g className="text-primary">
-          {FLOW.map((d, i) => (
+          {BEAMS.map((d, i) => (
             <g key={d}>
-              <path d={d} fill="none" stroke="url(#era-flow)" strokeWidth={1.4} strokeLinecap="round" />
-              <circle r={2.8} className="fill-gold">
-                <animateMotion
-                  dur={`${3.2 + i * 0.35}s`}
-                  begin={`${i * 0.5}s`}
+              <path
+                d={d}
+                fill="none"
+                stroke="url(#era-beam)"
+                strokeWidth={1.2}
+                strokeLinecap="round"
+                strokeOpacity={0.5}
+              />
+              <path
+                d={d}
+                fill="none"
+                className="stroke-gold"
+                strokeWidth={1.6}
+                strokeLinecap="round"
+                strokeDasharray="34 260"
+                filter="url(#era-glow)"
+              >
+                <animate
+                  attributeName="stroke-dashoffset"
+                  from="294"
+                  to="0"
+                  dur={`${3 + i * 0.4}s`}
+                  begin={`${i * 0.45}s`}
                   repeatCount="indefinite"
-                  path={d}
                 />
                 <animate
-                  attributeName="opacity"
-                  values="1;1;0"
-                  keyTimes="0;0.6;1"
-                  dur={`${3.2 + i * 0.35}s`}
-                  begin={`${i * 0.5}s`}
+                  attributeName="stroke-opacity"
+                  values="0.9;0.9;0"
+                  keyTimes="0;0.65;1"
+                  dur={`${3 + i * 0.4}s`}
+                  begin={`${i * 0.45}s`}
                   repeatCount="indefinite"
                 />
-              </circle>
+              </path>
             </g>
           ))}
         </g>
 
         <text
-          x="16"
-          y="248"
+          x="4"
+          y="268"
           className="fill-muted-foreground text-[9px] uppercase"
           style={{ letterSpacing: "0.28em" }}
         >
           Scattered work
         </text>
         <text
-          x="384"
-          y="248"
+          x="396"
+          y="268"
           textAnchor="end"
           className="fill-gold text-[9px] uppercase"
           style={{ letterSpacing: "0.28em" }}
@@ -135,7 +240,7 @@ export function HeroVisual() {
         </text>
       </svg>
 
-      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 translate-y-10 text-center">
+      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 translate-y-[3.2rem] text-center">
         <p className="font-display text-[10px] uppercase tracking-[0.32em] text-gold">ERA Core</p>
         <p className="text-[11px] text-muted-foreground">v2.0 runs the whole business</p>
       </div>
