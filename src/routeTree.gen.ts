@@ -33,6 +33,7 @@ import { Route as AdminAddonsRouteImport } from './routes/admin.addons'
 import { Route as AdminCalendarRouteImport } from './routes/admin.calendar'
 import { Route as AdminDocumentsRouteImport } from './routes/admin.documents'
 import { Route as AdminInvitesRouteImport } from './routes/admin.invites'
+import { Route as AdminSalesRouteImport } from './routes/admin.sales'
 import { Route as AdminClientsIndexRouteImport } from './routes/admin.clients.index'
 import { Route as AdminClientsBusinessIdRouteImport } from './routes/admin.clients.$businessId'
 import { Route as ApiPublicCronExpireBusinessesRouteImport } from './routes/api/public/cron/expire-businesses'
@@ -158,6 +159,11 @@ const AdminInvitesRoute = AdminInvitesRouteImport.update({
   path: '/admin/invites',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminSalesRoute = AdminSalesRouteImport.update({
+  id: '/admin/sales',
+  path: '/admin/sales',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminClientsIndexRoute = AdminClientsIndexRouteImport.update({
   id: '/admin/clients/',
   path: '/admin/clients/',
@@ -210,6 +216,7 @@ export interface FileRoutesByFullPath {
   '/admin/calendar': typeof AdminCalendarRoute
   '/admin/documents': typeof AdminDocumentsRoute
   '/admin/invites': typeof AdminInvitesRoute
+  '/admin/sales': typeof AdminSalesRoute
   '/admin/clients/$businessId': typeof AdminClientsBusinessIdRoute
   '/admin/clients/': typeof AdminClientsIndexRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
@@ -240,6 +247,7 @@ export interface FileRoutesByTo {
   '/admin/calendar': typeof AdminCalendarRoute
   '/admin/documents': typeof AdminDocumentsRoute
   '/admin/invites': typeof AdminInvitesRoute
+  '/admin/sales': typeof AdminSalesRoute
   '/admin/clients/$businessId': typeof AdminClientsBusinessIdRoute
   '/admin/clients': typeof AdminClientsIndexRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
@@ -272,6 +280,7 @@ export interface FileRoutesById {
   '/admin/calendar': typeof AdminCalendarRoute
   '/admin/documents': typeof AdminDocumentsRoute
   '/admin/invites': typeof AdminInvitesRoute
+  '/admin/sales': typeof AdminSalesRoute
   '/admin/clients/$businessId': typeof AdminClientsBusinessIdRoute
   '/admin/clients/': typeof AdminClientsIndexRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
@@ -304,6 +313,7 @@ export interface FileRouteTypes {
     | '/admin/calendar'
     | '/admin/documents'
     | '/admin/invites'
+    | '/admin/sales'
     | '/admin/clients/$businessId'
     | '/admin/clients/'
     | '/api/public/cron/expire-businesses'
@@ -334,6 +344,7 @@ export interface FileRouteTypes {
     | '/admin/calendar'
     | '/admin/documents'
     | '/admin/invites'
+    | '/admin/sales'
     | '/admin/clients/$businessId'
     | '/admin/clients'
     | '/api/public/cron/expire-businesses'
@@ -365,6 +376,7 @@ export interface FileRouteTypes {
     | '/admin/calendar'
     | '/admin/documents'
     | '/admin/invites'
+    | '/admin/sales'
     | '/admin/clients/$businessId'
     | '/admin/clients/'
     | '/api/public/cron/expire-businesses'
@@ -389,6 +401,7 @@ export interface RootRouteChildren {
   AdminCalendarRoute: typeof AdminCalendarRoute
   AdminDocumentsRoute: typeof AdminDocumentsRoute
   AdminInvitesRoute: typeof AdminInvitesRoute
+  AdminSalesRoute: typeof AdminSalesRoute
   AdminClientsBusinessIdRoute: typeof AdminClientsBusinessIdRoute
   AdminClientsIndexRoute: typeof AdminClientsIndexRoute
   ApiPublicCronExpireBusinessesRoute: typeof ApiPublicCronExpireBusinessesRoute
@@ -566,6 +579,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInvitesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/sales': {
+      id: '/admin/sales'
+      path: '/admin/sales'
+      fullPath: '/admin/sales'
+      preLoaderRoute: typeof AdminSalesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/clients/': {
       id: '/admin/clients/'
       path: '/admin/clients'
@@ -646,6 +666,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminCalendarRoute: AdminCalendarRoute,
   AdminDocumentsRoute: AdminDocumentsRoute,
   AdminInvitesRoute: AdminInvitesRoute,
+  AdminSalesRoute: AdminSalesRoute,
   AdminClientsBusinessIdRoute: AdminClientsBusinessIdRoute,
   AdminClientsIndexRoute: AdminClientsIndexRoute,
   ApiPublicCronExpireBusinessesRoute: ApiPublicCronExpireBusinessesRoute,
