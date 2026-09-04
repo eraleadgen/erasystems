@@ -65,7 +65,7 @@ function PricingPage() {
                       : "border-border bg-card"
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex flex-col items-center gap-2 lg:flex-row lg:items-center lg:justify-between lg:gap-3">
                     <h2 className="font-display text-xl font-semibold text-foreground">
                       {tier.name}
                     </h2>

@@ -35,7 +35,7 @@ function PlatformPage() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {outcomes.map((item, i) => (
               <Reveal key={item.title} delay={i * 80}>
-                <article className="lift h-full rounded-2xl border border-border bg-card p-7">
+                <article className="lift h-full rounded-2xl border border-border bg-card p-7 text-center lg:text-left">
                   <p className="font-display text-3xl font-semibold text-primary">{item.stat}</p>
                   <h2 className="mt-3 font-display text-base font-semibold text-foreground">
                     {item.title}
@@ -48,7 +48,7 @@ function PlatformPage() {
 
           <Reveal
             delay={140}
-            className="glow-ring mt-12 rounded-2xl border border-primary/40 bg-primary p-7 text-primary-foreground"
+            className="glow-ring mt-12 rounded-2xl border border-primary/40 bg-primary p-7 text-center text-primary-foreground lg:text-left"
           >
             <p className="font-display text-xl font-semibold">Revenue on autopilot</p>
             <p className="mt-3 max-w-3xl text-sm leading-relaxed text-primary-foreground/85">
@@ -63,18 +63,18 @@ function PlatformPage() {
 
       <section className="border-b border-border bg-muted/30">
         <div className="mx-auto max-w-6xl px-6 py-16">
-          <h2 className="font-display text-3xl font-semibold tracking-tight text-foreground">
+          <h2 className="text-center font-display text-3xl font-semibold tracking-tight text-foreground lg:text-left">
             What that looks like day to day
           </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-2xl text-center text-sm leading-relaxed text-muted-foreground lg:mx-0 lg:text-left">
             Every tier includes the whole platform. Higher tiers extend it; they don&apos;t unlock
             the basics.
           </p>
           <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
             {coreCapabilities.map((cap, i) => (
               <Reveal key={cap.title} delay={i * 70}>
-                <article className="group h-full bg-card p-6 transition-colors hover:bg-card/60">
-                  <span className="block h-0.5 w-8 rounded-full bg-gold transition-all duration-500 group-hover:w-16" />
+                <article className="group h-full bg-card p-6 text-center transition-colors hover:bg-card/60 lg:text-left">
+                  <span className="mx-auto block h-0.5 w-8 rounded-full bg-gold transition-all duration-500 group-hover:w-16 lg:mx-0" />
                   <h3 className="mt-4 font-display text-base font-semibold text-foreground">
                     {cap.title}
                   </h3>
@@ -88,14 +88,14 @@ function PlatformPage() {
 
       <section className="border-b border-border">
         <div className="mx-auto max-w-6xl px-6 py-16">
-          <h2 className="font-display text-3xl font-semibold tracking-tight text-foreground">
+          <h2 className="text-center font-display text-3xl font-semibold tracking-tight text-foreground lg:text-left">
             How you get started
           </h2>
           <ol className="mt-10 grid gap-6 md:grid-cols-3">
             {steps.map((step, i) => (
               <li key={step.title}>
                 <Reveal delay={i * 130}>
-                  <div className="lift h-full rounded-2xl border border-border bg-card p-7">
+                  <div className="lift h-full rounded-2xl border border-border bg-card p-7 text-center lg:text-left">
                     <span className="inline-flex size-9 items-center justify-center rounded-full border border-gold/40 font-display text-sm font-semibold text-gold">
                       0{i + 1}
                     </span>

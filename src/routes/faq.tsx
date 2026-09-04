@@ -49,7 +49,7 @@ function FaqPage() {
           <dl className="divide-y divide-border rounded-2xl border border-border bg-card">
             {faqs.map((item, i) => (
               <Reveal key={item.q} delay={i * 60}>
-                <div className="p-6 transition-colors hover:bg-muted/40">
+                <div className="p-6 text-center transition-colors hover:bg-muted/40 lg:text-left">
                   <dt className="font-display text-base font-semibold text-foreground">{item.q}</dt>
                   <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.a}</dd>
                 </div>
