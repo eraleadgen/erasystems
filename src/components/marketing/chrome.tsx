@@ -219,12 +219,14 @@ export function PageHero({
 }) {
   return (
     <section className="hero-veil border-b border-border">
-      <div className="mx-auto max-w-4xl px-6 py-16 sm:py-20">
+      <div className="mx-auto max-w-4xl px-6 py-16 text-center sm:py-20 lg:text-left">
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-gold">{eyebrow}</p>
         <h1 className="mt-4 font-display text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
           {title}
         </h1>
-        <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground">{lede}</p>
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground lg:mx-0">
+          {lede}
+        </p>
       </div>
     </section>
   );
