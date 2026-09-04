@@ -195,10 +195,13 @@ function Footer() {
 /** Shared shell for every marketing page. */
 export function MarketingShell({ children }: { children: ReactNode }) {
   return (
-    <div className="dark min-h-screen bg-background font-body text-foreground">
-      <Header />
-      <main>{children}</main>
-      <Footer />
+    <div className="dark site-gradient relative min-h-screen font-body text-foreground">
+      <SiteBackdrop />
+      <div className="relative z-10">
+        <Header />
+        <main>{children}</main>
+        <Footer />
+      </div>
     </div>
   );
 }
