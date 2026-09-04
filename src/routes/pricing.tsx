@@ -53,7 +53,7 @@ function PricingPage() {
         lede="Your tier is set with you on the discovery call, not picked from a checkout page. Every tier includes the whole platform; higher tiers extend it rather than unlocking the basics."
       />
 
-      <section className="section-glow">
+      <section className="section-deep">
         <div className="mx-auto max-w-6xl px-6 py-16">
           <div className="grid gap-6 lg:grid-cols-3">
             {tiers.map((tier, i) => (

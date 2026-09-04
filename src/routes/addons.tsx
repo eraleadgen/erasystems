@@ -30,7 +30,7 @@ function AddonsPage() {
         lede="Available on any tier, including Basic. They are never included in a plan and never granted by upgrading. The price is quoted for your business on the discovery call."
       />
 
-      <section className="section-glow">
+      <section className="section-deep">
         <div className="mx-auto max-w-6xl px-6 py-16">
           <div className="grid gap-6 md:grid-cols-2">
             {addons.map((addon, i) => (
@@ -51,7 +51,12 @@ function AddonsPage() {
             ))}
           </div>
 
-          <p className="mx-auto mt-10 max-w-2xl text-center text-sm leading-relaxed text-muted-foreground lg:mx-0 lg:text-left">
+        </div>
+      </section>
+
+      <section className="section-glow">
+        <div className="mx-auto max-w-6xl px-6 py-14">
+          <p className="mx-auto max-w-2xl text-center text-sm leading-relaxed text-muted-foreground lg:mx-0 lg:text-left">
             Every app build is scoped on a call before anything is quoted or built, whatever tier
             you&apos;re on.
           </p>
