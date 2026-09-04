@@ -122,7 +122,10 @@ function ClientProfilePage() {
             <h2 className="text-base font-semibold">Business</h2>
             <div className="mt-3 divide-y divide-border/50">
               <Row label="Legal name" value={profile.legalName ?? "Not provided"} />
-              <Row label="Web address" value={`/${profile.slug}`} />
+              <Row
+                label="Web address"
+                value={profile.primaryDomain ?? `/${profile.slug} (no domain connected)`}
+              />
               <Row label="Tier" value={profile.planTier} />
               <Row label="Lifecycle" value={profile.lifecycle} />
               <Row label="Timezone" value={profile.timezone} />
