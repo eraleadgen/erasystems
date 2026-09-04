@@ -30,6 +30,20 @@ export type ClientProfile = {
   supportEmail: string | null;
   supportPhone: string | null;
   createdAt: string;
+  /** Connected custom hostname, when one has been mapped to this account. */
+  primaryDomain: string | null;
+  domains: { hostname: string; isPrimary: boolean; verifiedAt: string | null }[];
+  /** Who has access to this account, from business_members. */
+  members: { userId: string; role: string; createdAt: string }[];
+  /** Signed terms captured on the invite this account came from. */
+  membership: {
+    email: string;
+    fullName: string;
+    billingInterval: string;
+    subscriptionPriceCents: number;
+    setupFeeCents: number;
+    acceptedAt: string | null;
+  } | null;
   addons: { addon: AddonKind; isActive: boolean; priceCents: number }[];
   services: { id: string; name: string; basePriceCents: number }[];
   payments: { id: string; status: string; amountCents: number; createdAt: string }[];
