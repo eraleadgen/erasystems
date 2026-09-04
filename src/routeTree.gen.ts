@@ -31,6 +31,7 @@ import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 import { Route as AdminAddonsRouteImport } from './routes/admin.addons'
 import { Route as AdminCalendarRouteImport } from './routes/admin.calendar'
+import { Route as AdminDocumentsRouteImport } from './routes/admin.documents'
 import { Route as AdminInvitesRouteImport } from './routes/admin.invites'
 import { Route as AdminClientsIndexRouteImport } from './routes/admin.clients.index'
 import { Route as AdminClientsBusinessIdRouteImport } from './routes/admin.clients.$businessId'
@@ -147,6 +148,11 @@ const AdminCalendarRoute = AdminCalendarRouteImport.update({
   path: '/admin/calendar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminDocumentsRoute = AdminDocumentsRouteImport.update({
+  id: '/admin/documents',
+  path: '/admin/documents',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminInvitesRoute = AdminInvitesRouteImport.update({
   id: '/admin/invites',
   path: '/admin/invites',
@@ -202,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/team': typeof AuthenticatedTeamRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/calendar': typeof AdminCalendarRoute
+  '/admin/documents': typeof AdminDocumentsRoute
   '/admin/invites': typeof AdminInvitesRoute
   '/admin/clients/$businessId': typeof AdminClientsBusinessIdRoute
   '/admin/clients/': typeof AdminClientsIndexRoute
@@ -231,6 +238,7 @@ export interface FileRoutesByTo {
   '/team': typeof AuthenticatedTeamRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/calendar': typeof AdminCalendarRoute
+  '/admin/documents': typeof AdminDocumentsRoute
   '/admin/invites': typeof AdminInvitesRoute
   '/admin/clients/$businessId': typeof AdminClientsBusinessIdRoute
   '/admin/clients': typeof AdminClientsIndexRoute
@@ -262,6 +270,7 @@ export interface FileRoutesById {
   '/_authenticated/team': typeof AuthenticatedTeamRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/calendar': typeof AdminCalendarRoute
+  '/admin/documents': typeof AdminDocumentsRoute
   '/admin/invites': typeof AdminInvitesRoute
   '/admin/clients/$businessId': typeof AdminClientsBusinessIdRoute
   '/admin/clients/': typeof AdminClientsIndexRoute
@@ -293,6 +302,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/admin/addons'
     | '/admin/calendar'
+    | '/admin/documents'
     | '/admin/invites'
     | '/admin/clients/$businessId'
     | '/admin/clients/'
@@ -322,6 +332,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/admin/addons'
     | '/admin/calendar'
+    | '/admin/documents'
     | '/admin/invites'
     | '/admin/clients/$businessId'
     | '/admin/clients'
@@ -352,6 +363,7 @@ export interface FileRouteTypes {
     | '/_authenticated/team'
     | '/admin/addons'
     | '/admin/calendar'
+    | '/admin/documents'
     | '/admin/invites'
     | '/admin/clients/$businessId'
     | '/admin/clients/'
@@ -375,6 +387,7 @@ export interface RootRouteChildren {
   SpecialistsRoute: typeof SpecialistsRoute
   AdminAddonsRoute: typeof AdminAddonsRoute
   AdminCalendarRoute: typeof AdminCalendarRoute
+  AdminDocumentsRoute: typeof AdminDocumentsRoute
   AdminInvitesRoute: typeof AdminInvitesRoute
   AdminClientsBusinessIdRoute: typeof AdminClientsBusinessIdRoute
   AdminClientsIndexRoute: typeof AdminClientsIndexRoute
@@ -539,6 +552,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCalendarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/documents': {
+      id: '/admin/documents'
+      path: '/admin/documents'
+      fullPath: '/admin/documents'
+      preLoaderRoute: typeof AdminDocumentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/invites': {
       id: '/admin/invites'
       path: '/admin/invites'
@@ -624,6 +644,7 @@ const rootRouteChildren: RootRouteChildren = {
   SpecialistsRoute: SpecialistsRoute,
   AdminAddonsRoute: AdminAddonsRoute,
   AdminCalendarRoute: AdminCalendarRoute,
+  AdminDocumentsRoute: AdminDocumentsRoute,
   AdminInvitesRoute: AdminInvitesRoute,
   AdminClientsBusinessIdRoute: AdminClientsBusinessIdRoute,
   AdminClientsIndexRoute: AdminClientsIndexRoute,
