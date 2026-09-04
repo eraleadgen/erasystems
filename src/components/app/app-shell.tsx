@@ -11,7 +11,7 @@ export type NavItem = {
 
 const CLIENT_NAV: NavItem[] = [
   { label: "Overview", to: "/dashboard" },
-  { label: "Business setup", to: "/onboarding" },
+  { label: "Business information", to: "/business" },
   { label: "Catalog", note: "Coming with your plan" },
   { label: "Team", note: "Coming with your plan" },
   { label: "Billing", note: "Coming with your plan" },
