@@ -38,7 +38,11 @@ const PLATFORM_HOST_PATTERNS: RegExp[] = [
   /(^|\.)lovable\.app$/,
   /(^|\.)lovableproject\.com$/,
   /(^|\.)lovable\.dev$/,
+  // ERA's own marketing hostnames are never a tenant site.
+  /^eraleadgen\.com$/,
+  /^www\.eraleadgen\.com$/,
 ];
+
 
 export function normalizeHostname(raw: string | null | undefined): string | null {
   if (!raw) return null;
