@@ -43,7 +43,7 @@ export function MarketingSite() {
       {/* Hero */}
       <section className="hero-veil relative overflow-hidden border-b border-border">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-14 sm:gap-12 sm:py-20 lg:grid-cols-[1.1fr_0.9fr] lg:py-28">
-          <div>
+          <div className="text-center lg:text-left">
             <Reveal>
               <h1 className="font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
                 <span className="text-shine-emerald">
@@ -53,14 +53,14 @@ export function MarketingSite() {
             </Reveal>
 
             <Reveal delay={160}>
-              <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
+              <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted-foreground lg:mx-0">
                 Your website, schedule, customers, jobs and money on one record instead of six
                 disconnected tools. Better back-end systems buy back your week, and the follow-up
                 keeps earning while you&apos;re on the job.
               </p>
             </Reveal>
             <Reveal delay={240}>
-              <div className="mt-9 flex flex-wrap items-center gap-4">
+              <div className="mt-9 flex flex-wrap items-center justify-center gap-4 lg:justify-start">
                 <CtaButton />
                 <Link
                   to="/platform"
