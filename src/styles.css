@@ -118,30 +118,24 @@
   }
 }
 
-/* Faint drifting hairline weave behind the hero: texture, not a colour wash */
+/* Soft drifting emerald aurora behind the hero: no grids, pure light */
 @utility hero-veil {
   position: relative;
   isolation: isolate;
   &::before {
     content: "";
     position: absolute;
-    inset: 0;
+    inset: -20%;
     z-index: -1;
     pointer-events: none;
     background-image:
-      repeating-linear-gradient(
-        68deg,
-        color-mix(in oklab, var(--primary) 12%, transparent) 0 1px,
-        transparent 1px 74px
-      ),
-      repeating-linear-gradient(
-        -68deg,
-        color-mix(in oklab, var(--gold) 8%, transparent) 0 1px,
-        transparent 1px 96px
-      );
-    mask-image: radial-gradient(70% 70% at 60% 40%, black, transparent 85%);
-    animation: era-weave 30s linear infinite;
-    opacity: 0.7;
+      radial-gradient(38rem 26rem at 22% 28%, color-mix(in oklab, var(--primary) 32%, transparent), transparent 62%),
+      radial-gradient(34rem 22rem at 78% 22%, color-mix(in oklab, var(--gold) 16%, transparent), transparent 66%),
+      radial-gradient(46rem 30rem at 62% 82%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 68%);
+    filter: blur(18px);
+    mask-image: radial-gradient(80% 80% at 55% 45%, black, transparent 92%);
+    animation: era-aurora 22s ease-in-out infinite alternate;
+    opacity: 0.75;
   }
 }
 
@@ -155,9 +149,32 @@
   animation: era-halo 3.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
 }
 
-@keyframes era-weave {
-  from { background-position: 0 0, 0 0; }
-  to { background-position: 148px 0, -192px 0; }
+/* Shining emerald headline */
+@utility text-shine-emerald {
+  background-image: linear-gradient(
+    100deg,
+    color-mix(in oklab, var(--primary) 70%, var(--foreground)) 0%,
+    var(--primary) 28%,
+    oklch(0.95 0.12 165) 46%,
+    var(--primary) 62%,
+    color-mix(in oklab, var(--primary) 70%, var(--foreground)) 100%
+  );
+  background-size: 260% 100%;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: era-shine 7s linear infinite;
+}
+
+@keyframes era-shine {
+  from { background-position: 180% 0; }
+  to { background-position: -80% 0; }
+}
+
+@keyframes era-aurora {
+  0% { transform: translate3d(-2%, -1%, 0) scale(1); }
+  50% { transform: translate3d(2%, 2%, 0) scale(1.06); }
+  100% { transform: translate3d(-1%, 1%, 0) scale(1.02); }
 }
 
 @keyframes era-halo {
@@ -169,8 +186,10 @@
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1 !important; transform: none !important; }
   .pulse-halo,
+  .text-shine-emerald,
   .hero-veil::before { animation: none !important; }
 }
+
 
 
 :root {

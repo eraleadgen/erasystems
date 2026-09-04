@@ -45,15 +45,13 @@ export function MarketingSite() {
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:py-28">
           <div>
             <Reveal>
-              <p className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-gold">
-                ERA Core
-              </p>
-            </Reveal>
-            <Reveal delay={80}>
-              <h1 className="mt-5 font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
-                One operating system for the whole business.
+              <h1 className="font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+                <span className="text-shine-emerald">
+                  Bringing home service businesses to a new era of efficiency
+                </span>
               </h1>
             </Reveal>
+
             <Reveal delay={160}>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
                 Your website, schedule, customers, jobs and money on one record instead of six
