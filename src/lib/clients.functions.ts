@@ -81,7 +81,7 @@ export const getClientProfile = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (!business) return null;
 
-    const [addons, services, payments, provisioning] = await Promise.all([
+    const [addons, services, payments, provisioning, domains, members] = await Promise.all([
       context.supabase
         .from("business_addons")
         .select("addon, is_active, price_cents")
