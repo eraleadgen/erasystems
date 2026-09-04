@@ -39,7 +39,11 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:url", content: "https://eraleadgen.com/" },
+      { property: "og:image", content: "https://eraleadgen.com/og-era.jpg" },
+      { name: "twitter:image", content: "https://eraleadgen.com/og-era.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://eraleadgen.com/" }],
     scripts: [
       {
         type: "application/ld+json",
