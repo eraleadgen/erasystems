@@ -379,3 +379,99 @@ export function applicableTasks(
     return req.tiers.includes(tier);
   });
 }
+
+/* ------------------------------------------------------------------ */
+/* Automation                                                          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * How a step gets done:
+ *  - auto: derived from data the system already holds. Staff never click it,
+ *    unless they override, in which case the override wins forever after.
+ *  - assisted: one button performs the work (an email ask, usually).
+ *  - manual: genuine per-client judgment. This is the set staff actually work.
+ */
+export type AutomationMode =
+  | { kind: "auto" }
+  | { kind: "assisted"; action: AssistedAction }
+  | { kind: "manual" };
+
+/** Steps whose status is computed from real account data. */
+export const AUTO_TASK_KEYS = [
+  "payment_confirmed",
+  "tier_addons_locked",
+  "kickoff_scheduled",
+  "business_profile",
+  "brand_assets",
+  "service_catalog",
+  "domain_connected",
+  "a2p_registration",
+  "website_built",
+  "status_lights_live",
+] as const;
+
+export type AutoTaskKey = (typeof AUTO_TASK_KEYS)[number];
+
+export type AssistedAction = {
+  /** Button label in the workspace. */
+  label: string;
+  /** Subject line of the email sent to the client contact. */
+  subject: string;
+  /** Body sent to the client contact. `{business}` is substituted. */
+  body: string;
+  /** Status the step moves to once the action has run. */
+  resultStatus: DeliveryStatus;
+};
+
+/** Steps a single button can perform end to end. */
+export const ASSISTED_ACTIONS: Record<string, AssistedAction> = {
+  access_handover: {
+    label: "Request access",
+    subject: "ERA setup: access we need from you",
+    body: "To finish building {business} we need access to your domain registrar, current website, Google Business Profile, phone carrier and any existing customer list. Reply to this email with each one and we will take it from there.",
+    resultStatus: "in_progress",
+  },
+  brand_assets: {
+    label: "Request brand assets",
+    subject: "ERA setup: your logo and brand files",
+    body: "Send over your logo files, brand colors and any photography or reviews you would like us to use on the {business} site. Reply with the files attached and we will handle the rest.",
+    resultStatus: "in_progress",
+  },
+  customer_import: {
+    label: "Request customer list",
+    subject: "ERA setup: your existing customer list",
+    body: "Export your current customer list (CSV works best) and reply with it attached. We will de-duplicate and import it into {business} with job history where it exists.",
+    resultStatus: "in_progress",
+  },
+  website_approved: {
+    label: "Request approval",
+    subject: "Your new {business} website is ready to review",
+    body: "Your site is built and ready for review. Take a look and reply with any changes in one message. Once you reply approved we lock it in and move to launch.",
+    resultStatus: "in_progress",
+  },
+  training_call: {
+    label: "Send training invite",
+    subject: "Book your ERA training and handoff call",
+    body: "Your {business} system is nearly live. Reply with two times that work this week and we will walk you through the dashboard, the daily flow and where to get help.",
+    resultStatus: "in_progress",
+  },
+  go_live_announced: {
+    label: "Send go-live email",
+    subject: "{business} is live on ERA",
+    body: "Your system is live. Your website, booking flow, automations and dashboard are all running. Support is support@eraleadgen.com any time you need us.",
+    resultStatus: "done",
+  },
+  day7_checkin: {
+    label: "Book check-in",
+    subject: "Your first week check-in",
+    body: "Let us book a short check-in for the end of your first week on {business} so we can review leads, bookings and anything that feels like friction. Reply with a time that suits you.",
+    resultStatus: "in_progress",
+  },
+};
+
+export function automationFor(taskKey: string): AutomationMode {
+  if ((AUTO_TASK_KEYS as readonly string[]).includes(taskKey)) return { kind: "auto" };
+  const action = ASSISTED_ACTIONS[taskKey];
+  if (action) return { kind: "assisted", action };
+  return { kind: "manual" };
+}
