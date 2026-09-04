@@ -91,6 +91,11 @@ function ClientsAdmin() {
                     <p className="truncate text-xs text-muted-foreground">
                       /{b.slug} · {b.planTier}
                     </p>
+                    <p className="mt-1 truncate text-xs text-muted-foreground">
+                      {b.liveItems} live
+                      {b.pendingItems > 0 ? ` · ${b.pendingItems} pending` : ""}
+                      {b.openTasks > 0 ? ` · ${b.openTasks} steps open` : " · checklist clear"}
+                    </p>
                   </div>
                   <span className="shrink-0 rounded-full border border-border/70 px-3 py-1 text-xs text-muted-foreground">
                     {LIFECYCLE_LABEL[b.lifecycle] ?? b.lifecycle}
