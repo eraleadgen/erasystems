@@ -15,7 +15,9 @@ export function buildClientNav(features: PlatformFeature[] | null | undefined): 
 
   return [
     { label: "Overview", to: "/dashboard" },
-    { label: "Business setup", to: "/onboarding" },
+    // Points at the live business record; it redirects to the wizard when
+    // setup has not been completed yet.
+    { label: "Business information", to: "/business" },
     gated("Catalog", "/catalog", "core_engines"),
     gated("Bookings", "/bookings", "core_engines"),
     gated("Customers", "/customers", "customer_portal"),
