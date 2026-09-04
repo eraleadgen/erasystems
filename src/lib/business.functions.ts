@@ -102,7 +102,14 @@ export type BusinessSummary = {
   planTier: string;
   lifecycle: BusinessLifecycle;
   isActive: boolean;
+  /** Client-visible build lights already flipped to live. */
+  liveItems: number;
+  /** Client-visible build lights still pending or in progress. */
+  pendingItems: number;
+  /** Go-live checklist steps not yet done. */
+  openTasks: number;
 };
+
 
 /**
  * Businesses visible to the caller. RLS decides the scope: platform staff see
@@ -132,12 +139,35 @@ export const listVisibleBusinesses = createServerFn({ method: "GET" })
     const { data, error } = await query;
     if (error) throw new Error(error.message);
 
-    return (data ?? []).map((b) => ({
-      id: b.id,
-      name: b.name,
-      slug: b.slug,
-      planTier: b.plan_tier,
-      lifecycle: b.lifecycle as BusinessLifecycle,
-      isActive: b.is_active,
-    }));
+    const businessIds = (data ?? []).map((b) => b.id);
+    if (businessIds.length === 0) return [];
+
+    // Readiness counters, scoped to exactly the businesses this caller can see.
+    const [statuses, tasks] = await Promise.all([
+      context.supabase
+        .from("business_launch_status")
+        .select("business_id, status")
+        .in("business_id", businessIds),
+      context.supabase
+        .from("client_delivery_tasks")
+        .select("business_id, status")
+        .in("business_id", businessIds),
+    ]);
+
+    return (data ?? []).map((b) => {
+      const rows = (statuses.data ?? []).filter((r) => r.business_id === b.id);
+      return {
+        id: b.id,
+        name: b.name,
+        slug: b.slug,
+        planTier: b.plan_tier,
+        lifecycle: b.lifecycle as BusinessLifecycle,
+        isActive: b.is_active,
+        liveItems: rows.filter((r) => r.status === "live").length,
+        pendingItems: rows.filter((r) => r.status !== "live").length,
+        openTasks: (tasks.data ?? []).filter(
+          (t) => t.business_id === b.id && t.status !== "done",
+        ).length,
+      };
+    });
   });

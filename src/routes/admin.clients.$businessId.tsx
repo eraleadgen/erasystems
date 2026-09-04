@@ -122,7 +122,10 @@ function ClientProfilePage() {
             <h2 className="text-base font-semibold">Business</h2>
             <div className="mt-3 divide-y divide-border/50">
               <Row label="Legal name" value={profile.legalName ?? "Not provided"} />
-              <Row label="Web address" value={`/${profile.slug}`} />
+              <Row
+                label="Web address"
+                value={profile.primaryDomain ?? `/${profile.slug} (no domain connected)`}
+              />
               <Row label="Tier" value={profile.planTier} />
               <Row label="Lifecycle" value={profile.lifecycle} />
               <Row label="Timezone" value={profile.timezone} />
@@ -150,7 +153,87 @@ function ClientProfilePage() {
                     : "None"
                 }
               />
+              <Row label="Account created" value={new Date(profile.createdAt).toLocaleDateString()} />
             </div>
+          </section>
+
+          <section className="era-card p-6">
+            <h2 className="text-base font-semibold">Membership</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Signed terms, billing and everyone with access to this account.
+            </p>
+            <div className="mt-3 divide-y divide-border/50">
+              {profile.membership ? (
+                <>
+                  <Row label="Signed by" value={profile.membership.fullName} />
+                  <Row label="Invite email" value={profile.membership.email} />
+                  <Row
+                    label="Subscription"
+                    value={`${formatMoney(profile.membership.subscriptionPriceCents)} / ${profile.membership.billingInterval}`}
+                  />
+                  <Row
+                    label="Setup fee"
+                    value={
+                      profile.membership.setupFeeCents
+                        ? formatMoney(profile.membership.setupFeeCents)
+                        : "None"
+                    }
+                  />
+                  <Row
+                    label="Accepted"
+                    value={
+                      profile.membership.acceptedAt
+                        ? new Date(profile.membership.acceptedAt).toLocaleDateString()
+                        : "Not yet"
+                    }
+                  />
+                </>
+              ) : (
+                <Row label="Origin" value="Created without an invite" />
+              )}
+              <Row
+                label="Domains"
+                value={
+                  profile.domains.length
+                    ? profile.domains
+                        .map(
+                          (d) =>
+                            `${d.hostname}${d.isPrimary ? " (primary)" : ""}${d.verifiedAt ? "" : " · unverified"}`,
+                        )
+                        .join(", ")
+                    : "None connected"
+                }
+              />
+              <Row
+                label="Users with access"
+                value={
+                  profile.members.length
+                    ? profile.members.map((m) => m.role).join(", ")
+                    : "None"
+                }
+              />
+            </div>
+
+            {profile.payments.length > 0 && (
+              <div className="mt-4">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Payment history
+                </p>
+                <ul className="mt-2 divide-y divide-border/50">
+                  {profile.payments.map((p) => (
+                    <li
+                      key={p.id}
+                      className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 py-2 text-sm"
+                    >
+                      <span className="min-w-0 truncate text-muted-foreground">
+                        {new Date(p.createdAt).toLocaleDateString()} · {p.status}
+                      </span>
+                      <span className="shrink-0 font-medium">{formatMoney(p.amountCents)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </section>
 
           <section className="era-card p-6">

@@ -30,6 +30,20 @@ export type ClientProfile = {
   supportEmail: string | null;
   supportPhone: string | null;
   createdAt: string;
+  /** Connected custom hostname, when one has been mapped to this account. */
+  primaryDomain: string | null;
+  domains: { hostname: string; isPrimary: boolean; verifiedAt: string | null }[];
+  /** Who has access to this account, from business_members. */
+  members: { userId: string; role: string; createdAt: string }[];
+  /** Signed terms captured on the invite this account came from. */
+  membership: {
+    email: string;
+    fullName: string;
+    billingInterval: string;
+    subscriptionPriceCents: number;
+    setupFeeCents: number;
+    acceptedAt: string | null;
+  } | null;
   addons: { addon: AddonKind; isActive: boolean; priceCents: number }[];
   services: { id: string; name: string; basePriceCents: number }[];
   payments: { id: string; status: string; amountCents: number; createdAt: string }[];
@@ -60,14 +74,14 @@ export const getClientProfile = createServerFn({ method: "GET" })
     const { data: business, error } = await context.supabase
       .from("businesses")
       .select(
-        "id, name, legal_name, slug, plan_tier, lifecycle, is_active, timezone, support_email, support_phone, created_at",
+        "id, name, legal_name, slug, plan_tier, lifecycle, is_active, timezone, support_email, support_phone, created_at, origin_invite_id",
       )
       .eq("id", data.businessId)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!business) return null;
 
-    const [addons, services, payments, provisioning] = await Promise.all([
+    const [addons, services, payments, provisioning, domains, members] = await Promise.all([
       context.supabase
         .from("business_addons")
         .select("addon, is_active, price_cents")
@@ -88,9 +102,43 @@ export const getClientProfile = createServerFn({ method: "GET" })
         .select("*")
         .eq("business_id", business.id)
         .maybeSingle(),
+      context.supabase
+        .from("business_domains")
+        .select("hostname, is_primary, verified_at")
+        .eq("business_id", business.id)
+        .order("is_primary", { ascending: false }),
+      context.supabase
+        .from("business_members")
+        .select("user_id, role, created_at")
+        .eq("business_id", business.id)
+        .order("created_at", { ascending: true }),
     ]);
 
+    // Signed terms live on the invite this account was created from.
+    let membership: ClientProfile["membership"] = null;
+    if (business.origin_invite_id) {
+      const { data: invite } = await context.supabase
+        .from("invites")
+        .select(
+          "email, full_name, billing_interval, subscription_price_cents, setup_fee_cents, accepted_at",
+        )
+        .eq("id", business.origin_invite_id)
+        .maybeSingle();
+      if (invite) {
+        membership = {
+          email: invite.email,
+          fullName: invite.full_name,
+          billingInterval: invite.billing_interval,
+          subscriptionPriceCents: invite.subscription_price_cents,
+          setupFeeCents: invite.setup_fee_cents,
+          acceptedAt: invite.accepted_at,
+        };
+      }
+    }
+
     const row = provisioning.data;
+    const domainRows = domains.data ?? [];
+
 
     return {
       id: business.id,
@@ -104,6 +152,18 @@ export const getClientProfile = createServerFn({ method: "GET" })
       supportEmail: business.support_email,
       supportPhone: business.support_phone,
       createdAt: business.created_at,
+      primaryDomain: domainRows.find((d) => d.is_primary)?.hostname ?? null,
+      domains: domainRows.map((d) => ({
+        hostname: d.hostname,
+        isPrimary: d.is_primary,
+        verifiedAt: d.verified_at,
+      })),
+      members: (members.data ?? []).map((m) => ({
+        userId: m.user_id,
+        role: m.role,
+        createdAt: m.created_at,
+      })),
+      membership,
       addons: (addons.data ?? []).map((a) => ({
         addon: a.addon as AddonKind,
         isActive: a.is_active,
