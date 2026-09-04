@@ -104,6 +104,10 @@ export const submitDiscoveryRequest = createServerFn({ method: "POST" })
     // Notify staff so they can schedule the discovery call. A failed notification
     // must never lose the stored request.
     try {
+      const { formatSlotLabel } = await import("./booking");
+      const bookedLine = scheduledStart
+        ? `Discovery call booked for ${formatSlotLabel(scheduledStart)} (already on the ERA calendar).`
+        : null;
       const { sendTemplateEmail } = await import("./email-templates/send-email");
       await sendTemplateEmail("discovery-request", "support@eraleadgen.com", {
         replyTo: data.email,
@@ -113,7 +117,7 @@ export const submitDiscoveryRequest = createServerFn({ method: "POST" })
           email: data.email,
           phone: data.phone || undefined,
           businessType: data.businessType || undefined,
-          message: data.message || undefined,
+          message: [bookedLine, data.message || null].filter(Boolean).join("\n\n") || undefined,
           submittedAt: new Date().toUTCString(),
           sourceHostname: hostname,
         },
@@ -122,6 +126,6 @@ export const submitDiscoveryRequest = createServerFn({ method: "POST" })
       console.error("discovery notification failed", notifyError);
     }
 
-    return { ok: true as const };
+    return { ok: true as const, scheduledStart };
   });
 
