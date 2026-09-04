@@ -1,16 +1,20 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /auth
+Disallow: /register
+Disallow: /onboarding
+Disallow: /portal
+Disallow: /specialists
+Disallow: /business
+Disallow: /billing
+Disallow: /catalog
+Disallow: /bookings
+Disallow: /customers
+Disallow: /team
+Disallow: /analytics
+Disallow: /api
+Disallow: /_serverFn
 
 Sitemap: https://eraleadgen.com/sitemap.xml
