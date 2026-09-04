@@ -152,9 +152,9 @@ const AdminClientsIndexRoute = AdminClientsIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminClientsBusinessIdRoute = AdminClientsBusinessIdRouteImport.update({
-  id: '/admin/clients/$businessId',
-  path: '/admin/clients/$businessId',
-  getParentRoute: () => rootRouteImport,
+  id: '/$businessId',
+  path: '/$businessId',
+  getParentRoute: () => AdminClientsRoute,
 } as any)
 const ApiPublicCronExpireBusinessesRoute =
   ApiPublicCronExpireBusinessesRouteImport.update({
@@ -363,7 +363,6 @@ export interface RootRouteChildren {
   SpecialistsRoute: typeof SpecialistsRoute
   AdminAddonsRoute: typeof AdminAddonsRoute
   AdminInvitesRoute: typeof AdminInvitesRoute
-  AdminClientsBusinessIdRoute: typeof AdminClientsBusinessIdRoute
   AdminClientsIndexRoute: typeof AdminClientsIndexRoute
   ApiPublicCronExpireBusinessesRoute: typeof ApiPublicCronExpireBusinessesRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
@@ -535,10 +534,10 @@ declare module '@tanstack/react-router' {
     }
     '/admin/clients/$businessId': {
       id: '/admin/clients/$businessId'
-      path: '/admin/clients/$businessId'
+      path: '/$businessId'
       fullPath: '/admin/clients/$businessId'
       preLoaderRoute: typeof AdminClientsBusinessIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminClientsRoute
     }
     '/api/public/cron/expire-businesses': {
       id: '/api/public/cron/expire-businesses'
@@ -604,7 +603,6 @@ const rootRouteChildren: RootRouteChildren = {
   SpecialistsRoute: SpecialistsRoute,
   AdminAddonsRoute: AdminAddonsRoute,
   AdminInvitesRoute: AdminInvitesRoute,
-  AdminClientsBusinessIdRoute: AdminClientsBusinessIdRoute,
   AdminClientsIndexRoute: AdminClientsIndexRoute,
   ApiPublicCronExpireBusinessesRoute: ApiPublicCronExpireBusinessesRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
