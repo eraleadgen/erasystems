@@ -33,6 +33,7 @@ import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 import { Route as AdminAddonsRouteImport } from './routes/admin.addons'
 import { Route as AdminCalendarRouteImport } from './routes/admin.calendar'
+import { Route as AdminDeliveryRouteImport } from './routes/admin.delivery'
 import { Route as AdminDocumentsRouteImport } from './routes/admin.documents'
 import { Route as AdminInvitesRouteImport } from './routes/admin.invites'
 import { Route as AdminSalesRouteImport } from './routes/admin.sales'
@@ -161,6 +162,11 @@ const AdminCalendarRoute = AdminCalendarRouteImport.update({
   path: '/admin/calendar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminDeliveryRoute = AdminDeliveryRouteImport.update({
+  id: '/admin/delivery',
+  path: '/admin/delivery',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminDocumentsRoute = AdminDocumentsRouteImport.update({
   id: '/admin/documents',
   path: '/admin/documents',
@@ -228,6 +234,7 @@ export interface FileRoutesByFullPath {
   '/team': typeof AuthenticatedTeamRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/calendar': typeof AdminCalendarRoute
+  '/admin/delivery': typeof AdminDeliveryRoute
   '/admin/documents': typeof AdminDocumentsRoute
   '/admin/invites': typeof AdminInvitesRoute
   '/admin/sales': typeof AdminSalesRoute
@@ -261,6 +268,7 @@ export interface FileRoutesByTo {
   '/team': typeof AuthenticatedTeamRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/calendar': typeof AdminCalendarRoute
+  '/admin/delivery': typeof AdminDeliveryRoute
   '/admin/documents': typeof AdminDocumentsRoute
   '/admin/invites': typeof AdminInvitesRoute
   '/admin/sales': typeof AdminSalesRoute
@@ -296,6 +304,7 @@ export interface FileRoutesById {
   '/_authenticated/team': typeof AuthenticatedTeamRoute
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/calendar': typeof AdminCalendarRoute
+  '/admin/delivery': typeof AdminDeliveryRoute
   '/admin/documents': typeof AdminDocumentsRoute
   '/admin/invites': typeof AdminInvitesRoute
   '/admin/sales': typeof AdminSalesRoute
@@ -331,6 +340,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/admin/addons'
     | '/admin/calendar'
+    | '/admin/delivery'
     | '/admin/documents'
     | '/admin/invites'
     | '/admin/sales'
@@ -364,6 +374,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/admin/addons'
     | '/admin/calendar'
+    | '/admin/delivery'
     | '/admin/documents'
     | '/admin/invites'
     | '/admin/sales'
@@ -398,6 +409,7 @@ export interface FileRouteTypes {
     | '/_authenticated/team'
     | '/admin/addons'
     | '/admin/calendar'
+    | '/admin/delivery'
     | '/admin/documents'
     | '/admin/invites'
     | '/admin/sales'
@@ -424,6 +436,7 @@ export interface RootRouteChildren {
   SpecialistsRoute: typeof SpecialistsRoute
   AdminAddonsRoute: typeof AdminAddonsRoute
   AdminCalendarRoute: typeof AdminCalendarRoute
+  AdminDeliveryRoute: typeof AdminDeliveryRoute
   AdminDocumentsRoute: typeof AdminDocumentsRoute
   AdminInvitesRoute: typeof AdminInvitesRoute
   AdminSalesRoute: typeof AdminSalesRoute
@@ -604,6 +617,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCalendarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/delivery': {
+      id: '/admin/delivery'
+      path: '/admin/delivery'
+      fullPath: '/admin/delivery'
+      preLoaderRoute: typeof AdminDeliveryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/documents': {
       id: '/admin/documents'
       path: '/admin/documents'
@@ -706,6 +726,7 @@ const rootRouteChildren: RootRouteChildren = {
   SpecialistsRoute: SpecialistsRoute,
   AdminAddonsRoute: AdminAddonsRoute,
   AdminCalendarRoute: AdminCalendarRoute,
+  AdminDeliveryRoute: AdminDeliveryRoute,
   AdminDocumentsRoute: AdminDocumentsRoute,
   AdminInvitesRoute: AdminInvitesRoute,
   AdminSalesRoute: AdminSalesRoute,

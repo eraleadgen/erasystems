@@ -19,6 +19,7 @@ const CLIENT_NAV: NavItem[] = [
 
 const STAFF_NAV: NavItem[] = [
   { label: "Clients", to: "/admin/clients" },
+  { label: "Delivery", to: "/admin/delivery" },
   { label: "Calendar", to: "/admin/calendar" },
   { label: "Invitations", to: "/admin/invites" },
   { label: "Add-ons", to: "/admin/addons" },

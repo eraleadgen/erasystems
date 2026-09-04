@@ -13,3 +13,4 @@
 - [x] Mobile burger nav on eraleadgen.com
 - [x] Marketing pages: black chrome-trim hero band, animated glow band below
 - [x] Admin delivery workspace: 7-day go-live checklist per client (required steps, owners, status)
+- [x] Go-live automation: derived task statuses, one-click client asks, cross-client delivery queue, focus mode
