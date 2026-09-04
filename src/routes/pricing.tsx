@@ -113,6 +113,18 @@ function PricingPage() {
         </div>
       </section>
 
+      <section className="section-glow">
+        <div className="mx-auto max-w-4xl px-6 py-14 text-center lg:text-left">
+          <h2 className="font-display text-2xl font-semibold text-foreground">
+            Add-ons are priced separately
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground lg:mx-0">
+            Ad Management and branded Downloadable Apps sit outside the tiers. They&apos;re
+            available on any plan, quoted for your business, and never granted by upgrading.
+          </p>
+        </div>
+      </section>
+
       <ClosingCta title="Not sure which tier fits?" />
     </MarketingShell>
   );
