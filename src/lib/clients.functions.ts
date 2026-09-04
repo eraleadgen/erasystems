@@ -102,9 +102,43 @@ export const getClientProfile = createServerFn({ method: "GET" })
         .select("*")
         .eq("business_id", business.id)
         .maybeSingle(),
+      context.supabase
+        .from("business_domains")
+        .select("hostname, is_primary, verified_at")
+        .eq("business_id", business.id)
+        .order("is_primary", { ascending: false }),
+      context.supabase
+        .from("business_members")
+        .select("user_id, role, created_at")
+        .eq("business_id", business.id)
+        .order("created_at", { ascending: true }),
     ]);
 
+    // Signed terms live on the invite this account was created from.
+    let membership: ClientProfile["membership"] = null;
+    if (business.origin_invite_id) {
+      const { data: invite } = await context.supabase
+        .from("invites")
+        .select(
+          "email, full_name, billing_interval, subscription_price_cents, setup_fee_cents, accepted_at",
+        )
+        .eq("id", business.origin_invite_id)
+        .maybeSingle();
+      if (invite) {
+        membership = {
+          email: invite.email,
+          fullName: invite.full_name,
+          billingInterval: invite.billing_interval,
+          subscriptionPriceCents: invite.subscription_price_cents,
+          setupFeeCents: invite.setup_fee_cents,
+          acceptedAt: invite.accepted_at,
+        };
+      }
+    }
+
     const row = provisioning.data;
+    const domainRows = domains.data ?? [];
+
 
     return {
       id: business.id,
