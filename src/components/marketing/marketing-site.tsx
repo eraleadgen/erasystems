@@ -103,7 +103,7 @@ export function MarketingSite() {
       </section>
 
       {/* Section map */}
-      <section className="section-deep">
+      <section className="section-glow">
         <div className="mx-auto max-w-6xl px-6 py-16">
           <h2 className="text-center font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl lg:text-left">
             Read the detail

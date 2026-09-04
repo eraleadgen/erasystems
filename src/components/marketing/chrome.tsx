@@ -218,7 +218,7 @@ export function PageHero({
   lede: string;
 }) {
   return (
-    <section className="hero-veil border-b border-border">
+    <section className="hero-veil">
       <div className="mx-auto max-w-4xl px-6 py-16 text-center sm:py-20 lg:text-left">
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-gold">{eyebrow}</p>
         <h1 className="mt-4 font-display text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
@@ -241,7 +241,7 @@ export function ClosingCta({
   body?: string;
 }) {
   return (
-    <section className="bg-muted/30">
+    <section className="section-deep">
       <div className="mx-auto max-w-4xl px-6 py-16 text-center">
         <h2 className="font-display text-2xl font-semibold text-foreground sm:text-3xl">{title}</h2>
         <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
