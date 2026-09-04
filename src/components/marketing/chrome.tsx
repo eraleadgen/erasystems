@@ -218,7 +218,7 @@ export function PageHero({
   lede: string;
 }) {
   return (
-    <section className="hero-veil">
+    <section className="section-deep">
       <div className="mx-auto max-w-4xl px-6 py-16 text-center sm:py-20 lg:text-left">
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-gold">{eyebrow}</p>
         <h1 className="mt-4 font-display text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">

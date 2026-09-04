@@ -53,7 +53,7 @@ function PricingPage() {
         lede="Your tier is set with you on the discovery call, not picked from a checkout page. Every tier includes the whole platform; higher tiers extend it rather than unlocking the basics."
       />
 
-      <section className="section-deep">
+      <section className="section-glow">
         <div className="mx-auto max-w-6xl px-6 py-16">
           <div className="grid gap-6 lg:grid-cols-3">
             {tiers.map((tier, i) => (
@@ -110,18 +110,6 @@ function PricingPage() {
               </Reveal>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section className="section-glow">
-        <div className="mx-auto max-w-4xl px-6 py-14 text-center lg:text-left">
-          <h2 className="font-display text-2xl font-semibold text-foreground">
-            Add-ons are priced separately
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground lg:mx-0">
-            Ad Management and branded Downloadable Apps sit outside the tiers. They&apos;re
-            available on any plan, quoted for your business, and never granted by upgrading.
-          </p>
         </div>
       </section>
 

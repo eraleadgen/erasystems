@@ -24,7 +24,7 @@ export const Route = createFileRoute("/contact")({
 function ContactPage() {
   return (
     <MarketingShell>
-      <section className="hero-veil">
+      <section className="section-deep">
         <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 lg:grid-cols-[0.9fr_1.1fr] lg:py-20">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-gold">Contact</p>
@@ -50,7 +50,7 @@ function ContactPage() {
         </div>
       </section>
 
-      <section className="section-deep">
+      <section className="section-glow">
         <div className="mx-auto max-w-6xl px-6 py-14">
           <h2 className="text-center font-display text-2xl font-semibold text-foreground lg:text-left">
             What happens next
