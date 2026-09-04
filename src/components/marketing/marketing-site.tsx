@@ -84,13 +84,13 @@ export function MarketingSite() {
       {/* Outcomes, short form */}
       <section className="border-b border-border">
         <div className="mx-auto max-w-6xl px-6 py-16">
-          <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+          <h2 className="text-center font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl lg:text-left">
             What it buys you
           </h2>
           <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {outcomes.map((item, i) => (
               <Reveal key={item.title} delay={i * 80}>
-                <article className="lift h-full rounded-2xl border border-border bg-card p-6">
+                <article className="lift h-full rounded-2xl border border-border bg-card p-6 text-center lg:text-left">
                   <p className="font-display text-2xl font-semibold text-primary">{item.stat}</p>
                   <h3 className="mt-3 font-display text-base font-semibold text-foreground">
                     {item.title}
@@ -105,7 +105,7 @@ export function MarketingSite() {
       {/* Section map */}
       <section className="border-b border-border bg-muted/30">
         <div className="mx-auto max-w-6xl px-6 py-16">
-          <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+          <h2 className="text-center font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl lg:text-left">
             Read the detail
           </h2>
           <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -113,7 +113,7 @@ export function MarketingSite() {
               <Reveal key={card.to} delay={i * 70} className="h-full">
                 <Link
                   to={card.to}
-                  className="lift group flex h-full flex-col rounded-2xl border border-border bg-card p-6"
+                  className="lift group flex h-full flex-col rounded-2xl border border-border bg-card p-6 text-center lg:text-left"
                 >
                   <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-gold">
                     {card.label}

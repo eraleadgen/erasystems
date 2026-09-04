@@ -57,7 +57,7 @@ function ProofPage() {
 
           <Reveal
             delay={160}
-            className="mt-10 rounded-2xl border border-primary/40 bg-primary p-7 text-primary-foreground"
+            className="mt-10 rounded-2xl border border-primary/40 bg-primary p-7 text-center text-primary-foreground lg:text-left"
           >
             <p className="font-display text-lg font-semibold">One real business, honestly stated.</p>
             <p className="mt-3 max-w-3xl text-sm leading-relaxed text-primary-foreground/85">

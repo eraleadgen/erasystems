@@ -35,8 +35,8 @@ function AddonsPage() {
           <div className="grid gap-6 md:grid-cols-2">
             {addons.map((addon, i) => (
               <Reveal key={addon.name} delay={i * 120}>
-                <article className="lift h-full rounded-2xl border border-gold/30 bg-card p-7">
-                  <div className="flex items-baseline justify-between gap-4">
+                <article className="lift h-full rounded-2xl border border-gold/30 bg-card p-7 text-center lg:text-left">
+                  <div className="flex flex-col items-center gap-2 lg:flex-row lg:items-baseline lg:justify-between lg:gap-4">
                     <h2 className="font-display text-lg font-semibold text-foreground">
                       {addon.name}
                     </h2>
@@ -51,7 +51,7 @@ function AddonsPage() {
             ))}
           </div>
 
-          <p className="mt-10 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-10 max-w-2xl text-center text-sm leading-relaxed text-muted-foreground lg:mx-0 lg:text-left">
             Every app build is scoped on a call before anything is quoted or built, whatever tier
             you&apos;re on.
           </p>
