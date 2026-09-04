@@ -30,7 +30,10 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 import { Route as AdminAddonsRouteImport } from './routes/admin.addons'
+import { Route as AdminCalendarRouteImport } from './routes/admin.calendar'
+import { Route as AdminDocumentsRouteImport } from './routes/admin.documents'
 import { Route as AdminInvitesRouteImport } from './routes/admin.invites'
+import { Route as AdminSalesRouteImport } from './routes/admin.sales'
 import { Route as AdminClientsIndexRouteImport } from './routes/admin.clients.index'
 import { Route as AdminClientsBusinessIdRouteImport } from './routes/admin.clients.$businessId'
 import { Route as ApiPublicCronExpireBusinessesRouteImport } from './routes/api/public/cron/expire-businesses'
@@ -141,9 +144,24 @@ const AdminAddonsRoute = AdminAddonsRouteImport.update({
   path: '/admin/addons',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminCalendarRoute = AdminCalendarRouteImport.update({
+  id: '/admin/calendar',
+  path: '/admin/calendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDocumentsRoute = AdminDocumentsRouteImport.update({
+  id: '/admin/documents',
+  path: '/admin/documents',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminInvitesRoute = AdminInvitesRouteImport.update({
   id: '/admin/invites',
   path: '/admin/invites',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSalesRoute = AdminSalesRouteImport.update({
+  id: '/admin/sales',
+  path: '/admin/sales',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminClientsIndexRoute = AdminClientsIndexRouteImport.update({
@@ -195,7 +213,10 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/team': typeof AuthenticatedTeamRoute
   '/admin/addons': typeof AdminAddonsRoute
+  '/admin/calendar': typeof AdminCalendarRoute
+  '/admin/documents': typeof AdminDocumentsRoute
   '/admin/invites': typeof AdminInvitesRoute
+  '/admin/sales': typeof AdminSalesRoute
   '/admin/clients/$businessId': typeof AdminClientsBusinessIdRoute
   '/admin/clients/': typeof AdminClientsIndexRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
@@ -223,7 +244,10 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/team': typeof AuthenticatedTeamRoute
   '/admin/addons': typeof AdminAddonsRoute
+  '/admin/calendar': typeof AdminCalendarRoute
+  '/admin/documents': typeof AdminDocumentsRoute
   '/admin/invites': typeof AdminInvitesRoute
+  '/admin/sales': typeof AdminSalesRoute
   '/admin/clients/$businessId': typeof AdminClientsBusinessIdRoute
   '/admin/clients': typeof AdminClientsIndexRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
@@ -253,7 +277,10 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
   '/admin/addons': typeof AdminAddonsRoute
+  '/admin/calendar': typeof AdminCalendarRoute
+  '/admin/documents': typeof AdminDocumentsRoute
   '/admin/invites': typeof AdminInvitesRoute
+  '/admin/sales': typeof AdminSalesRoute
   '/admin/clients/$businessId': typeof AdminClientsBusinessIdRoute
   '/admin/clients/': typeof AdminClientsIndexRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
@@ -283,7 +310,10 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/team'
     | '/admin/addons'
+    | '/admin/calendar'
+    | '/admin/documents'
     | '/admin/invites'
+    | '/admin/sales'
     | '/admin/clients/$businessId'
     | '/admin/clients/'
     | '/api/public/cron/expire-businesses'
@@ -311,7 +341,10 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/team'
     | '/admin/addons'
+    | '/admin/calendar'
+    | '/admin/documents'
     | '/admin/invites'
+    | '/admin/sales'
     | '/admin/clients/$businessId'
     | '/admin/clients'
     | '/api/public/cron/expire-businesses'
@@ -340,7 +373,10 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/team'
     | '/admin/addons'
+    | '/admin/calendar'
+    | '/admin/documents'
     | '/admin/invites'
+    | '/admin/sales'
     | '/admin/clients/$businessId'
     | '/admin/clients/'
     | '/api/public/cron/expire-businesses'
@@ -362,7 +398,10 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   SpecialistsRoute: typeof SpecialistsRoute
   AdminAddonsRoute: typeof AdminAddonsRoute
+  AdminCalendarRoute: typeof AdminCalendarRoute
+  AdminDocumentsRoute: typeof AdminDocumentsRoute
   AdminInvitesRoute: typeof AdminInvitesRoute
+  AdminSalesRoute: typeof AdminSalesRoute
   AdminClientsBusinessIdRoute: typeof AdminClientsBusinessIdRoute
   AdminClientsIndexRoute: typeof AdminClientsIndexRoute
   ApiPublicCronExpireBusinessesRoute: typeof ApiPublicCronExpireBusinessesRoute
@@ -519,11 +558,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAddonsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/calendar': {
+      id: '/admin/calendar'
+      path: '/admin/calendar'
+      fullPath: '/admin/calendar'
+      preLoaderRoute: typeof AdminCalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/documents': {
+      id: '/admin/documents'
+      path: '/admin/documents'
+      fullPath: '/admin/documents'
+      preLoaderRoute: typeof AdminDocumentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/invites': {
       id: '/admin/invites'
       path: '/admin/invites'
       fullPath: '/admin/invites'
       preLoaderRoute: typeof AdminInvitesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/sales': {
+      id: '/admin/sales'
+      path: '/admin/sales'
+      fullPath: '/admin/sales'
+      preLoaderRoute: typeof AdminSalesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/clients/': {
@@ -603,7 +663,10 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   SpecialistsRoute: SpecialistsRoute,
   AdminAddonsRoute: AdminAddonsRoute,
+  AdminCalendarRoute: AdminCalendarRoute,
+  AdminDocumentsRoute: AdminDocumentsRoute,
   AdminInvitesRoute: AdminInvitesRoute,
+  AdminSalesRoute: AdminSalesRoute,
   AdminClientsBusinessIdRoute: AdminClientsBusinessIdRoute,
   AdminClientsIndexRoute: AdminClientsIndexRoute,
   ApiPublicCronExpireBusinessesRoute: ApiPublicCronExpireBusinessesRoute,
