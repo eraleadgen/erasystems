@@ -18,7 +18,7 @@ import {
   type BusinessAddon,
 } from "@/lib/entitlements";
 
-export const Route = createFileRoute("/admin/addons")({
+export const Route = createFileRoute("/_authenticated/admin/addons")({
   head: () => ({
     meta: [
       { title: "Add-on management | ERA Systems" },

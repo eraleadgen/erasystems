@@ -12,7 +12,7 @@ import {
   setDeliveryTasksBulk,
 } from "@/lib/delivery-tasks.functions";
 
-export const Route = createFileRoute("/admin/delivery")({
+export const Route = createFileRoute("/_authenticated/admin/delivery")({
   head: () => ({
     meta: [
       { title: "Delivery queue | ERA Systems" },

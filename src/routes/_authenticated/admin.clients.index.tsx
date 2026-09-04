@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
 import { listVisibleBusinesses } from "@/lib/business.functions";
 
-export const Route = createFileRoute("/admin/clients/")({
+export const Route = createFileRoute("/_authenticated/admin/clients/")({
   head: () => ({
     meta: [
       { title: "Clients | ERA Systems" },

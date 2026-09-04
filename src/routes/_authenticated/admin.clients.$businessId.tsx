@@ -17,7 +17,7 @@ import {
 import { StatusLight, statusFor } from "@/components/app/launch-status";
 import { DeliveryWorkspace } from "@/components/app/delivery-workspace";
 
-export const Route = createFileRoute("/admin/clients/$businessId")({
+export const Route = createFileRoute("/_authenticated/admin/clients/$businessId")({
   head: () => ({
     meta: [
       { title: "Client profile | ERA Systems" },
