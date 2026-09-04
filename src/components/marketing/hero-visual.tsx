@@ -227,7 +227,7 @@ export function HeroVisual() {
           className="fill-muted-foreground text-[9px] uppercase"
           style={{ letterSpacing: "0.28em" }}
         >
-          Scattered work
+          Operations
         </text>
         <text
           x="396"
@@ -236,7 +236,7 @@ export function HeroVisual() {
           className="fill-gold text-[9px] uppercase"
           style={{ letterSpacing: "0.28em" }}
         >
-          Time back
+          Results
         </text>
       </svg>
 
