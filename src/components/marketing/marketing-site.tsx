@@ -42,7 +42,7 @@ export function MarketingSite() {
     <MarketingShell>
       {/* Hero */}
       <section className="hero-veil relative overflow-hidden border-b border-border">
-        <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:py-28">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-14 sm:gap-12 sm:py-20 lg:grid-cols-[1.1fr_0.9fr] lg:py-28">
           <div>
             <Reveal>
               <h1 className="font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
