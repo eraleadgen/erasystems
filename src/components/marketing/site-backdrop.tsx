@@ -106,9 +106,10 @@ export function SiteBackdrop() {
   }, []);
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
-      <div className="site-gradient absolute inset-0" />
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full opacity-80" />
-    </div>
+    <canvas
+      aria-hidden
+      ref={canvasRef}
+      className="pointer-events-none fixed inset-0 z-0 h-full w-full opacity-80"
+    />
   );
 }
