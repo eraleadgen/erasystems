@@ -475,3 +475,8 @@ export function automationFor(taskKey: string): AutomationMode {
   if (action) return { kind: "assisted", action };
   return { kind: "manual" };
 }
+
+/** Assisted action available for a step, even when the step is also derived. */
+export function assistedActionFor(taskKey: string): AssistedAction | null {
+  return ASSISTED_ACTIONS[taskKey] ?? null;
+}
