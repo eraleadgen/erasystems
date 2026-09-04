@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      agency_documents: {
+        Row: {
+          business_id: string | null
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          file_path: string | null
+          id: string
+          link_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          business_id?: string | null
+          category: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          file_path?: string | null
+          id?: string
+          link_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          file_path?: string | null
+          id?: string
+          link_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_documents_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           business_id: string
