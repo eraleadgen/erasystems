@@ -102,7 +102,14 @@ export type BusinessSummary = {
   planTier: string;
   lifecycle: BusinessLifecycle;
   isActive: boolean;
+  /** Client-visible build lights already flipped to live. */
+  liveItems: number;
+  /** Client-visible build lights still pending or in progress. */
+  pendingItems: number;
+  /** Go-live checklist steps not yet done. */
+  openTasks: number;
 };
+
 
 /**
  * Businesses visible to the caller. RLS decides the scope: platform staff see
