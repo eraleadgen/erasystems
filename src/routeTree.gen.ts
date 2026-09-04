@@ -22,6 +22,7 @@ import { Route as ProofRouteImport } from './routes/proof'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SpecialistsRouteImport } from './routes/specialists'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedBookingsRouteImport } from './routes/_authenticated/bookings'
@@ -107,6 +108,11 @@ const SpecialistsRoute = SpecialistsRouteImport.update({
   path: '/specialists',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAnalyticsRoute = AuthenticatedAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
@@ -154,50 +160,50 @@ const AuthenticatedTeamRoute = AuthenticatedTeamRouteImport.update({
 } as any)
 const AuthenticatedAdminAddonsRoute =
   AuthenticatedAdminAddonsRouteImport.update({
-    id: '/admin/addons',
-    path: '/admin/addons',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/addons',
+    path: '/addons',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminCalendarRoute =
   AuthenticatedAdminCalendarRouteImport.update({
-    id: '/admin/calendar',
-    path: '/admin/calendar',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/calendar',
+    path: '/calendar',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminDeliveryRoute =
   AuthenticatedAdminDeliveryRouteImport.update({
-    id: '/admin/delivery',
-    path: '/admin/delivery',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/delivery',
+    path: '/delivery',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminDocumentsRoute =
   AuthenticatedAdminDocumentsRouteImport.update({
-    id: '/admin/documents',
-    path: '/admin/documents',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/documents',
+    path: '/documents',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminInvitesRoute =
   AuthenticatedAdminInvitesRouteImport.update({
-    id: '/admin/invites',
-    path: '/admin/invites',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/invites',
+    path: '/invites',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminSalesRoute = AuthenticatedAdminSalesRouteImport.update({
-  id: '/admin/sales',
-  path: '/admin/sales',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  id: '/sales',
+  path: '/sales',
+  getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
 const AuthenticatedAdminClientsIndexRoute =
   AuthenticatedAdminClientsIndexRouteImport.update({
-    id: '/admin/clients/',
-    path: '/admin/clients/',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/clients/',
+    path: '/clients/',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminClientsBusinessIdRoute =
   AuthenticatedAdminClientsBusinessIdRouteImport.update({
-    id: '/admin/clients/$businessId',
-    path: '/admin/clients/$businessId',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/clients/$businessId',
+    path: '/clients/$businessId',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const ApiPublicCronExpireBusinessesRoute =
   ApiPublicCronExpireBusinessesRouteImport.update({
@@ -230,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/bookings': typeof AuthenticatedBookingsRoute
@@ -264,6 +271,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/bookings': typeof AuthenticatedBookingsRoute
@@ -300,6 +308,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/bookings': typeof AuthenticatedBookingsRoute
@@ -336,6 +345,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/sitemap.xml'
     | '/specialists'
+    | '/admin'
     | '/analytics'
     | '/billing'
     | '/bookings'
@@ -370,6 +380,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/sitemap.xml'
     | '/specialists'
+    | '/admin'
     | '/analytics'
     | '/billing'
     | '/bookings'
@@ -405,6 +416,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/sitemap.xml'
     | '/specialists'
+    | '/_authenticated/admin'
     | '/_authenticated/analytics'
     | '/_authenticated/billing'
     | '/_authenticated/bookings'
@@ -539,6 +551,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SpecialistsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/analytics': {
       id: '/_authenticated/analytics'
       path: '/analytics'
@@ -604,59 +623,59 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/admin/addons': {
       id: '/_authenticated/admin/addons'
-      path: '/admin/addons'
+      path: '/addons'
       fullPath: '/admin/addons'
       preLoaderRoute: typeof AuthenticatedAdminAddonsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/calendar': {
       id: '/_authenticated/admin/calendar'
-      path: '/admin/calendar'
+      path: '/calendar'
       fullPath: '/admin/calendar'
       preLoaderRoute: typeof AuthenticatedAdminCalendarRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/delivery': {
       id: '/_authenticated/admin/delivery'
-      path: '/admin/delivery'
+      path: '/delivery'
       fullPath: '/admin/delivery'
       preLoaderRoute: typeof AuthenticatedAdminDeliveryRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/documents': {
       id: '/_authenticated/admin/documents'
-      path: '/admin/documents'
+      path: '/documents'
       fullPath: '/admin/documents'
       preLoaderRoute: typeof AuthenticatedAdminDocumentsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/invites': {
       id: '/_authenticated/admin/invites'
-      path: '/admin/invites'
+      path: '/invites'
       fullPath: '/admin/invites'
       preLoaderRoute: typeof AuthenticatedAdminInvitesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/sales': {
       id: '/_authenticated/admin/sales'
-      path: '/admin/sales'
+      path: '/sales'
       fullPath: '/admin/sales'
       preLoaderRoute: typeof AuthenticatedAdminSalesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/clients/': {
       id: '/_authenticated/admin/clients/'
-      path: '/admin/clients'
+      path: '/clients'
       fullPath: '/admin/clients/'
       preLoaderRoute: typeof AuthenticatedAdminClientsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/clients/$businessId': {
       id: '/_authenticated/admin/clients/$businessId'
-      path: '/admin/clients/$businessId'
+      path: '/clients/$businessId'
       fullPath: '/admin/clients/$businessId'
       preLoaderRoute: typeof AuthenticatedAdminClientsBusinessIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/api/public/cron/expire-businesses': {
       id: '/api/public/cron/expire-businesses'
@@ -682,16 +701,7 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
-  AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
-  AuthenticatedBookingsRoute: typeof AuthenticatedBookingsRoute
-  AuthenticatedBusinessRoute: typeof AuthenticatedBusinessRoute
-  AuthenticatedCatalogRoute: typeof AuthenticatedCatalogRoute
-  AuthenticatedCustomersRoute: typeof AuthenticatedCustomersRoute
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
-  AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
+interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAddonsRoute: typeof AuthenticatedAdminAddonsRoute
   AuthenticatedAdminCalendarRoute: typeof AuthenticatedAdminCalendarRoute
   AuthenticatedAdminDeliveryRoute: typeof AuthenticatedAdminDeliveryRoute
@@ -702,16 +712,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminClientsIndexRoute: typeof AuthenticatedAdminClientsIndexRoute
 }
 
-const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
-  AuthenticatedBillingRoute: AuthenticatedBillingRoute,
-  AuthenticatedBookingsRoute: AuthenticatedBookingsRoute,
-  AuthenticatedBusinessRoute: AuthenticatedBusinessRoute,
-  AuthenticatedCatalogRoute: AuthenticatedCatalogRoute,
-  AuthenticatedCustomersRoute: AuthenticatedCustomersRoute,
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
-  AuthenticatedTeamRoute: AuthenticatedTeamRoute,
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAddonsRoute: AuthenticatedAdminAddonsRoute,
   AuthenticatedAdminCalendarRoute: AuthenticatedAdminCalendarRoute,
   AuthenticatedAdminDeliveryRoute: AuthenticatedAdminDeliveryRoute,
@@ -721,6 +722,35 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminClientsBusinessIdRoute:
     AuthenticatedAdminClientsBusinessIdRoute,
   AuthenticatedAdminClientsIndexRoute: AuthenticatedAdminClientsIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+  AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
+  AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
+  AuthenticatedBookingsRoute: typeof AuthenticatedBookingsRoute
+  AuthenticatedBusinessRoute: typeof AuthenticatedBusinessRoute
+  AuthenticatedCatalogRoute: typeof AuthenticatedCatalogRoute
+  AuthenticatedCustomersRoute: typeof AuthenticatedCustomersRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+  AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
+  AuthenticatedBillingRoute: AuthenticatedBillingRoute,
+  AuthenticatedBookingsRoute: AuthenticatedBookingsRoute,
+  AuthenticatedBusinessRoute: AuthenticatedBusinessRoute,
+  AuthenticatedCatalogRoute: AuthenticatedCatalogRoute,
+  AuthenticatedCustomersRoute: AuthenticatedCustomersRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedTeamRoute: AuthenticatedTeamRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
