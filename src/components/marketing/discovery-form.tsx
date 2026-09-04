@@ -66,12 +66,15 @@ export function DiscoveryForm() {
               phone: values["phone"] ?? "",
               businessType: values["businessType"] ?? "",
               message: values["message"] ?? "",
+              slotStart: slotStart || "",
             },
           });
+          setBookedFor(slotStart || null);
           setStatus("sent");
         } catch (err) {
           setStatus("error");
           setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+          void slotsQuery.refetch();
         }
       }}
     >
