@@ -62,6 +62,30 @@ export const submitDiscoveryRequest = createServerFn({ method: "POST" })
 
     const hostname = getRequestHostname(getRequest());
 
+    // Book the call on the ERA calendar first: a taken or invalid slot must be
+    // reported before we store anything, so the prospect can pick again.
+    let scheduledStart: string | null = null;
+    let calendarEventId: string | null = null;
+    if (data.slotStart) {
+      const { candidateSlots } = await import("./booking");
+      const requested = new Date(data.slotStart).toISOString();
+      const valid = candidateSlots().some((slot) => slot.start === requested);
+      if (!valid) throw new Error("That time is no longer available. Please pick another slot.");
+
+      const { bookDiscoveryCall } = await import("./google-calendar.server");
+      const booked = await bookDiscoveryCall({
+        startIso: requested,
+        fullName: data.fullName,
+        businessName: data.businessName,
+        email: data.email,
+        phone: data.phone || undefined,
+        businessType: data.businessType || undefined,
+        message: data.message || undefined,
+      });
+      scheduledStart = requested;
+      calendarEventId = booked.eventId;
+    }
+
     const { error } = await supabasePublic.from("discovery_requests").insert({
       full_name: data.fullName,
       business_name: data.businessName,
