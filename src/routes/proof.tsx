@@ -31,7 +31,7 @@ function ProofPage() {
         lede="VDS is a mobile detailing business in Metro Atlanta, and it's ours. We built ERA because we were running it on the same patchwork everyone else is. Its website, quoting, booking, customer records, and payments all run on the platform we're selling you, which means we feel every rough edge before you do."
       />
 
-      <section className="section-glow">
+      <section className="section-deep">
         <div className="mx-auto max-w-6xl px-6 py-16">
           <div className="grid gap-6 lg:grid-cols-2">
             <Reveal className="overflow-hidden rounded-2xl border border-metal/60 bg-card">
@@ -55,9 +55,14 @@ function ProofPage() {
             </Reveal>
           </div>
 
+        </div>
+      </section>
+
+      <section className="section-glow">
+        <div className="mx-auto max-w-6xl px-6 py-14">
           <Reveal
             delay={160}
-            className="mt-10 rounded-2xl border border-primary/40 bg-primary p-7 text-center text-primary-foreground lg:text-left"
+            className="rounded-2xl border border-primary/40 bg-primary p-7 text-center text-primary-foreground lg:text-left"
           >
             <p className="font-display text-lg font-semibold">One real business, honestly stated.</p>
             <p className="mt-3 max-w-3xl text-sm leading-relaxed text-primary-foreground/85">

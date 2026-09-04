@@ -49,6 +49,29 @@ function ContactPage() {
           <DiscoveryForm />
         </div>
       </section>
+
+      <section className="section-deep">
+        <div className="mx-auto max-w-6xl px-6 py-14">
+          <h2 className="text-center font-display text-2xl font-semibold text-foreground lg:text-left">
+            What happens next
+          </h2>
+          <div className="mt-8 grid gap-6 md:grid-cols-3">
+            {[
+              { t: "We reply", b: "You hear back from support@eraleadgen.com to confirm the time that works." },
+              { t: "We talk", b: "A 60 minute call about what you run today, what breaks, and whether ERA fits." },
+              { t: "We scope", b: "If it fits, we set the tier and any add-ons with you, then send an invite." },
+            ].map((s, i) => (
+              <article key={s.t} className="lift h-full rounded-2xl border border-border bg-card p-6 text-center lg:text-left">
+                <span className="inline-flex size-9 items-center justify-center rounded-full border border-gold/40 font-display text-sm font-semibold text-gold">
+                  0{i + 1}
+                </span>
+                <h3 className="mt-4 font-display text-base font-semibold text-foreground">{s.t}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.b}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
     </MarketingShell>
   );
 }
