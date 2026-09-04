@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 
 import logoAsset from "@/assets/era-logo.png.asset.json";
+import { SiteBackdrop } from "./site-backdrop";
 
 export const NAV_LINKS = [
   { to: "/platform", label: "Platform" },
