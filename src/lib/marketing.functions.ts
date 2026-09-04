@@ -94,7 +94,9 @@ export const submitDiscoveryRequest = createServerFn({ method: "POST" })
       business_type: data.businessType ? data.businessType : null,
       message: data.message ? data.message : null,
       source_hostname: hostname,
-      status: "new",
+      status: scheduledStart ? "scheduled" : "new",
+      scheduled_start: scheduledStart,
+      calendar_event_id: calendarEventId,
     });
 
     if (error) throw new Error("We couldn't submit that just now. Please try again.");
