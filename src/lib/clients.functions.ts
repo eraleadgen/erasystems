@@ -74,7 +74,7 @@ export const getClientProfile = createServerFn({ method: "GET" })
     const { data: business, error } = await context.supabase
       .from("businesses")
       .select(
-        "id, name, legal_name, slug, plan_tier, lifecycle, is_active, timezone, support_email, support_phone, created_at",
+        "id, name, legal_name, slug, plan_tier, lifecycle, is_active, timezone, support_email, support_phone, created_at, origin_invite_id",
       )
       .eq("id", data.businessId)
       .maybeSingle();
