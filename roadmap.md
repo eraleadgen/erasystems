@@ -11,3 +11,5 @@
 - [x] Web address shows connected domain
 - [x] Entitlement-derived client portal tabs
 - [x] Mobile burger nav on eraleadgen.com
+- [x] Marketing pages: black chrome-trim hero band, animated glow band below
+- [x] Admin delivery workspace: 7-day go-live checklist per client (required steps, owners, status)

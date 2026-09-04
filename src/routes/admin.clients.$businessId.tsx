@@ -15,6 +15,7 @@ import {
   type LaunchStatus,
 } from "@/lib/launch-status.functions";
 import { StatusLight, statusFor } from "@/components/app/launch-status";
+import { DeliveryWorkspace } from "@/components/app/delivery-workspace";
 
 export const Route = createFileRoute("/admin/clients/$businessId")({
   head: () => ({
@@ -272,6 +273,12 @@ function ClientProfilePage() {
           </section>
 
           <LaunchStatusEditor businessId={businessId} />
+
+          <DeliveryWorkspace
+            businessId={businessId}
+            planTier={profile.planTier}
+            createdAt={profile.createdAt}
+          />
         </div>
       </div>
     </AppShell>
