@@ -17,7 +17,7 @@ import {
   type PlanTier,
 } from "@/lib/entitlements";
 
-export const Route = createFileRoute("/admin/invites")({
+export const Route = createFileRoute("/_authenticated/admin/invites")({
   head: () => ({
     meta: [
       { title: "Invitations | ERA Systems staff" },

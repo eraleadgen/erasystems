@@ -5,10 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
 import { DocumentLibrary } from "@/components/app/document-library";
 
-const TITLE = "Documents | ERA Systems staff";
-const DESCRIPTION = "Service agreements, policies, and signed client contracts.";
+const TITLE = "Sales | ERA Systems staff";
+const DESCRIPTION = "Presentations, ads, analytics, and the ERA sales guide and flow.";
 
-export const Route = createFileRoute("/admin/documents")({
+export const Route = createFileRoute("/_authenticated/admin/sales")({
   head: () => ({
     meta: [
       { title: TITLE },
@@ -20,10 +20,10 @@ export const Route = createFileRoute("/admin/documents")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  component: DocumentsAdmin,
+  component: SalesAdmin,
 });
 
-function DocumentsAdmin() {
+function SalesAdmin() {
   const { data: hasSession } = useQuery({
     queryKey: ["has-session"],
     queryFn: async () => Boolean((await supabase.auth.getSession()).data.session),
@@ -31,20 +31,16 @@ function DocumentsAdmin() {
   });
 
   return (
-    <AppShell title="Documents" variant="staff">
+    <AppShell title="Sales" variant="staff">
       <DocumentLibrary
         hasSession={hasSession === true}
-        options={[
-          { value: "legal", label: "Legal (agreement, terms, privacy)" },
-          { value: "contract", label: "Client contract" },
-        ]}
+        options={[{ value: "sales", label: "Sales and marketing asset" }]}
         groups={[
           {
-            key: "legal",
-            label: "Legal",
-            hint: "Service agreement, terms and conditions, privacy policy.",
+            key: "sales",
+            label: "Sales and marketing assets",
+            hint: "Presentations, ad creative, analytics reports, website material, sales guides and call flows.",
           },
-          { key: "contract", label: "Client contracts", hint: "Signed agreements per client." },
         ]}
       />
     </AppShell>

@@ -22,6 +22,7 @@ import { Route as ProofRouteImport } from './routes/proof'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SpecialistsRouteImport } from './routes/specialists'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedBookingsRouteImport } from './routes/_authenticated/bookings'
@@ -31,14 +32,14 @@ import { Route as AuthenticatedCustomersRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
-import { Route as AdminAddonsRouteImport } from './routes/admin.addons'
-import { Route as AdminCalendarRouteImport } from './routes/admin.calendar'
-import { Route as AdminDeliveryRouteImport } from './routes/admin.delivery'
-import { Route as AdminDocumentsRouteImport } from './routes/admin.documents'
-import { Route as AdminInvitesRouteImport } from './routes/admin.invites'
-import { Route as AdminSalesRouteImport } from './routes/admin.sales'
-import { Route as AdminClientsIndexRouteImport } from './routes/admin.clients.index'
-import { Route as AdminClientsBusinessIdRouteImport } from './routes/admin.clients.$businessId'
+import { Route as AuthenticatedAdminAddonsRouteImport } from './routes/_authenticated/admin.addons'
+import { Route as AuthenticatedAdminCalendarRouteImport } from './routes/_authenticated/admin.calendar'
+import { Route as AuthenticatedAdminDeliveryRouteImport } from './routes/_authenticated/admin.delivery'
+import { Route as AuthenticatedAdminDocumentsRouteImport } from './routes/_authenticated/admin.documents'
+import { Route as AuthenticatedAdminInvitesRouteImport } from './routes/_authenticated/admin.invites'
+import { Route as AuthenticatedAdminSalesRouteImport } from './routes/_authenticated/admin.sales'
+import { Route as AuthenticatedAdminClientsIndexRouteImport } from './routes/_authenticated/admin.clients.index'
+import { Route as AuthenticatedAdminClientsBusinessIdRouteImport } from './routes/_authenticated/admin.clients.$businessId'
 import { Route as ApiPublicCronExpireBusinessesRouteImport } from './routes/api/public/cron/expire-businesses'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
@@ -107,6 +108,11 @@ const SpecialistsRoute = SpecialistsRouteImport.update({
   path: '/specialists',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAnalyticsRoute = AuthenticatedAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
@@ -152,46 +158,53 @@ const AuthenticatedTeamRoute = AuthenticatedTeamRouteImport.update({
   path: '/team',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AdminAddonsRoute = AdminAddonsRouteImport.update({
-  id: '/admin/addons',
-  path: '/admin/addons',
-  getParentRoute: () => rootRouteImport,
+const AuthenticatedAdminAddonsRoute =
+  AuthenticatedAdminAddonsRouteImport.update({
+    id: '/addons',
+    path: '/addons',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCalendarRoute =
+  AuthenticatedAdminCalendarRouteImport.update({
+    id: '/calendar',
+    path: '/calendar',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminDeliveryRoute =
+  AuthenticatedAdminDeliveryRouteImport.update({
+    id: '/delivery',
+    path: '/delivery',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminDocumentsRoute =
+  AuthenticatedAdminDocumentsRouteImport.update({
+    id: '/documents',
+    path: '/documents',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminInvitesRoute =
+  AuthenticatedAdminInvitesRouteImport.update({
+    id: '/invites',
+    path: '/invites',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSalesRoute = AuthenticatedAdminSalesRouteImport.update({
+  id: '/sales',
+  path: '/sales',
+  getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const AdminCalendarRoute = AdminCalendarRouteImport.update({
-  id: '/admin/calendar',
-  path: '/admin/calendar',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminDeliveryRoute = AdminDeliveryRouteImport.update({
-  id: '/admin/delivery',
-  path: '/admin/delivery',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminDocumentsRoute = AdminDocumentsRouteImport.update({
-  id: '/admin/documents',
-  path: '/admin/documents',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminInvitesRoute = AdminInvitesRouteImport.update({
-  id: '/admin/invites',
-  path: '/admin/invites',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminSalesRoute = AdminSalesRouteImport.update({
-  id: '/admin/sales',
-  path: '/admin/sales',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminClientsIndexRoute = AdminClientsIndexRouteImport.update({
-  id: '/admin/clients/',
-  path: '/admin/clients/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminClientsBusinessIdRoute = AdminClientsBusinessIdRouteImport.update({
-  id: '/admin/clients/$businessId',
-  path: '/admin/clients/$businessId',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const AuthenticatedAdminClientsIndexRoute =
+  AuthenticatedAdminClientsIndexRouteImport.update({
+    id: '/clients/',
+    path: '/clients/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminClientsBusinessIdRoute =
+  AuthenticatedAdminClientsBusinessIdRouteImport.update({
+    id: '/clients/$businessId',
+    path: '/clients/$businessId',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const ApiPublicCronExpireBusinessesRoute =
   ApiPublicCronExpireBusinessesRouteImport.update({
     id: '/api/public/cron/expire-businesses',
@@ -223,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/bookings': typeof AuthenticatedBookingsRoute
@@ -232,17 +246,17 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/team': typeof AuthenticatedTeamRoute
-  '/admin/addons': typeof AdminAddonsRoute
-  '/admin/calendar': typeof AdminCalendarRoute
-  '/admin/delivery': typeof AdminDeliveryRoute
-  '/admin/documents': typeof AdminDocumentsRoute
-  '/admin/invites': typeof AdminInvitesRoute
-  '/admin/sales': typeof AdminSalesRoute
-  '/admin/clients/$businessId': typeof AdminClientsBusinessIdRoute
-  '/admin/clients/': typeof AdminClientsIndexRoute
+  '/admin/addons': typeof AuthenticatedAdminAddonsRoute
+  '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
+  '/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
+  '/admin/documents': typeof AuthenticatedAdminDocumentsRoute
+  '/admin/invites': typeof AuthenticatedAdminInvitesRoute
+  '/admin/sales': typeof AuthenticatedAdminSalesRoute
+  '/admin/clients/$businessId': typeof AuthenticatedAdminClientsBusinessIdRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/admin/clients/': typeof AuthenticatedAdminClientsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -257,6 +271,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/bookings': typeof AuthenticatedBookingsRoute
@@ -266,17 +281,17 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/team': typeof AuthenticatedTeamRoute
-  '/admin/addons': typeof AdminAddonsRoute
-  '/admin/calendar': typeof AdminCalendarRoute
-  '/admin/delivery': typeof AdminDeliveryRoute
-  '/admin/documents': typeof AdminDocumentsRoute
-  '/admin/invites': typeof AdminInvitesRoute
-  '/admin/sales': typeof AdminSalesRoute
-  '/admin/clients/$businessId': typeof AdminClientsBusinessIdRoute
-  '/admin/clients': typeof AdminClientsIndexRoute
+  '/admin/addons': typeof AuthenticatedAdminAddonsRoute
+  '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
+  '/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
+  '/admin/documents': typeof AuthenticatedAdminDocumentsRoute
+  '/admin/invites': typeof AuthenticatedAdminInvitesRoute
+  '/admin/sales': typeof AuthenticatedAdminSalesRoute
+  '/admin/clients/$businessId': typeof AuthenticatedAdminClientsBusinessIdRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/admin/clients': typeof AuthenticatedAdminClientsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -293,6 +308,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/bookings': typeof AuthenticatedBookingsRoute
@@ -302,17 +318,17 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
-  '/admin/addons': typeof AdminAddonsRoute
-  '/admin/calendar': typeof AdminCalendarRoute
-  '/admin/delivery': typeof AdminDeliveryRoute
-  '/admin/documents': typeof AdminDocumentsRoute
-  '/admin/invites': typeof AdminInvitesRoute
-  '/admin/sales': typeof AdminSalesRoute
-  '/admin/clients/$businessId': typeof AdminClientsBusinessIdRoute
-  '/admin/clients/': typeof AdminClientsIndexRoute
+  '/_authenticated/admin/addons': typeof AuthenticatedAdminAddonsRoute
+  '/_authenticated/admin/calendar': typeof AuthenticatedAdminCalendarRoute
+  '/_authenticated/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
+  '/_authenticated/admin/documents': typeof AuthenticatedAdminDocumentsRoute
+  '/_authenticated/admin/invites': typeof AuthenticatedAdminInvitesRoute
+  '/_authenticated/admin/sales': typeof AuthenticatedAdminSalesRoute
+  '/_authenticated/admin/clients/$businessId': typeof AuthenticatedAdminClientsBusinessIdRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/_authenticated/admin/clients/': typeof AuthenticatedAdminClientsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -329,6 +345,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/sitemap.xml'
     | '/specialists'
+    | '/admin'
     | '/analytics'
     | '/billing'
     | '/bookings'
@@ -345,10 +362,10 @@ export interface FileRouteTypes {
     | '/admin/invites'
     | '/admin/sales'
     | '/admin/clients/$businessId'
-    | '/admin/clients/'
     | '/api/public/cron/expire-businesses'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/transactional/preview'
+    | '/admin/clients/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -363,6 +380,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/sitemap.xml'
     | '/specialists'
+    | '/admin'
     | '/analytics'
     | '/billing'
     | '/bookings'
@@ -379,10 +397,10 @@ export interface FileRouteTypes {
     | '/admin/invites'
     | '/admin/sales'
     | '/admin/clients/$businessId'
-    | '/admin/clients'
     | '/api/public/cron/expire-businesses'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/transactional/preview'
+    | '/admin/clients'
   id:
     | '__root__'
     | '/'
@@ -398,6 +416,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/sitemap.xml'
     | '/specialists'
+    | '/_authenticated/admin'
     | '/_authenticated/analytics'
     | '/_authenticated/billing'
     | '/_authenticated/bookings'
@@ -407,17 +426,17 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
     | '/_authenticated/team'
-    | '/admin/addons'
-    | '/admin/calendar'
-    | '/admin/delivery'
-    | '/admin/documents'
-    | '/admin/invites'
-    | '/admin/sales'
-    | '/admin/clients/$businessId'
-    | '/admin/clients/'
+    | '/_authenticated/admin/addons'
+    | '/_authenticated/admin/calendar'
+    | '/_authenticated/admin/delivery'
+    | '/_authenticated/admin/documents'
+    | '/_authenticated/admin/invites'
+    | '/_authenticated/admin/sales'
+    | '/_authenticated/admin/clients/$businessId'
     | '/api/public/cron/expire-businesses'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/transactional/preview'
+    | '/_authenticated/admin/clients/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -434,14 +453,6 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SpecialistsRoute: typeof SpecialistsRoute
-  AdminAddonsRoute: typeof AdminAddonsRoute
-  AdminCalendarRoute: typeof AdminCalendarRoute
-  AdminDeliveryRoute: typeof AdminDeliveryRoute
-  AdminDocumentsRoute: typeof AdminDocumentsRoute
-  AdminInvitesRoute: typeof AdminInvitesRoute
-  AdminSalesRoute: typeof AdminSalesRoute
-  AdminClientsBusinessIdRoute: typeof AdminClientsBusinessIdRoute
-  AdminClientsIndexRoute: typeof AdminClientsIndexRoute
   ApiPublicCronExpireBusinessesRoute: typeof ApiPublicCronExpireBusinessesRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -540,6 +551,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SpecialistsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/analytics': {
       id: '/_authenticated/analytics'
       path: '/analytics'
@@ -603,61 +621,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeamRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/admin/addons': {
-      id: '/admin/addons'
-      path: '/admin/addons'
+    '/_authenticated/admin/addons': {
+      id: '/_authenticated/admin/addons'
+      path: '/addons'
       fullPath: '/admin/addons'
-      preLoaderRoute: typeof AdminAddonsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAdminAddonsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/admin/calendar': {
-      id: '/admin/calendar'
-      path: '/admin/calendar'
+    '/_authenticated/admin/calendar': {
+      id: '/_authenticated/admin/calendar'
+      path: '/calendar'
       fullPath: '/admin/calendar'
-      preLoaderRoute: typeof AdminCalendarRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAdminCalendarRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/admin/delivery': {
-      id: '/admin/delivery'
-      path: '/admin/delivery'
+    '/_authenticated/admin/delivery': {
+      id: '/_authenticated/admin/delivery'
+      path: '/delivery'
       fullPath: '/admin/delivery'
-      preLoaderRoute: typeof AdminDeliveryRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAdminDeliveryRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/admin/documents': {
-      id: '/admin/documents'
-      path: '/admin/documents'
+    '/_authenticated/admin/documents': {
+      id: '/_authenticated/admin/documents'
+      path: '/documents'
       fullPath: '/admin/documents'
-      preLoaderRoute: typeof AdminDocumentsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAdminDocumentsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/admin/invites': {
-      id: '/admin/invites'
-      path: '/admin/invites'
+    '/_authenticated/admin/invites': {
+      id: '/_authenticated/admin/invites'
+      path: '/invites'
       fullPath: '/admin/invites'
-      preLoaderRoute: typeof AdminInvitesRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAdminInvitesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/admin/sales': {
-      id: '/admin/sales'
-      path: '/admin/sales'
+    '/_authenticated/admin/sales': {
+      id: '/_authenticated/admin/sales'
+      path: '/sales'
       fullPath: '/admin/sales'
-      preLoaderRoute: typeof AdminSalesRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAdminSalesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/admin/clients/': {
-      id: '/admin/clients/'
-      path: '/admin/clients'
+    '/_authenticated/admin/clients/': {
+      id: '/_authenticated/admin/clients/'
+      path: '/clients'
       fullPath: '/admin/clients/'
-      preLoaderRoute: typeof AdminClientsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAdminClientsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/admin/clients/$businessId': {
-      id: '/admin/clients/$businessId'
-      path: '/admin/clients/$businessId'
+    '/_authenticated/admin/clients/$businessId': {
+      id: '/_authenticated/admin/clients/$businessId'
+      path: '/clients/$businessId'
       fullPath: '/admin/clients/$businessId'
-      preLoaderRoute: typeof AdminClientsBusinessIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAdminClientsBusinessIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/api/public/cron/expire-businesses': {
       id: '/api/public/cron/expire-businesses'
@@ -683,7 +701,34 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAddonsRoute: typeof AuthenticatedAdminAddonsRoute
+  AuthenticatedAdminCalendarRoute: typeof AuthenticatedAdminCalendarRoute
+  AuthenticatedAdminDeliveryRoute: typeof AuthenticatedAdminDeliveryRoute
+  AuthenticatedAdminDocumentsRoute: typeof AuthenticatedAdminDocumentsRoute
+  AuthenticatedAdminInvitesRoute: typeof AuthenticatedAdminInvitesRoute
+  AuthenticatedAdminSalesRoute: typeof AuthenticatedAdminSalesRoute
+  AuthenticatedAdminClientsBusinessIdRoute: typeof AuthenticatedAdminClientsBusinessIdRoute
+  AuthenticatedAdminClientsIndexRoute: typeof AuthenticatedAdminClientsIndexRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAddonsRoute: AuthenticatedAdminAddonsRoute,
+  AuthenticatedAdminCalendarRoute: AuthenticatedAdminCalendarRoute,
+  AuthenticatedAdminDeliveryRoute: AuthenticatedAdminDeliveryRoute,
+  AuthenticatedAdminDocumentsRoute: AuthenticatedAdminDocumentsRoute,
+  AuthenticatedAdminInvitesRoute: AuthenticatedAdminInvitesRoute,
+  AuthenticatedAdminSalesRoute: AuthenticatedAdminSalesRoute,
+  AuthenticatedAdminClientsBusinessIdRoute:
+    AuthenticatedAdminClientsBusinessIdRoute,
+  AuthenticatedAdminClientsIndexRoute: AuthenticatedAdminClientsIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedBookingsRoute: typeof AuthenticatedBookingsRoute
@@ -696,6 +741,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedBookingsRoute: AuthenticatedBookingsRoute,
@@ -724,14 +770,6 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SpecialistsRoute: SpecialistsRoute,
-  AdminAddonsRoute: AdminAddonsRoute,
-  AdminCalendarRoute: AdminCalendarRoute,
-  AdminDeliveryRoute: AdminDeliveryRoute,
-  AdminDocumentsRoute: AdminDocumentsRoute,
-  AdminInvitesRoute: AdminInvitesRoute,
-  AdminSalesRoute: AdminSalesRoute,
-  AdminClientsBusinessIdRoute: AdminClientsBusinessIdRoute,
-  AdminClientsIndexRoute: AdminClientsIndexRoute,
   ApiPublicCronExpireBusinessesRoute: ApiPublicCronExpireBusinessesRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,

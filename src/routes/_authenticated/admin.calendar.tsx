@@ -10,7 +10,7 @@ import { formatSlotLabel } from "@/lib/booking";
 const TITLE = "Calendar | ERA Systems staff";
 const DESCRIPTION = "Scheduled discovery calls booked from the ERA marketing site.";
 
-export const Route = createFileRoute("/admin/calendar")({
+export const Route = createFileRoute("/_authenticated/admin/calendar")({
   head: () => ({
     meta: [
       { title: TITLE },
