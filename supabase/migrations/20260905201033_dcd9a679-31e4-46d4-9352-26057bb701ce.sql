@@ -1,0 +1,1 @@
+create policy "staff remove domains" on public.business_domains for delete to authenticated using (private.is_platform_staff());
