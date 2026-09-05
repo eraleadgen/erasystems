@@ -15,7 +15,7 @@ const summary = [
     to: "/pricing" as const,
     label: "Pricing",
     title: "Three tiers, from $199/mo",
-    body: "Every tier includes the whole platform. Higher tiers extend it, they don't unlock the basics.",
+    body: "Every tier includes the whole platform, plus a one-time setup fee from $1,000. Higher tiers extend it, they don't unlock the basics.",
   },
   {
     to: "/addons" as const,

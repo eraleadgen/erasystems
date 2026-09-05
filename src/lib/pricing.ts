@@ -27,7 +27,7 @@ export const PLAN_PRICING: Record<PlanTier, PlanPrice> = {
   basic: {
     tier: "basic",
     name: "Basic",
-    monthlyCents: 20000,
+    monthlyCents: 19900,
     setupFeeCents: 100000,
     appAddonCents: 500000,
     appRequiresCall: true,
@@ -36,7 +36,7 @@ export const PLAN_PRICING: Record<PlanTier, PlanPrice> = {
   growth: {
     tier: "growth",
     name: "Growth",
-    monthlyCents: 50000,
+    monthlyCents: 49900,
     setupFeeCents: 200000,
     appAddonCents: 750000,
     appRequiresCall: true,
@@ -45,7 +45,7 @@ export const PLAN_PRICING: Record<PlanTier, PlanPrice> = {
   enterprise: {
     tier: "enterprise",
     name: "Enterprise",
-    monthlyCents: 100000,
+    monthlyCents: 149900,
     setupFeeCents: 300000,
     appAddonCents: 900000,
     appRequiresCall: true,
