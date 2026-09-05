@@ -5,7 +5,14 @@ import { useEffect, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
-import { getClientProfile, saveClientProvisioning } from "@/lib/clients.functions";
+import {
+  addClientDomain,
+  getClientProfile,
+  removeClientDomain,
+  saveClientProvisioning,
+  setClientDomainVerified,
+  setPrimaryClientDomain,
+} from "@/lib/clients.functions";
 import { ADDON_LABELS, FEATURE_LABELS, formatMoney } from "@/lib/entitlements";
 import { getBusinessAddons, getMyEntitlements } from "@/lib/entitlements.functions";
 import {
@@ -375,6 +382,12 @@ function ClientProfilePage() {
               )}
             </div>
           </section>
+
+          <DomainManager
+            businessId={businessId}
+            domains={profile.domains}
+            slug={profile.slug}
+          />
 
           <LaunchStatusEditor businessId={businessId} />
 
