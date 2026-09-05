@@ -617,3 +617,112 @@
   }
 }
 
+
+/* -------------------------------------------------------------------------
+ * VDS Mobile tenant site, scoped to .vds-site so ERA marketing and the client
+ * portal keep their own tokens. Black and metallic gold.
+ * ------------------------------------------------------------------------- */
+
+.vds-site,
+.dark .vds-site {
+  --background: oklch(0.13 0.004 90);
+  --foreground: oklch(0.97 0.004 90);
+  --card: oklch(0.175 0.006 90);
+  --card-foreground: oklch(0.97 0.004 90);
+  --popover: oklch(0.175 0.006 90);
+  --popover-foreground: oklch(0.97 0.004 90);
+  --primary: oklch(0.79 0.13 88);
+  --primary-foreground: oklch(0.16 0.01 90);
+  --secondary: oklch(0.24 0.008 90);
+  --secondary-foreground: oklch(0.96 0.004 90);
+  --muted: oklch(0.23 0.006 90);
+  --muted-foreground: oklch(0.76 0.012 90);
+  --accent: oklch(0.28 0.02 88);
+  --accent-foreground: oklch(0.97 0.004 90);
+  --destructive: oklch(0.7 0.17 25);
+  --destructive-foreground: oklch(0.98 0.003 90);
+  --border: oklch(0.79 0.05 88 / 22%);
+  --input: oklch(0.79 0.05 88 / 26%);
+  --ring: oklch(0.79 0.13 88);
+}
+
+.vds-site .vds-hero::before {
+  content: "";
+  position: absolute;
+  inset: -20% 10% 30% 10%;
+  background: radial-gradient(
+    ellipse at 50% 40%,
+    color-mix(in oklab, var(--primary) 22%, transparent),
+    transparent 70%
+  );
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.vds-site .vds-band {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--primary) 5%, transparent),
+    transparent 60%
+  );
+}
+
+.vds-site .vds-card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.vds-site .vds-card:hover {
+  border-color: color-mix(in oklab, var(--primary) 55%, transparent);
+  box-shadow: 0 20px 50px -34px color-mix(in oklab, var(--primary) 85%, transparent);
+  transform: translateY(-3px);
+}
+
+.vds-site .vds-btn,
+.vds-site .vds-btn-primary,
+.vds-site .vds-btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.6rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.vds-site .vds-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.vds-site .vds-btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.vds-site .vds-btn-primary:hover {
+  background-color: color-mix(in oklab, var(--primary) 86%, white);
+}
+
+.vds-site .vds-btn-gold {
+  border-color: color-mix(in oklab, var(--primary) 60%, transparent);
+  color: var(--primary);
+  background-color: color-mix(in oklab, var(--primary) 10%, transparent);
+}
+
+.vds-site details > summary::-webkit-details-marker {
+  display: none;
+}

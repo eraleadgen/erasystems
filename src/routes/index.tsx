@@ -4,6 +4,7 @@ import { z } from "zod";
 import { resolveTenant, getTenantServices } from "@/lib/tenant.functions";
 import { MarketingSite } from "@/components/marketing/marketing-site";
 import { TenantHome } from "@/components/tenant-home";
+import { VdsSite } from "@/components/vds/vds-site";
 
 const searchSchema = z.object({
   tenant: z
@@ -74,5 +75,8 @@ export const Route = createFileRoute("/")({
 function Index() {
   const data = Route.useLoaderData();
   if (data.marketing) return <MarketingSite />;
+  if (data.tenant?.slug === "vds") {
+    return <VdsSite tenant={data.tenant} services={data.services} />;
+  }
   return <TenantHome tenant={data.tenant} services={data.services} />;
 }
