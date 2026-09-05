@@ -75,5 +75,8 @@ export const Route = createFileRoute("/")({
 function Index() {
   const data = Route.useLoaderData();
   if (data.marketing) return <MarketingSite />;
+  if (data.tenant?.slug === "vds") {
+    return <VdsSite tenant={data.tenant} services={data.services} />;
+  }
   return <TenantHome tenant={data.tenant} services={data.services} />;
 }
