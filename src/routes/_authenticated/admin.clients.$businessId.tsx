@@ -155,7 +155,28 @@ function ClientProfilePage() {
               />
               <Row label="Account created" value={new Date(profile.createdAt).toLocaleDateString()} />
             </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <a
+                href={`/?tenant=${profile.slug}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground"
+              >
+                Preview client website
+              </a>
+              {profile.primaryDomain ? (
+                <a
+                  href={`https://${profile.primaryDomain}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex rounded-md border border-border/70 px-3 py-2 text-xs font-medium"
+                >
+                  Open {profile.primaryDomain}
+                </a>
+              ) : null}
+            </div>
           </section>
+
 
           <section className="era-card p-6">
             <h2 className="text-base font-semibold">Membership</h2>
