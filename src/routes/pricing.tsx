@@ -79,6 +79,9 @@ function PricingPage() {
                     {tier.price}
                     <span className="ml-1 text-sm font-medium text-muted-foreground">/mo</span>
                   </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    + {tier.setupFee} one-time setup fee
+                  </p>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                     {tier.tagline}
                   </p>
