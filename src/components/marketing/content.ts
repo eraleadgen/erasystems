@@ -59,6 +59,7 @@ export const tiers = [
   {
     name: "Basic",
     price: "$199",
+    setupFee: "$1,000",
     tagline: "The full operating system for a single-location business.",
     inherits: undefined as string | undefined,
     features: [
@@ -75,6 +76,7 @@ export const tiers = [
   {
     name: "Growth",
     price: "$499",
+    setupFee: "$2,000",
     tagline: "Adds portals for the people around the work: customers and staff.",
     inherits: "Everything in Basic, plus:",
     features: ["Customer member portal", "Specialist / employee portal"],
@@ -83,6 +85,7 @@ export const tiers = [
   {
     name: "Enterprise",
     price: "$1,499",
+    setupFee: "$3,000",
     tagline: "Voice, SMS, analytics, and a referral network on top of the whole platform.",
     inherits: "Everything in Growth, plus:",
     features: [
