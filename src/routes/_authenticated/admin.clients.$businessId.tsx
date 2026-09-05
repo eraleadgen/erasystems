@@ -499,3 +499,147 @@ function LaunchStatusEditor({ businessId }: { businessId: string }) {
   );
 }
 
+
+/**
+ * Per-client web addresses. Every write names this client's business_id
+ * explicitly and runs through the caller's RLS-scoped client; the
+ * business_domains staff/manager policies are the authorization.
+ *
+ * Note: connecting the address at the hosting layer is a separate step done in
+ * project settings. Marking it verified here only records that DNS is confirmed,
+ * which is what makes the mapping publicly readable.
+ */
+function DomainManager({
+  businessId,
+  domains,
+  slug,
+}: {
+  businessId: string;
+  domains: { hostname: string; isPrimary: boolean; verifiedAt: string | null }[];
+  slug: string;
+}) {
+  const queryClient = useQueryClient();
+  const add = useServerFn(addClientDomain);
+  const remove = useServerFn(removeClientDomain);
+  const makePrimary = useServerFn(setPrimaryClientDomain);
+  const setVerified = useServerFn(setClientDomainVerified);
+  const [hostname, setHostname] = useState("");
+
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: ["client-profile", businessId] });
+
+  const addMutation = useMutation({
+    mutationFn: (host: string) =>
+      add({ data: { businessId, hostname: host, isPrimary: domains.length === 0 } }),
+    onSuccess: () => {
+      setHostname("");
+      void refresh();
+    },
+  });
+  const actionMutation = useMutation({
+    mutationFn: async (a: { kind: "remove" | "primary" | "verify" | "unverify"; host: string }) => {
+      if (a.kind === "remove") return remove({ data: { businessId, hostname: a.host } });
+      if (a.kind === "primary") return makePrimary({ data: { businessId, hostname: a.host } });
+      return setVerified({
+        data: { businessId, hostname: a.host, verified: a.kind === "verify" },
+      });
+    },
+    onSuccess: () => void refresh(),
+  });
+
+  const busy = addMutation.isPending || actionMutation.isPending;
+  const error = (addMutation.error ?? actionMutation.error) as Error | null;
+
+  return (
+    <section className="era-card p-5">
+      <h2 className="text-base font-semibold">Web addresses</h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Addresses that serve this client&apos;s website. Preview it any time at{" "}
+        <Link to="/" search={{ tenant: slug }} className="text-foreground underline">
+          /?tenant={slug}
+        </Link>
+        .
+      </p>
+
+      {domains.length === 0 ? (
+        <p className="mt-4 text-sm text-muted-foreground">No address connected yet.</p>
+      ) : (
+        <ul className="mt-4">
+          {domains.map((d) => (
+            <li
+              key={d.hostname}
+              className="era-hairline flex flex-wrap items-center justify-between gap-3 border-b py-3 last:border-b-0"
+            >
+              <div className="min-w-0">
+                <p className="truncate text-sm text-foreground">
+                  {d.hostname}
+                  {d.isPrimary && (
+                    <span className="ml-2 rounded border border-primary/50 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-primary">
+                      Primary
+                    </span>
+                  )}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {d.verifiedAt
+                    ? `Verified ${new Date(d.verifiedAt).toLocaleDateString()}`
+                    : "Not verified — the public site will not serve on this address"}
+                </p>
+              </div>
+              <div className="flex shrink-0 flex-wrap gap-1">
+                {!d.isPrimary && (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => actionMutation.mutate({ kind: "primary", host: d.hostname })}
+                    className="rounded-md border border-border/70 px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    Make primary
+                  </button>
+                )}
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() =>
+                    actionMutation.mutate({
+                      kind: d.verifiedAt ? "unverify" : "verify",
+                      host: d.hostname,
+                    })
+                  }
+                  className="rounded-md border border-border/70 px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  {d.verifiedAt ? "Mark unverified" : "Mark verified"}
+                </button>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => actionMutation.mutate({ kind: "remove", host: d.hostname })}
+                  className="rounded-md border border-border/70 px-2.5 py-1 text-xs text-destructive"
+                >
+                  Remove
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <input
+          className={`${inputClass} max-w-xs flex-1`}
+          value={hostname}
+          onChange={(e) => setHostname(e.target.value)}
+          placeholder="clientdomain.com"
+        />
+        <button
+          type="button"
+          className="era-button-primary"
+          disabled={busy || hostname.trim().length < 4}
+          onClick={() => addMutation.mutate(hostname.trim().toLowerCase())}
+        >
+          {addMutation.isPending ? "Adding…" : "Add address"}
+        </button>
+      </div>
+      {error && <p className="mt-3 text-sm text-destructive">{error.message}</p>}
+    </section>
+  );
+}
