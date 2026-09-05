@@ -25,10 +25,22 @@ tenant domains" (it clearly can reach them), it is "does unsetting Primary make 
 domains serve content instead of redirecting?" That single unverified fact decides everything,
 and it is a two-minute, fully reversible test.
 
+## Step 0 — traffic check (done)
+
+- Zero discovery-call requests have ever been submitted — the form has produced no prospect
+  records at all, so no live pipeline depends on the next few minutes.
+- Site traffic over the last three days: 23 visitors, 80 pageviews, almost entirely direct and
+  consistent with our own testing. Today: 7 visitors.
+- Conclusion: no evidence of an active campaign. Shane still gets the final word before the
+  flag is flipped.
+
 ## Step 1 — the decisive test (reversible, ~2 minutes)
 
 1. In Project Settings → Domains, unset the Primary flag (leave all three domains connected).
-2. Re-request all three addresses and read the status codes.
+   Only Shane can do this — there is no tool that changes the flag.
+2. Immediately, in the same window, re-request all three addresses and read the status codes.
+   If all three are not clean 200s within a minute or two, Primary goes straight back on
+   `eraleadgen.com` before any further investigation.
 3. Interpretation:
    - **All three return 200** → the third path is real. One deployment, many tenant domains,
      the multi-tenant premise of the rebuild holds, and neither of the two costly options is
@@ -41,6 +53,20 @@ and it is a two-minute, fully reversible test.
 Cost of the test window: while Primary is unset, `www.eraleadgen.com` stops folding into the
 root domain. For a few minutes on a site with no live traffic depending on that, this is
 negligible.
+
+### Why re-setting Primary restores the exact prior state
+
+- No DNS record changes at any point. All three addresses keep pointing at the same host, so
+  the propagation lag seen with the VDS records elsewhere in this build does not apply here —
+  this is an edge routing flag, applied per request.
+- The redirect is a **302 temporary**, and the observed responses carry no caching headers.
+  A 302 is not cacheable by default; browsers follow it fresh each time. The platform documents
+  using 302 rather than 301 specifically *because* the Primary flag is reversible — a 301 would
+  be the one that sticks in visitor browsers.
+- Nothing is written to the app or the database by flipping the flag, so there is no state to
+  roll back beyond the flag itself.
+- After re-setting, the same three requests get re-run to confirm the exact prior pattern
+  (root 200, other two 302 to root) is back.
 
 ## Step 2 — if the test passes
 
