@@ -25,10 +25,22 @@ tenant domains" (it clearly can reach them), it is "does unsetting Primary make 
 domains serve content instead of redirecting?" That single unverified fact decides everything,
 and it is a two-minute, fully reversible test.
 
+## Step 0 — traffic check (done)
+
+- Zero discovery-call requests have ever been submitted — the form has produced no prospect
+  records at all, so no live pipeline depends on the next few minutes.
+- Site traffic over the last three days: 23 visitors, 80 pageviews, almost entirely direct and
+  consistent with our own testing. Today: 7 visitors.
+- Conclusion: no evidence of an active campaign. Shane still gets the final word before the
+  flag is flipped.
+
 ## Step 1 — the decisive test (reversible, ~2 minutes)
 
 1. In Project Settings → Domains, unset the Primary flag (leave all three domains connected).
-2. Re-request all three addresses and read the status codes.
+   Only Shane can do this — there is no tool that changes the flag.
+2. Immediately, in the same window, re-request all three addresses and read the status codes.
+   If all three are not clean 200s within a minute or two, Primary goes straight back on
+   `eraleadgen.com` before any further investigation.
 3. Interpretation:
    - **All three return 200** → the third path is real. One deployment, many tenant domains,
      the multi-tenant premise of the rebuild holds, and neither of the two costly options is
@@ -42,14 +54,38 @@ Cost of the test window: while Primary is unset, `www.eraleadgen.com` stops fold
 root domain. For a few minutes on a site with no live traffic depending on that, this is
 negligible.
 
-## Step 2 — if the test passes
+### Why re-setting Primary restores the exact prior state
+
+- No DNS record changes at any point. All three addresses keep pointing at the same host, so
+  the propagation lag seen with the VDS records elsewhere in this build does not apply here —
+  this is an edge routing flag, applied per request.
+- The redirect is a **302 temporary**, and the observed responses carry no caching headers.
+  A 302 is not cacheable by default; browsers follow it fresh each time. The platform documents
+  using 302 rather than 301 specifically *because* the Primary flag is reversible — a 301 would
+  be the one that sticks in visitor browsers.
+- Nothing is written to the app or the database by flipping the flag, so there is no state to
+  roll back beyond the flag itself.
+- After re-setting, the same three requests get re-run to confirm the exact prior pattern
+  (root 200, other two 302 to root) is back.
+
+## Step 2 — if the test passes: prove isolation before trusting it
+
+Three 200s is not success on its own. Immediately re-run the foundation-phase isolation
+discipline across two real addresses, before anything is built on top:
+
+- ERA's address serves the ERA marketing site; the VDS address serves the VDS site — each
+  correct, neither leaking the other's content, branding or catalog.
+- An unknown address resolves to nothing rather than falling back to a tenant.
+- A forged `X-Forwarded-Host` naming the other tenant changes nothing on either address.
+- Signed-in cross-tenant reads still return empty under RLS, from the public site, the portal
+  and server functions — resolution stays routing, never authorization.
+
+Only then:
 
 - Add each client's domain to this project and mark it verified in the Agency Console.
 - Do **not** re-set a Primary domain — that flag is what breaks multi-tenancy here.
 - Handle `www` → root per tenant inside the app with our own redirect, since the platform's
   built-in `www` folding depends on the Primary flag we are giving up.
-- Re-run the tenant isolation pass across two real domains (VDS + ERA) to confirm each serves
-  only its own content.
 
 ## Step 3 — fallbacks, in order of preference, only if the test fails
 
