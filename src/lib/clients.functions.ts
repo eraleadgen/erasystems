@@ -236,3 +236,94 @@ export const saveClientProvisioning = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/* ------------------------------------------------------------------ *
+ * Per-client domain management (staff)
+ *
+ * Every write is explicitly scoped to one business_id and executed through the
+ * caller's RLS-scoped client. Authorization is the business_domains policies
+ * (`private.is_platform_staff()` / `private.is_business_manager()`): a client
+ * attempting these gets a policy violation, not a silent success. No elevated
+ * client is used here.
+ * ------------------------------------------------------------------ */
+
+const hostnameSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(4)
+  .max(253)
+  .regex(/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/, "Enter a hostname like clientdomain.com");
+
+const domainInput = z.object({ businessId: z.string().uuid(), hostname: hostnameSchema });
+
+export const addClientDomain = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    domainInput.extend({ isPrimary: z.boolean().default(false) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    if (data.isPrimary) {
+      const { error: clearError } = await context.supabase
+        .from("business_domains")
+        .update({ is_primary: false })
+        .eq("business_id", data.businessId);
+      if (clearError) throw new Error(clearError.message);
+    }
+    const { error } = await context.supabase.from("business_domains").insert({
+      business_id: data.businessId,
+      hostname: data.hostname,
+      is_primary: data.isPrimary,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const removeClientDomain = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => domainInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("business_domains")
+      .delete()
+      .eq("business_id", data.businessId)
+      .eq("hostname", data.hostname);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const setPrimaryClientDomain = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => domainInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { error: clearError } = await context.supabase
+      .from("business_domains")
+      .update({ is_primary: false })
+      .eq("business_id", data.businessId);
+    if (clearError) throw new Error(clearError.message);
+    const { error } = await context.supabase
+      .from("business_domains")
+      .update({ is_primary: true })
+      .eq("business_id", data.businessId)
+      .eq("hostname", data.hostname);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/**
+ * Marks a mapping verified once DNS is confirmed at the hosting layer.
+ * Verification itself happens outside this app; this records the decision so
+ * public (anon) reads of the mapping become permitted for that hostname.
+ */
+export const setClientDomainVerified = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => domainInput.extend({ verified: z.boolean() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("business_domains")
+      .update({ verified_at: data.verified ? new Date().toISOString() : null })
+      .eq("business_id", data.businessId)
+      .eq("hostname", data.hostname);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
