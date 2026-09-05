@@ -68,14 +68,24 @@ negligible.
 - After re-setting, the same three requests get re-run to confirm the exact prior pattern
   (root 200, other two 302 to root) is back.
 
-## Step 2 — if the test passes
+## Step 2 — if the test passes: prove isolation before trusting it
+
+Three 200s is not success on its own. Immediately re-run the foundation-phase isolation
+discipline across two real addresses, before anything is built on top:
+
+- ERA's address serves the ERA marketing site; the VDS address serves the VDS site — each
+  correct, neither leaking the other's content, branding or catalog.
+- An unknown address resolves to nothing rather than falling back to a tenant.
+- A forged `X-Forwarded-Host` naming the other tenant changes nothing on either address.
+- Signed-in cross-tenant reads still return empty under RLS, from the public site, the portal
+  and server functions — resolution stays routing, never authorization.
+
+Only then:
 
 - Add each client's domain to this project and mark it verified in the Agency Console.
 - Do **not** re-set a Primary domain — that flag is what breaks multi-tenancy here.
 - Handle `www` → root per tenant inside the app with our own redirect, since the platform's
   built-in `www` folding depends on the Primary flag we are giving up.
-- Re-run the tenant isolation pass across two real domains (VDS + ERA) to confirm each serves
-  only its own content.
 
 ## Step 3 — fallbacks, in order of preference, only if the test fails
 
