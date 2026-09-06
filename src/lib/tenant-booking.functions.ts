@@ -74,7 +74,7 @@ export const requestTenantBooking = createServerFn({ method: "POST" })
     const summary = [
       `Services: ${services.map((s) => s.name).join(", ")}`,
       data.vehicle ? `Vehicle: ${data.vehicle}` : null,
-      `Address: ${data.address}`,
+      data.address ? `Address: ${data.address}` : null,
       data.notes ? `Notes: ${data.notes}` : null,
     ]
       .filter(Boolean)
