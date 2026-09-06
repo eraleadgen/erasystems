@@ -15,3 +15,5 @@
 - [x] Admin delivery workspace: 7-day go-live checklist per client (required steps, owners, status)
 - [x] Go-live automation: derived task statuses, one-click client asks, cross-client delivery queue, focus mode
 - [x] Tenant isolation re-test across two real addresses (ERA vs VDS on test.eraleadgen.com) — passed 2026-09-06, test address detached
+- [ ] Growth portals: customer accounts tied to bookings, specialists assigned to jobs
+- [ ] Verify customer matching (shared phone / mistyped email) and cross-business customer isolation

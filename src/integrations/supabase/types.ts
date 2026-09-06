@@ -122,10 +122,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "bookings_customer_fk"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "bookings_service_id_fkey"
             columns: ["service_id"]
             isOneToOne: false
             referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_specialist_fk"
+            columns: ["specialist_id"]
+            isOneToOne: false
+            referencedRelation: "specialist_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -506,6 +520,56 @@ export type Database = {
           },
         ]
       }
+      customers: {
+        Row: {
+          business_id: string
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          invite_expires_at: string | null
+          invite_token_hash: string | null
+          notes: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          invite_expires_at?: string | null
+          invite_token_hash?: string | null
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          invite_expires_at?: string | null
+          invite_token_hash?: string | null
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customers_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       discovery_requests: {
         Row: {
           business_name: string
@@ -856,6 +920,115 @@ export type Database = {
           },
         ]
       }
+      specialist_hours: {
+        Row: {
+          created_at: string
+          end_minute: number
+          id: string
+          specialist_id: string
+          start_minute: number
+          weekday: number
+        }
+        Insert: {
+          created_at?: string
+          end_minute: number
+          id?: string
+          specialist_id: string
+          start_minute: number
+          weekday: number
+        }
+        Update: {
+          created_at?: string
+          end_minute?: number
+          id?: string
+          specialist_id?: string
+          start_minute?: number
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "specialist_hours_specialist_id_fkey"
+            columns: ["specialist_id"]
+            isOneToOne: false
+            referencedRelation: "specialist_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      specialist_profiles: {
+        Row: {
+          business_id: string
+          created_at: string
+          display_name: string
+          id: string
+          is_active: boolean
+          title: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          display_name: string
+          id?: string
+          is_active?: boolean
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_active?: boolean
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "specialist_profiles_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      specialist_services: {
+        Row: {
+          created_at: string
+          service_id: string
+          specialist_id: string
+        }
+        Insert: {
+          created_at?: string
+          service_id: string
+          specialist_id: string
+        }
+        Update: {
+          created_at?: string
+          service_id?: string
+          specialist_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "specialist_services_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "specialist_services_specialist_id_fkey"
+            columns: ["specialist_id"]
+            isOneToOne: false
+            referencedRelation: "specialist_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -865,6 +1038,7 @@ export type Database = {
         Args: { _business_id: string }
         Returns: boolean
       }
+      claim_customer_account: { Args: { _token_hash: string }; Returns: string }
       consume_invite: {
         Args: { _token_hash: string }
         Returns: {
@@ -877,6 +1051,25 @@ export type Database = {
       invite_throttle_record: { Args: { _ip: string }; Returns: undefined }
       is_platform_staff: { Args: never; Returns: boolean }
       release_invite: { Args: { _invite_id: string }; Returns: undefined }
+      request_tenant_booking: {
+        Args: {
+          _address: string
+          _business_id: string
+          _customer_email: string
+          _customer_name: string
+          _customer_phone: string
+          _multiplier: number
+          _notes: string
+          _service_ids: string[]
+          _specialist_id?: string
+          _starts_at: string
+          _subject: string
+        }
+        Returns: {
+          minutes: number
+          total_cents: number
+        }[]
+      }
     }
     Enums: {
       addon_kind: "ad_management" | "white_label_branding"

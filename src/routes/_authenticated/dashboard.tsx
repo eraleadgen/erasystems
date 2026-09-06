@@ -315,7 +315,7 @@ function PlanPicker({ canPay }: { canPay: boolean }) {
   });
 
   const mutation = useMutation({
-    mutationFn: (next: { tier: PlanTier; includeApp: boolean }) => select({ data: next }),
+    mutationFn: (next: { tier: PlanTier }) => select({ data: next }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["my-plan-selection"] });
       void queryClient.invalidateQueries({ queryKey: ["my-terms"] });
@@ -326,7 +326,6 @@ function PlanPicker({ canPay }: { canPay: boolean }) {
   const selection = selectionQuery.data;
   if (!selection || selection.locked) return null;
 
-  const current = PLAN_PRICING[selection.tier];
 
   return (
     <div className="era-card p-6 sm:p-7">
@@ -348,7 +347,7 @@ function PlanPicker({ canPay }: { canPay: boolean }) {
               key={tier}
               type="button"
               disabled={!canPay || mutation.isPending}
-              onClick={() => mutation.mutate({ tier, includeApp: selection.includeApp })}
+              onClick={() => mutation.mutate({ tier })}
               className={`rounded-lg border p-4 text-left transition disabled:opacity-60 ${
                 isSelected
                   ? "border-primary bg-primary/5"
@@ -372,25 +371,12 @@ function PlanPicker({ canPay }: { canPay: boolean }) {
       <div className="era-hairline mt-5 border-t pt-4">
         <p className="text-sm font-medium text-foreground">{APP_ADDON_NAME}</p>
         <p className="mt-1 text-xs text-muted-foreground">{APP_ADDON_BLURB}</p>
-        {current.appRequiresCall ? (
-          <p className="mt-3 text-xs text-muted-foreground">
-            The apps are scoped on a call with your ERA representative before they are
-            quoted, so they aren&apos;t bought here.
-          </p>
-        ) : (
-          <label className="mt-3 flex items-center gap-2 text-sm text-foreground">
-            <input
-              type="checkbox"
-              checked={selection.includeApp}
-              disabled={!canPay || mutation.isPending}
-              onChange={(e) =>
-                mutation.mutate({ tier: selection.tier, includeApp: e.target.checked })
-              }
-            />
-            Add for {formatMoney(current.appAddonCents)} one time, no monthly fee
-          </label>
-        )}
+        <p className="mt-3 text-xs text-muted-foreground">
+          Available on any plan, quoted per business on a call with your ERA representative, so it
+          isn&apos;t bought here.
+        </p>
       </div>
+
 
       {mutation.isError && (
         <p className="mt-3 text-xs text-destructive">{(mutation.error as Error).message}</p>

@@ -1,8 +1,14 @@
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+import { supabase } from "@/integrations/supabase/client";
 import { checkTenantFeature } from "@/lib/entitlements.functions";
+import { formatMoney } from "@/lib/entitlements";
 import { resolveTenant } from "@/lib/tenant.functions";
+import { claimCustomerPortal, getMyCustomerBookings } from "@/lib/customers.functions";
 import { TenantSurface } from "@/components/tenant-surface";
 
 const searchSchema = z.object({
@@ -10,6 +16,7 @@ const searchSchema = z.object({
     .string()
     .regex(/^[a-z0-9-]+$/)
     .optional(),
+  claim: z.string().max(200).optional(),
 });
 
 export const Route = createFileRoute("/portal")({
@@ -59,14 +66,128 @@ export const Route = createFileRoute("/portal")({
 
 function Portal() {
   const { tenant, allowed } = Route.useLoaderData();
+
+  if (!tenant || !allowed) {
+    return (
+      <TenantSurface
+        kicker="Growth feature"
+        title={tenant ? `${tenant.name} customer portal` : "Customer portal"}
+        tenant={tenant}
+        allowed={allowed}
+        feature="customer_portal"
+        body="Bookings, invoices and history for members of this business."
+      />
+    );
+  }
+
+  return <CustomerPortal businessId={tenant.businessId} brand={tenant.name} />;
+}
+
+function CustomerPortal({ businessId, brand }: { businessId: string; brand: string }) {
+  const { claim } = Route.useSearch();
+  const fetchBookings = useServerFn(getMyCustomerBookings);
+  const claimPortal = useServerFn(claimCustomerPortal);
+  const queryClient = useQueryClient();
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void supabase.auth.getSession().then(({ data }) => {
+      if (active) setSignedIn(Boolean(data.session));
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const account = useQuery({
+    queryKey: ["my-customer-bookings", businessId],
+    queryFn: () => fetchBookings({ data: { businessId } }),
+    enabled: signedIn === true,
+    retry: false,
+  });
+
+  const claimMutation = useMutation({
+    mutationFn: (token: string) => claimPortal({ data: { token } }),
+    onSuccess: () =>
+      void queryClient.invalidateQueries({ queryKey: ["my-customer-bookings", businessId] }),
+  });
+
+  // A one-time invite link binds this login to the customer record it points at.
+  useEffect(() => {
+    if (signedIn && claim && account.data === null && !claimMutation.isPending) {
+      claimMutation.mutate(claim);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signedIn, claim, account.data]);
+
+  const acct = account.data ?? null;
+
   return (
-    <TenantSurface
-      kicker="Growth feature"
-      title={tenant ? `${tenant.name} customer portal` : "Customer portal"}
-      tenant={tenant}
-      allowed={allowed}
-      feature="customer_portal"
-      body="Bookings, invoices and history for members of this business."
-    />
+
+    <main className="era-app min-h-screen bg-background px-6 py-16">
+      <div className="mx-auto w-full max-w-3xl space-y-6">
+        <header>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">{brand}</p>
+          <h1 className="mt-1 text-2xl font-semibold text-foreground">Your account</h1>
+        </header>
+
+        {signedIn === false ? (
+          <div className="era-card p-6">
+            <p className="text-sm text-muted-foreground">
+              Sign in to see your bookings with {brand}.
+            </p>
+            <a className="era-chip mt-3 inline-block" href="/auth">
+              Sign in
+            </a>
+          </div>
+        ) : account.isLoading || signedIn === null ? (
+          <div className="era-card p-6">
+            <p className="text-sm text-muted-foreground">Loading…</p>
+          </div>
+        ) : !acct ? (
+          <div className="era-card p-6">
+            <p className="text-sm text-muted-foreground">
+              This login isn't linked to a customer record at {brand} yet. Use the portal link{" "}
+              {brand} sent you, or contact them to have one issued.
+            </p>
+            {claimMutation.isSuccess && !claimMutation.data.ok && (
+              <p className="mt-2 text-xs text-destructive">
+                That portal link is no longer valid. Ask {brand} for a new one.
+              </p>
+            )}
+          </div>
+        ) : (
+          <>
+            <p className="text-sm text-muted-foreground">
+              Signed in as {acct.name}. Bookings shown here are only your own with {brand}.
+            </p>
+            <div className="era-card overflow-hidden">
+              {acct.bookings.length === 0 ? (
+                <p className="p-6 text-sm text-muted-foreground">No bookings on your account yet.</p>
+              ) : (
+                <ul className="divide-y divide-border/60">
+                  {acct.bookings.map((b) => (
+                    <li key={b.id} className="flex flex-wrap items-center justify-between gap-3 p-5">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {new Date(b.startsAt).toLocaleString()}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {b.status}
+                          {b.specialistName ? ` · with ${b.specialistName}` : ""}
+                        </p>
+                        {b.notes && <p className="mt-1 text-xs text-muted-foreground">{b.notes}</p>}
+                      </div>
+                      <span className="text-sm text-foreground">{formatMoney(b.totalCents)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </main>
   );
 }

@@ -26,6 +26,7 @@ const input = z.object({
   address: z.string().trim().max(240).optional().default(""),
   notes: z.string().trim().max(1000).optional().default(""),
   startsAt: z.string().datetime(),
+  specialistId: z.string().uuid().nullable().optional().default(null),
 });
 
 function anonClient() {
@@ -47,51 +48,62 @@ function anonClient() {
   });
 }
 
+/**
+ * One guarded database step does the whole thing: it checks the business is
+ * live, prices the job from that business's own catalog, matches or creates the
+ * customer record, and writes the booking. The browser never dictates an amount
+ * and anon has no direct write access to bookings or customers.
+ */
 export const requestTenantBooking = createServerFn({ method: "POST" })
   .inputValidator((raw: unknown) => input.parse(raw))
   .handler(async ({ data }) => {
     const supabase = anonClient();
 
-    const { data: services, error: servicesError } = await supabase
-      .from("services")
-      .select("id, name, base_price_cents, duration_minutes")
-      .eq("business_id", data.businessId)
-      .eq("is_active", true)
-      .in("id", data.serviceIds);
-    if (servicesError) throw new Error(servicesError.message);
-    if (!services || services.length === 0) throw new Error("Select at least one service");
-
-    const subtotal = services.reduce((sum, s) => sum + s.base_price_cents, 0);
-    const total = Math.round(subtotal * data.conditionMultiplier);
-    const minutes = services.reduce((sum, s) => sum + s.duration_minutes, 0);
-
-    const startsAt = new Date(data.startsAt);
-    if (Number.isNaN(startsAt.getTime()) || startsAt.getTime() < Date.now()) {
-      throw new Error("Choose a date in the future");
-    }
-    const endsAt = new Date(startsAt.getTime() + minutes * 60000);
-
-    const summary = [
-      `Services: ${services.map((s) => s.name).join(", ")}`,
-      data.vehicle ? `Vehicle: ${data.vehicle}` : null,
-      data.address ? `Address: ${data.address}` : null,
-      data.notes ? `Notes: ${data.notes}` : null,
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    const { error } = await supabase.from("bookings").insert({
-      business_id: data.businessId,
-      customer_name: data.customerName,
-      customer_email: data.customerEmail || null,
-      customer_phone: data.customerPhone,
-      starts_at: startsAt.toISOString(),
-      ends_at: endsAt.toISOString(),
-      status: "pending",
-      total_cents: total,
-      notes: summary,
+    const { data: rows, error } = await supabase.rpc("request_tenant_booking", {
+      _business_id: data.businessId,
+      _service_ids: data.serviceIds,
+      _multiplier: data.conditionMultiplier,
+      _customer_name: data.customerName,
+      _customer_phone: data.customerPhone,
+      _customer_email: data.customerEmail,
+      _address: data.address,
+      _subject: data.vehicle ? `Vehicle: ${data.vehicle}` : "",
+      _notes: data.notes,
+      _starts_at: new Date(data.startsAt).toISOString(),
+      ...(data.specialistId ? { _specialist_id: data.specialistId } : {}),
     });
     if (error) throw new Error(error.message);
 
-    return { ok: true, totalCents: total, minutes };
+    const result = Array.isArray(rows) ? rows[0] : rows;
+    return {
+      ok: true,
+      totalCents: result?.total_cents ?? 0,
+      minutes: result?.minutes ?? 0,
+    };
   });
+
+/** Active specialists a customer can pick from, with the services they cover. */
+export const listTenantSpecialists = createServerFn({ method: "GET" })
+  .inputValidator((raw: unknown) => z.object({ businessId: z.string().uuid() }).parse(raw))
+  .handler(async ({ data }) => {
+    const supabase = anonClient();
+    const { data: specialists } = await supabase
+      .from("specialist_profiles")
+      .select("id, display_name, title")
+      .eq("business_id", data.businessId)
+      .eq("is_active", true)
+      .order("display_name", { ascending: true });
+
+    const ids = (specialists ?? []).map((s) => s.id);
+    const { data: coverage } = ids.length
+      ? await supabase.from("specialist_services").select("specialist_id, service_id").in("specialist_id", ids)
+      : { data: [] as { specialist_id: string; service_id: string }[] };
+
+    return (specialists ?? []).map((s) => ({
+      id: s.id,
+      displayName: s.display_name,
+      title: s.title,
+      serviceIds: (coverage ?? []).filter((c) => c.specialist_id === s.id).map((c) => c.service_id),
+    }));
+  });
+

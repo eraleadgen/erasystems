@@ -16,10 +16,6 @@ export interface PlanPrice {
   monthlyCents: number;
   /** One-time onboarding and build fee. */
   setupFeeCents: number;
-  /** One-time price of the downloadable app add-on on this tier. */
-  appAddonCents: number;
-  /** Every app build is scoped on a call before any money changes hands. */
-  appRequiresCall: boolean;
   summary: string;
 }
 
@@ -29,8 +25,6 @@ export const PLAN_PRICING: Record<PlanTier, PlanPrice> = {
     name: "Basic",
     monthlyCents: 19900,
     setupFeeCents: 100000,
-    appAddonCents: 500000,
-    appRequiresCall: true,
     summary: "Website, AI chat, core engines, payments, admin dashboard and email automations.",
   },
   growth: {
@@ -38,8 +32,6 @@ export const PLAN_PRICING: Record<PlanTier, PlanPrice> = {
     name: "Growth",
     monthlyCents: 49900,
     setupFeeCents: 200000,
-    appAddonCents: 750000,
-    appRequiresCall: true,
     summary: "Everything in Basic plus the customer member portal and specialist portal.",
   },
   enterprise: {
@@ -47,12 +39,11 @@ export const PLAN_PRICING: Record<PlanTier, PlanPrice> = {
     name: "Enterprise",
     monthlyCents: 149900,
     setupFeeCents: 300000,
-    appAddonCents: 900000,
-    appRequiresCall: true,
     summary:
       "Everything in Growth plus the AI Voice & SMS agent, SMS automations, advanced analytics and the partner network.",
   },
 };
+
 
 export const SELECTABLE_TIERS: PlanTier[] = ["basic", "growth", "enterprise"];
 
