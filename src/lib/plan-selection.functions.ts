@@ -3,18 +3,17 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { GENERIC_CHECKOUT_ERROR } from "./payments";
-import { APP_ADDON, PLAN_PRICING } from "./pricing";
+import { PLAN_PRICING } from "./pricing";
 
 const selectPlanInput = z.object({
   tier: z.enum(["basic", "growth", "enterprise"]),
-  includeApp: z.boolean(),
 });
 
 export type PlanSelection = {
   tier: "basic" | "growth" | "enterprise";
-  includeApp: boolean;
   locked: boolean;
 };
+
 
 /**
  * The tier and add-on state the client is currently pointed at, plus whether a
