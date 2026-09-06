@@ -24,24 +24,29 @@ export const Route = createFileRoute("/portal")({
     // Plan gating is UX only; the underlying tables stay RLS-gated per business.
     return { tenant, allowed };
   },
-  head: () => ({
-    meta: [
-      { title: "Customer portal | ERA Systems" },
-      {
-        name: "description",
-        content:
-          "Member portal for customers of a Growth or Enterprise tier business on ERA Systems.",
-      },
-      { property: "og:title", content: "Customer portal | ERA Systems" },
-      {
-        property: "og:description",
-        content: "Bookings, invoices and history for members of this business.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "robots", content: "noindex, nofollow" },
-    ],
-  }),
+  head: ({ loaderData }) => {
+    // On a client's own domain the portal carries the client's name, not ERA's.
+    const brand = loaderData?.tenant?.name ?? "ERA Systems";
+    const title = `Customer portal | ${brand}`;
+    return {
+      meta: [
+        { title },
+        {
+          name: "description",
+          content: "Bookings, invoices and history for members of this business.",
+        },
+        { property: "og:title", content: title },
+        {
+          property: "og:description",
+          content: "Bookings, invoices and history for members of this business.",
+        },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "robots", content: "noindex, nofollow" },
+      ],
+    };
+  },
+
   component: Portal,
   errorComponent: ({ error }) => (
     <div className="era-app flex min-h-screen items-center justify-center bg-background p-8">
