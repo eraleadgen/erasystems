@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { GENERIC_CHECKOUT_ERROR } from "./payments";
-import { PLAN_PRICING } from "./pricing";
+
 
 const selectPlanInput = z.object({
   tier: z.enum(["basic", "growth", "enterprise"]),

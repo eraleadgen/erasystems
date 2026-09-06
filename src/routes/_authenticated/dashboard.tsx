@@ -372,25 +372,12 @@ function PlanPicker({ canPay }: { canPay: boolean }) {
       <div className="era-hairline mt-5 border-t pt-4">
         <p className="text-sm font-medium text-foreground">{APP_ADDON_NAME}</p>
         <p className="mt-1 text-xs text-muted-foreground">{APP_ADDON_BLURB}</p>
-        {current.appRequiresCall ? (
-          <p className="mt-3 text-xs text-muted-foreground">
-            The apps are scoped on a call with your ERA representative before they are
-            quoted, so they aren&apos;t bought here.
-          </p>
-        ) : (
-          <label className="mt-3 flex items-center gap-2 text-sm text-foreground">
-            <input
-              type="checkbox"
-              checked={selection.includeApp}
-              disabled={!canPay || mutation.isPending}
-              onChange={(e) =>
-                mutation.mutate({ tier: selection.tier, includeApp: e.target.checked })
-              }
-            />
-            Add for {formatMoney(current.appAddonCents)} one time, no monthly fee
-          </label>
-        )}
+        <p className="mt-3 text-xs text-muted-foreground">
+          Available on any plan, quoted per business on a call with your ERA representative, so it
+          isn&apos;t bought here.
+        </p>
       </div>
+
 
       {mutation.isError && (
         <p className="mt-3 text-xs text-destructive">{(mutation.error as Error).message}</p>
