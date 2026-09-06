@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
+
+import { isTenantHost } from "@/lib/host-context.functions";
 
 import { MarketingShell, PageHero, Reveal, ClosingCta } from "@/components/marketing/chrome";
 import { faqs } from "@/components/marketing/content";
@@ -8,6 +10,10 @@ const DESCRIPTION =
   "Why there is no public sign-up, what happens on a discovery call, whether add-ons are tied to a tier, how tier changes work, and who ERA Core is built for.";
 
 export const Route = createFileRoute("/faq")({
+  // ERA-only page: never served on a client\'s own domain.
+  loader: async () => {
+    if (await isTenantHost()) throw notFound();
+  },
   head: () => ({
     meta: [
       { title: TITLE },

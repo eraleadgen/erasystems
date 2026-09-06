@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
+
+import { isTenantHost } from "@/lib/host-context.functions";
 
 import { MarketingShell, PageHero, Reveal, ClosingCta } from "@/components/marketing/chrome";
 import vdsHero from "@/assets/vds-hero.png.asset.json";
@@ -9,6 +11,10 @@ const DESCRIPTION =
   "VDS is our own Metro Atlanta mobile detailing business, and its website, quoting, booking, customer records and payments all run on ERA Core.";
 
 export const Route = createFileRoute("/proof")({
+  // ERA-only page: never served on a client\'s own domain.
+  loader: async () => {
+    if (await isTenantHost()) throw notFound();
+  },
   head: () => ({
     meta: [
       { title: TITLE },

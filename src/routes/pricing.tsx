@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
+
+import { isTenantHost } from "@/lib/host-context.functions";
 
 import {
   MarketingShell,
@@ -15,6 +17,10 @@ const DESCRIPTION =
   "Three ERA Core tiers from $199/mo. Every tier includes the full platform; Growth adds portals and Enterprise adds voice, SMS, analytics and the partner network.";
 
 export const Route = createFileRoute("/pricing")({
+  // ERA-only page: never served on a client\'s own domain.
+  loader: async () => {
+    if (await isTenantHost()) throw notFound();
+  },
   head: () => ({
     meta: [
       { title: TITLE },

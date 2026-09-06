@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
+
+import { isTenantHost } from "@/lib/host-context.functions";
 
 import { MarketingShell, PageHero, Reveal, ClosingCta } from "@/components/marketing/chrome";
 import { coreCapabilities, outcomes, steps } from "@/components/marketing/content";
@@ -8,6 +10,10 @@ const DESCRIPTION =
   "Website, AI chat widget, scheduling, customers, jobs and payments on one record. See what ERA Core does day to day and how onboarding works.";
 
 export const Route = createFileRoute("/platform")({
+  // ERA-only page: never served on a client\'s own domain.
+  loader: async () => {
+    if (await isTenantHost()) throw notFound();
+  },
   head: () => ({
     meta: [
       { title: TITLE },
