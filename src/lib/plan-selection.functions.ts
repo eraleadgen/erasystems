@@ -39,20 +39,14 @@ export const getMyPlanSelection = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!business) return null;
 
-    const { data: addons } = await context.supabase
-      .from("business_addons")
-      .select("addon")
-      .eq("business_id", business.id)
-      .eq("addon", APP_ADDON);
-
     const { hasAgreedInviteTerms } = await import("./terms.server");
     const locked = await hasAgreedInviteTerms(business.origin_invite_id);
 
     return {
       tier: business.plan_tier as PlanSelection["tier"],
-      includeApp: (addons ?? []).length > 0,
       locked,
     };
+
   });
 
 /**
