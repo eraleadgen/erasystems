@@ -64,6 +64,7 @@ export const Route = createFileRoute("/")({
     return {
       meta: [
         { title: TITLE },
+        { name: "author", content: "ERA Systems" },
         { name: "description", content: DESCRIPTION },
         { property: "og:title", content: TITLE },
         { property: "og:description", content: DESCRIPTION },
