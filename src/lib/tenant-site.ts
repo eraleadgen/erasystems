@@ -93,13 +93,16 @@ export function hoursRows(hours: WeekHours): { label: string; value: string }[] 
  * its home page. Built from the business's own name and catalog — never from
  * ERA copy or any other tenant's content.
  */
+/** Names like "Smith & Sons Inc." already end in a period — don't add a second. */
+const asSentenceEnd = (name: string) => (/[.!?]$/.test(name.trim()) ? name.trim() : `${name.trim()}.`);
+
 export function fallbackTagline(businessName: string, serviceNames: string[]): string {
-  if (serviceNames.length === 0) return `Professional service from ${businessName}.`;
+  if (serviceNames.length === 0) return `Professional service from ${asSentenceEnd(businessName)}`;
   const list =
     serviceNames.length === 1
       ? serviceNames[0]
       : `${serviceNames.slice(0, 2).join(", ")}${serviceNames.length > 2 ? " and more" : ""}`;
-  return `${list} from ${businessName}. Book online in under a minute.`;
+  return `${list} from ${asSentenceEnd(businessName)} Book online in under a minute.`;
 }
 
 export function fallbackAbout(
@@ -110,7 +113,7 @@ export function fallbackAbout(
   const where = serviceArea ? ` serving ${serviceArea}` : "";
   const what =
     serviceNames.length > 0
-      ? ` We handle ${serviceNames.slice(0, 4).join(", ").toLowerCase()}, with clear pricing shown up front.`
+      ? ` We handle ${serviceNames.slice(0, 4).join(", ")} — with clear pricing shown up front.`
       : "";
-  return `${businessName} is a local service business${where}.${what} Pick what you need, choose a time that works, and we'll confirm your booking.`;
+  return `${asSentenceEnd(`${businessName} is a local service business${where}`)}${what} Pick what you need, choose a time that works, and we'll confirm your booking.`;
 }
