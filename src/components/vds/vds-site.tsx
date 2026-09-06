@@ -5,8 +5,8 @@ import logo from "@/assets/vds-logo.png.asset.json";
 import type { ResolvedTenant } from "@/lib/tenant.functions";
 import type { TenantService } from "@/components/tenant-home";
 import { requestTenantBooking } from "@/lib/tenant-booking.functions";
-import {
 import { TenantChatWidget } from "@/components/tenant/chat-widget";
+import {
   VDS_EMAIL,
   VDS_FAQ,
   VDS_GOLD,
