@@ -8,7 +8,7 @@ scoping is the code's job, not the database's.
 
 | Function | File | Why elevation is needed | Scoping column | Source of the tenant id |
 | --- | --- | --- | --- | --- |
-| _(none)_ | — | — | — | — |
+| `completeOnboarding` (`business_site` insert) | `src/lib/onboarding.functions.ts` | Provisioning: the business row and its website content are created before the caller holds any membership, so RLS cannot yet see them | `business_id` | The id of the `businesses` row inserted moments earlier in the same handler, after the caller was authenticated and their own draft verified |
 
 Audited 2026-08-31: a repo-wide search for `supabaseAdmin`, `client.server`, and
 `SUPABASE_SERVICE_ROLE_KEY` across `src/` matches only the generated client definition
