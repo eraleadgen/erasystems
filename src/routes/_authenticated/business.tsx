@@ -272,6 +272,8 @@ function BusinessInfoPage() {
               </a>
             </div>
           </form>
+
+          <SiteContentEditor canEdit={profile.canEdit} enabled={hasSession === true} />
         </>
       )}
     </AppShell>
