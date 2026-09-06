@@ -1,6 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 
-import { isTenantHost } from "@/lib/host-context.functions";
+import { getHostContext } from "@/lib/host-context.functions";
 
 import {
   MarketingShell,
@@ -19,7 +19,7 @@ const DESCRIPTION =
 export const Route = createFileRoute("/pricing")({
   // ERA-only page: never served on a client's own domain.
   loader: async () => {
-    if (await isTenantHost()) throw notFound();
+    if ((await getHostContext()).tenantAttached) throw notFound();
   },
   head: () => ({
     meta: [

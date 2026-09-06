@@ -23,7 +23,12 @@ export const Route = createFileRoute("/")({
   loader: async ({ deps }) => {
     // Marketing site is only served on the platform host with no tenant override.
     // Real tenant hostnames always resolve to their business before render.
-    const tenant = await resolveTenant({ data: { tenant: deps.tenant } });
+    const [tenant, host] = await Promise.all([
+      resolveTenant({ data: { tenant: deps.tenant } }),
+      getHostContext(),
+    ]);
+    // A hostname nobody owns must resolve to nothing — never fall back to ERA.
+    if (!tenant && !host.isPlatformHost) throw notFound();
     const showMarketing = !deps.tenant && (tenant === null || tenant.isPlatformHost);
     if (showMarketing) return { marketing: true as const, tenant: null, services: [] };
     const services = tenant
@@ -31,6 +36,7 @@ export const Route = createFileRoute("/")({
       : [];
     return { marketing: false as const, tenant, services };
   },
+
 
   head: ({ loaderData }) => {
     const tenant = loaderData && !loaderData.marketing ? loaderData.tenant : null;
