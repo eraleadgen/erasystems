@@ -1,124 +1,73 @@
-# Is "one public domain per project" really a hard limit?
+# The test passed — one deployment can serve many real domains
 
-Short answer: **no — and there is a third path.** What I measured earlier was not a platform
-ceiling on domains. It was one setting: the **Primary domain** flag.
-
-## What I verified just now
-
-All three connected addresses are fully live and healthy on this one project:
+With the Primary flag off, I re-requested all three addresses immediately. Measured just now:
 
 ```text
-https://test.eraleadgen.com  -> 302 redirect to https://eraleadgen.com/
-https://www.eraleadgen.com   -> 302 redirect to https://eraleadgen.com/
-https://eraleadgen.com       -> 200, serves the app   (this one is marked Primary)
+https://eraleadgen.com       -> 200, serves the site
+https://www.eraleadgen.com   -> 200, serves the site   (was 302 before)
+https://test.eraleadgen.com  -> 200, serves the site   (was 302 before)
 ```
 
-So the hosting layer already accepts many custom domains on a single deployment, terminates SSL
-for each, and routes each to this project. The only reason the other two do not serve content is
-that one domain is flagged Primary, and the platform's documented behaviour is: *when a primary
-domain is set, every other connected domain 302-redirects to it.* The documentation also states
-the primary flag is **optional and can be unset at any time**. There is no documented limit on
-how many domains a project may connect.
+No redirects, no errors, valid certificates on all three. So the "one public address per
+project" ceiling was never a platform limit — it was the Primary flag, and it is off now.
+The multi-tenant premise of the rebuild holds: one system, many client addresses.
 
-That reframes the problem completely: the question is not "can one deployment serve many
-tenant domains" (it clearly can reach them), it is "does unsetting Primary make the other
-domains serve content instead of redirecting?" That single unverified fact decides everything,
-and it is a two-minute, fully reversible test.
+Leave Primary unset. Do not re-set it.
 
-## Step 0 — traffic check (done)
+Two things I also observed in the same check:
 
-- Zero discovery-call requests have ever been submitted — the form has produced no prospect
-  records at all, so no live pipeline depends on the next few minutes.
-- Site traffic over the last three days: 23 visitors, 80 pageviews, almost entirely direct and
-  consistent with our own testing. Today: 7 visitors.
-- Conclusion: no evidence of an active campaign. You give the final go-ahead before the flag is
-  flipped.
+- A forged host header sent to `test.eraleadgen.com` changed nothing — the app ignored it, as
+  designed.
+- `test.eraleadgen.com` currently shows the ERA marketing site. That is correct-ish but not
+  ideal: it is an address with no client attached, and the intended behaviour for an unknown
+  address is "nothing found", not "fall back to ERA". Fixing that is step 2 below.
 
-## Step 1 — the decisive test (reversible, ~2 minutes)
+## Step 1 — prove isolation across two real addresses (before building on this)
 
-You are the Owner of this workspace and the only member, so you can do this yourself — nobody
-else needs to be involved. I have no tool that can change this flag, which is the only reason
-it has to be done by hand.
+Right now only ERA's addresses are live; `vdsmobile.com` still has broken DNS, so there is no
+second real client address to test against. Rather than wait on DNS, borrow one:
 
-1. Open the project name in the top-left → **Settings** → **Project** → **Domains**.
-2. Find `eraleadgen.com` in the list, open its three-dot menu (⋯), and turn off / clear
-   **Primary** (on some builds this appears as "Set as primary" being toggled off, or by making
-   no domain primary). Leave all three addresses connected — do not remove anything.
-3. Tell me the moment it's off. I will immediately re-request all three addresses and read the
-   results in real time. If all three are not clean 200s within a minute or two, you re-set
-   Primary on `eraleadgen.com` straight away and we stop.
+1. Temporarily attach `test.eraleadgen.com` to the VDS client record.
+2. Re-check, in this order, and record each result:
+   - `eraleadgen.com` serves the ERA marketing site — no VDS branding, services or content.
+   - `test.eraleadgen.com` serves the VDS site — black/gold branding, the 9 VDS services,
+     the VDS booking flow.
+   - Neither page contains a single element belonging to the other.
+   - A forged host header naming the other client changes nothing on either address.
+   - An address attached to nobody (e.g. a made-up subdomain) returns nothing, not a client site.
+   - Signed in as an ERA account, reads of VDS records come back empty, and vice versa — from
+     the public site, the client portal, and background functions alike.
+3. Detach `test.eraleadgen.com` from VDS afterwards, leaving it as a spare test address.
 
-3. Interpretation:
-   - **All three return 200** → the third path is real. One deployment, many tenant domains,
-     the multi-tenant premise of the rebuild holds, and neither of the two costly options is
-     needed. The app's hostname resolution already reads the real `Host` on published traffic
-     (measured previously), so tenant routing works the moment the redirect stops.
-   - **They still redirect, or start failing** → the redirect is structural, not the flag, and
-     we fall back to the options below.
-4. If the test fails, re-set `eraleadgen.com` as Primary — the state is exactly as it is now.
+If any check fails, nothing gets built on top until it passes.
 
-Cost of the test window: while Primary is unset, `www.eraleadgen.com` stops folding into the
-root domain. For a few minutes on a site with no live traffic depending on that, this is
-negligible.
+## Step 2 — unknown-address behaviour
 
-### Why re-setting Primary restores the exact prior state
+An address with no client attached should render a plain "site not found" page rather than the
+ERA marketing site. ERA's own addresses stay explicitly mapped to the marketing site, so this
+change cannot affect them.
 
-- No DNS record changes at any point. All three addresses keep pointing at the same host, so
-  the propagation lag seen with the VDS records elsewhere in this build does not apply here —
-  this is an edge routing flag, applied per request.
-- The redirect is a **302 temporary**, and the observed responses carry no caching headers.
-  A 302 is not cacheable by default; browsers follow it fresh each time. The platform documents
-  using 302 rather than 301 specifically *because* the Primary flag is reversible — a 301 would
-  be the one that sticks in visitor browsers.
-- Nothing is written to the app or the database by flipping the flag, so there is no state to
-  roll back beyond the flag itself.
-- After re-setting, the same three requests get re-run to confirm the exact prior pattern
-  (root 200, other two 302 to root) is back.
+## Step 3 — `www` handling, now that Primary is gone
 
-## Step 2 — if the test passes: prove isolation before trusting it
+The platform's built-in "www folds into the root address" behaviour was a side effect of the
+Primary flag. With it off, each client's `www` address is handled inside the app: if a `www`
+address is attached to a client, redirect it to that client's main address. ERA's own `www`
+gets the same treatment.
 
-Three 200s is not success on its own. Immediately re-run the foundation-phase isolation
-discipline across two real addresses, before anything is built on top:
+## Step 4 — repair the VDS addresses
 
-- ERA's address serves the ERA marketing site; the VDS address serves the VDS site — each
-  correct, neither leaking the other's content, branding or catalog.
-- An unknown address resolves to nothing rather than falling back to a tenant.
-- A forged `X-Forwarded-Host` naming the other tenant changes nothing on either address.
-- Signed-in cross-tenant reads still return empty under RLS, from the public site, the portal
-  and server functions — resolution stays routing, never authorization.
-
-Only then:
-
-- Add each client's domain to this project and mark it verified in the Agency Console.
-- Do **not** re-set a Primary domain — that flag is what breaks multi-tenancy here.
-- Handle `www` → root per tenant inside the app with our own redirect, since the platform's
-  built-in `www` folding depends on the Primary flag we are giving up.
-
-## Step 3 — fallbacks, in order of preference, only if the test fails
-
-1. **External routing layer in front of the project.** Point each tenant domain at a
-   Cloudflare (or similar) worker/proxy that we control, and have it forward to this project's
-   stable `project--<id>.lovable.app` host while carrying the visitor hostname in a header the
-   edge cannot be tricked on. This preserves one deployment and one database. Cost: an extra
-   infrastructure piece to own, and the hostname-trust rules in `src/lib/tenant-hostname.ts`
-   must be re-measured against it, because a self-managed proxy changes which header is
-   authoritative. The platform documents a "proxy mode" for customer-managed proxies, so this
-   is a supported shape, not a hack.
-2. **A separate project per client.** Genuinely works, but it is the expensive option: each
-   client's site becomes its own deployment to publish and maintain, and either each carries its
-   own backend or every one of them reads the shared one across projects. This is the last
-   resort, not the default.
-3. **Subdomains of eraleadgen.com per client.** Cheap and immediate, but every client site
-   would live under our brand rather than their own domain — acceptable as a launch stopgap,
-   not as the model.
+Unchanged and still outstanding regardless of the above: `vdsmobile.com` failed provisioning and
+`www.vdsmobile.com` still points at the old host with its verification record missing. Both need
+DNS corrections at the registrar before VDS can go live on its own address.
 
 ## Technical notes
 
-- Hostname resolution in the app is already correct for this: on published traffic `Host`
-  carries the real visitor hostname and forwarded headers are deliberately ignored
-  (`src/lib/tenant-hostname.ts`), and `resolveTenant` maps hostname → `business_id` through
-  `business_domains` before render, with unknown hostnames resolving to nothing.
+- Hostname resolution already reads the real `Host` on published traffic and deliberately ignores
+  forwarded headers there (`src/lib/tenant-hostname.ts`); the measurement above is consistent
+  with that.
+- Step 2 changes the null-tenant branch in `src/lib/tenant.functions.ts` / the root route so a
+  non-platform hostname with no `business_domains` row renders a 404 surface, while
+  `eraleadgen.com` and `www.eraleadgen.com` stay on the marketing path.
+- Step 3 is an app-level redirect keyed on `business_domains.is_primary`, evaluated server-side
+  before render.
 - Resolution stays a routing decision only; RLS keyed on `business_id` remains the actual gate.
-- Unrelated but still outstanding for VDS: `vdsmobile.com` is in `provisioning_failed` and
-  `www.vdsmobile.com` still points at the old host (`216.24.57.x`) with the verification record
-  missing. Those DNS repairs are needed regardless of which path we take.
