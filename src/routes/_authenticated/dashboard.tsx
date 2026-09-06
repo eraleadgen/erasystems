@@ -315,7 +315,7 @@ function PlanPicker({ canPay }: { canPay: boolean }) {
   });
 
   const mutation = useMutation({
-    mutationFn: (next: { tier: PlanTier; includeApp: boolean }) => select({ data: next }),
+    mutationFn: (next: { tier: PlanTier }) => select({ data: next }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["my-plan-selection"] });
       void queryClient.invalidateQueries({ queryKey: ["my-terms"] });
@@ -348,7 +348,7 @@ function PlanPicker({ canPay }: { canPay: boolean }) {
               key={tier}
               type="button"
               disabled={!canPay || mutation.isPending}
-              onClick={() => mutation.mutate({ tier, includeApp: selection.includeApp })}
+              onClick={() => mutation.mutate({ tier })}
               className={`rounded-lg border p-4 text-left transition disabled:opacity-60 ${
                 isSelected
                   ? "border-primary bg-primary/5"
