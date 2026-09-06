@@ -70,7 +70,7 @@ export const requestTenantBooking = createServerFn({ method: "POST" })
       _subject: data.vehicle ? `Vehicle: ${data.vehicle}` : "",
       _notes: data.notes,
       _starts_at: new Date(data.startsAt).toISOString(),
-      _specialist_id: data.specialistId ?? undefined,
+      ...(data.specialistId ? { _specialist_id: data.specialistId } : {}),
     });
     if (error) throw new Error(error.message);
 
