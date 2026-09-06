@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
 import { buildClientNav } from "@/components/app/client-nav";
 import { getMyPortalContext } from "@/lib/portal.functions";
+import { SiteContentEditor } from "@/components/app/site-content-editor";
 import {
   getMyBusinessProfile,
   updateMyBusinessProfile,
