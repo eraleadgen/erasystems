@@ -38,26 +38,12 @@ export type CustomerBooking = {
   specialistName: string | null;
 };
 
-async function callerBusinessId(context: {
-  supabase: {
-    from: (t: "business_members") => {
-      select: (c: string) => {
-        eq: (
-          c: string,
-          v: string,
-        ) => {
-          order: (
-            c: string,
-            o: { ascending: boolean },
-          ) => {
-            limit: (n: number) => { maybeSingle: () => Promise<{ data: { business_id: string; role: string } | null }> };
-          };
-        };
-      };
-    };
-  };
-  userId: string;
-}): Promise<{ businessId: string; role: string } | null> {
+export type Ctx = { supabase: SupabaseClient<Database>; userId: string };
+
+/** The one business this login belongs to. Everything below is scoped to it. */
+export async function callerBusiness(
+  context: Ctx,
+): Promise<{ businessId: string; role: string } | null> {
   const { data } = await context.supabase
     .from("business_members")
     .select("business_id, role")
@@ -67,6 +53,7 @@ async function callerBusinessId(context: {
     .maybeSingle();
   return data ? { businessId: data.business_id, role: data.role } : null;
 }
+
 
 /** The business's own customer list, with booking history rolled up. */
 export const listCustomers = createServerFn({ method: "GET" })
