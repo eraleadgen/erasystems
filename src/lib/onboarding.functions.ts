@@ -345,6 +345,23 @@ export const completeOnboarding = createServerFn({ method: "POST" })
         if (serviceError) throw new Error(serviceError.message);
       }
 
+      // Address and hours the wizard already collected become the new tenant's
+      // public website content. Scoped to the business row just created above.
+      const { error: siteError } = await supabaseAdmin.from("business_site").insert({
+        business_id: businessId,
+        address_line1: payload.basics.addressLine1 || null,
+        address_line2: payload.basics.addressLine2 || null,
+        city: payload.basics.city || null,
+        region: payload.basics.region || null,
+        postal_code: payload.basics.postalCode || null,
+        country: payload.basics.country || null,
+        service_area: payload.basics.city || null,
+        hours: payload.basics.hours ?? {},
+        booking_enabled: true,
+        service_location: "at_business",
+      });
+      if (siteError) throw new Error(siteError.message);
+
       const { error: stampError } = await supabaseAdmin
         .from("onboarding_drafts")
         .update({ business_id: businessId })

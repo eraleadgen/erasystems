@@ -47,7 +47,7 @@ export function MarketingSite() {
             <Reveal>
               <h1 className="font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
                 <span className="text-shine-emerald">
-                  Bringing home service businesses to a new era of efficiency
+                  Bringing Service Businesses to a New ERA of Efficiency
                 </span>
               </h1>
             </Reveal>

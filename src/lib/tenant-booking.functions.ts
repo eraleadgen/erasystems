@@ -16,12 +16,14 @@ import type { Database } from "@/integrations/supabase/types";
 const input = z.object({
   businessId: z.string().uuid(),
   serviceIds: z.array(z.string().uuid()).min(1).max(12),
-  conditionMultiplier: z.number().min(1).max(2),
+  // Trade-specific surcharge (e.g. vehicle condition). Ordinary businesses send 1.
+  conditionMultiplier: z.number().min(1).max(2).optional().default(1),
   customerName: z.string().trim().min(1).max(120),
   customerPhone: z.string().trim().min(7).max(40),
   customerEmail: z.string().trim().max(160).optional().default(""),
   vehicle: z.string().trim().max(120).optional().default(""),
-  address: z.string().trim().min(1).max(240),
+  // Only businesses that travel to the customer collect an address.
+  address: z.string().trim().max(240).optional().default(""),
   notes: z.string().trim().max(1000).optional().default(""),
   startsAt: z.string().datetime(),
 });
@@ -72,7 +74,7 @@ export const requestTenantBooking = createServerFn({ method: "POST" })
     const summary = [
       `Services: ${services.map((s) => s.name).join(", ")}`,
       data.vehicle ? `Vehicle: ${data.vehicle}` : null,
-      `Address: ${data.address}`,
+      data.address ? `Address: ${data.address}` : null,
       data.notes ? `Notes: ${data.notes}` : null,
     ]
       .filter(Boolean)

@@ -2,9 +2,11 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { resolveTenant, getTenantServices } from "@/lib/tenant.functions";
+import { getTenantSite } from "@/lib/tenant-site.functions";
+import { emptySiteContent } from "@/lib/tenant-site";
 import { getHostContext } from "@/lib/host-context.functions";
 import { MarketingSite } from "@/components/marketing/marketing-site";
-import { TenantHome } from "@/components/tenant-home";
+import { TenantSite } from "@/components/tenant/tenant-site";
 import { VdsSite } from "@/components/vds/vds-site";
 
 const searchSchema = z.object({
@@ -31,11 +33,15 @@ export const Route = createFileRoute("/")({
     // A hostname nobody owns must resolve to nothing — never fall back to ERA.
     if (!tenant && !host.isPlatformHost) throw notFound();
     const showMarketing = !deps.tenant && (tenant === null || tenant.isPlatformHost);
-    if (showMarketing) return { marketing: true as const, tenant: null, services: [] };
-    const services = tenant
-      ? await getTenantServices({ data: { businessId: tenant.businessId } })
-      : [];
-    return { marketing: false as const, tenant, services };
+    if (showMarketing)
+      return { marketing: true as const, tenant: null, services: [], site: emptySiteContent() };
+    const [services, site] = tenant
+      ? await Promise.all([
+          getTenantServices({ data: { businessId: tenant.businessId } }),
+          getTenantSite({ data: { businessId: tenant.businessId } }),
+        ])
+      : [[], emptySiteContent()];
+    return { marketing: false as const, tenant, services, site };
   },
 
 
@@ -107,8 +113,11 @@ export const Route = createFileRoute("/")({
 function Index() {
   const data = Route.useLoaderData();
   if (data.marketing) return <MarketingSite />;
-  if (data.tenant?.slug === "vds") {
+  if (!data.tenant) return null;
+  // VDS keeps its bespoke vehicle-detailing variant; every other tenant gets
+  // the generic template driven purely by their own catalog and branding.
+  if (data.tenant.slug === "vds") {
     return <VdsSite tenant={data.tenant} services={data.services} />;
   }
-  return <TenantHome tenant={data.tenant} services={data.services} />;
+  return <TenantSite tenant={data.tenant} services={data.services} site={data.site} />;
 }
