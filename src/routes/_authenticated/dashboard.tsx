@@ -326,7 +326,6 @@ function PlanPicker({ canPay }: { canPay: boolean }) {
   const selection = selectionQuery.data;
   if (!selection || selection.locked) return null;
 
-  const current = PLAN_PRICING[selection.tier];
 
   return (
     <div className="era-card p-6 sm:p-7">
