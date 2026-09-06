@@ -1,61 +1,61 @@
-# Headline change + honest answer on what a second client actually gets
+# Generic tenant website + booking form (and the headline fix)
 
-## 1. Headline (small change)
+Approved scope. VDS keeps its vehicle-specific extras as a variant on top of the generic template, not as the default.
 
-Home page hero currently reads:
+## 1. Headline
 
-> Bringing home service businesses to a new era of efficiency
-
-Change to:
+Home page hero becomes:
 
 > Bringing Service Businesses to a New ERA of Efficiency
 
-One edit, in the hero of the marketing home page. Nothing else on the page changes.
+## 2. The gap this closes
 
-## 2. The direct answer
+Today a client's public site only exists for VDS. Every other client's address falls through to a diagnostic page (business name, ID, hostname, bare service list) with no booking form. The booking *save* logic is already generic and re-prices from the client's own catalog; only the form is missing, and the one that exists is shaped around vehicle detailing.
 
-Mixed. Roughly: **the private side is generic, the public side is not.**
+## 3. Where the site content comes from
 
-### Genuinely shared and business_id-scoped today (a new Basic client gets these on day one)
+Onboarding already collects address, weekly hours, logo, brand colors, support email/phone, and the full service catalog — but address and hours are thrown away at the end of the wizard. So:
 
-- **Admin dashboard** — one dashboard, driven by whichever business the signed-in person belongs to. Not VDS-specific.
-- **Service catalog editor** — add/edit/price/order services, scoped to the client's own business.
-- **Business profile / branding editing** — name, logo, colors, contact info.
-- **Bookings list, customers, team, billing, setup progress, go-live checklist** — all read through the same membership-scoped rules.
-- **Tier and add-on gating** — the tier table decides which of those tabs light up; add-ons are separate per-business rows. Nothing about it is hardcoded to one client.
-- **Onboarding wizard, payment, activation, domain attach, delivery workspace** — all generic.
+**New table `business_site`** (one row per business): tagline, about, address, service area, weekly hours, whether bookings are on, and whether the work happens at the shop or at the customer's location. Public visitors can read it for a live client; only that client's owners/admins (and platform staff) can change it. Onboarding writes this row automatically at completion from what the wizard already collected, so a new client needs to type nothing extra.
 
-### Built for VDS specifically, or not built at all
+## 4. Generic tenant website template
 
-- **Public customer-facing website.** There is exactly one real one, and it is the VDS site. The code literally checks "is this business VDS?" and, if not, falls back to a *diagnostic page* that prints the business name, its ID, the hostname and a plain list of services. A second client's domain would today serve that engineering page, not a sellable website.
-- **Public booking flow.** The server side that saves a booking is generic and re-prices from the client's own catalog — good. But the only booking *screen* that exists lives inside the VDS site, and it is shaped around vehicle detailing (vehicle field, vehicle-condition price multiplier). A second client has no booking form on their public site at all.
-- **AI chat widget.** Not built. It exists as a tier feature label and marketing copy only — there is no widget anywhere in the code. Basic tier advertises it, so this is the biggest gap between what is sold and what ships.
-- **Pricing engine.** Per-service price and duration exist and are used correctly. There is no add-on/upsell/tax/deposit/discount logic beyond VDS's condition multiplier.
+One template, rendered for any client whose address resolves to them:
 
-### Tier by tier, for a brand-new Basic client onboarded today
+- Header: their logo (or name), their brand colors, phone/email, "Book now".
+- Hero: business name, tagline (auto-written from their name and services if they haven't set one), primary call to action.
+- Services: every active catalog item with its own price and duration.
+- About / service area, drawn from their own content.
+- Hours table, from onboarding.
+- Booking section (below).
+- Contact + footer with their address, phone, email — no ERA branding anywhere.
 
-| Sold | Reality on day one |
-| --- | --- |
-| Website | Placeholder diagnostic page, not a real site |
-| AI chat widget | Missing entirely |
-| Admin dashboard | Works |
-| Self-serve setup | Works |
-| Core engines (catalog, bookings record, customers) | Works in admin; no public booking form |
+Branding is applied from `brand_primary` / `brand_accent` as CSS variables, so two clients with different colors look genuinely different with zero code.
 
-Growth adds customer portal and specialist portal — those pages exist and are tenant-branded, but are thin. Enterprise adds AI voice/SMS, advanced analytics and partner network — those are tier flags only; none of the three is built.
+## 5. Generic booking form
 
-So: a second Basic client today gets a **real working back office and a broken storefront**. Onboarding + payment + admin would carry them; the thing their customers see would need real engineering.
+Industry-neutral: pick one or more services (running total and duration shown), date and time, name, phone, email, notes, plus a service address only when the client's work happens at the customer's location. Submits through the existing booking server function, which recomputes price from the catalog server-side.
 
-## 3. What I'd propose next (not part of this change — for your call)
+The vehicle field and the vehicle-condition price multiplier become VDS-only extras layered on the same form, not part of the default.
 
-1. A generic tenant website template driven purely by the client's own catalog, branding and copy, with VDS kept as a themed variant of it rather than the only real implementation.
-2. A generic booking form on that template (industry-neutral: service picker, date/time, contact, notes), reusing the existing booking server logic; keep the vehicle-condition multiplier as VDS-only.
-3. The AI chat widget, since Basic advertises it.
+## 6. Client can edit their site
+
+The existing Business tab in the client portal gains tagline, about, service area, hours, and booking on/off — scoped to their own business through the same membership rules.
+
+## 7. Acceptance test (before this is called done)
+
+1. Create a brand-new test client of a clearly different type than VDS (e.g. a residential cleaning company), through the real invite → register → onboarding wizard path, entering only what the wizard asks for.
+2. With zero code changes, confirm their public site renders complete: their name, colors, hours, services with their prices, about, contact.
+3. Submit a real booking through their public form and confirm it lands on their business with the correct server-computed price and duration, and appears in their own admin bookings list.
+4. Confirm no ERA or VDS content appears anywhere on their site, and that VDS's own site is unchanged.
+5. Report the end-to-end result screen by screen, then remove the test client.
 
 ## Technical notes
 
-- Hero copy: `src/components/marketing/marketing-site.tsx`.
-- Tenant branch: `src/routes/index.tsx` hardcodes `tenant.slug === "vds"` → `VdsSite`, else `TenantHome` (`src/components/tenant-home.tsx`, the diagnostic page).
-- Booking: `src/lib/tenant-booking.functions.ts` is generic and re-prices server-side; only caller is `src/components/vds/vds-site.tsx`.
-- Chat widget: only `ai_chat_widget` in `src/lib/entitlements.ts`; no component.
-- Admin surfaces under `src/routes/_authenticated/*` all resolve the business from membership — no per-client code.
+- Migration: `public.business_site` with grants for anon/authenticated/service_role, RLS using the existing `private.is_member_of` / `is_business_manager` / `is_platform_staff` predicates, plus the standard updated-at trigger.
+- `src/lib/onboarding.functions.ts`: write the `business_site` row alongside the business at completion.
+- New `src/lib/tenant-site.functions.ts`: anon-safe read of site content by `business_id`.
+- New `src/components/tenant/tenant-site.tsx` + `booking-form.tsx`; `src/components/tenant-home.tsx` (the diagnostic page) is retired as the fallback.
+- `src/lib/tenant-booking.functions.ts`: `conditionMultiplier` defaults to 1 and `address` becomes optional so non-detailing businesses validate.
+- `src/routes/index.tsx`: generic template is the default; `slug === "vds"` keeps rendering `VdsSite`.
+- `src/components/vds/vds-site.tsx` keeps the vehicle fields as a variant of the shared booking form.
