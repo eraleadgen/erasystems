@@ -59,7 +59,7 @@ export async function callerBusiness(
 export const listCustomers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<CustomerRow[]> => {
-    const membership = await callerBusinessId(context as never);
+    const membership = await callerBusiness(context as Ctx);
     if (!membership) return [];
 
     const [{ data: customers }, { data: bookings }] = await Promise.all([
@@ -106,7 +106,7 @@ export const getCustomerBookings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ customerId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }): Promise<CustomerBooking[]> => {
-    const membership = await callerBusinessId(context as never);
+    const membership = await callerBusiness(context as Ctx);
     if (!membership) return [];
 
     const { data: rows } = await context.supabase
@@ -141,7 +141,7 @@ export const saveCustomer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => saveInput.parse(input))
   .handler(async ({ data, context }) => {
-    const membership = await callerBusinessId(context as never);
+    const membership = await callerBusiness(context as Ctx);
     if (!membership) throw new Error("No business found for your account.");
 
     const payload = {
@@ -184,7 +184,7 @@ export const mergeCustomers = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     if (data.keepId === data.mergeId) throw new Error("Pick two different customers.");
-    const membership = await callerBusinessId(context as never);
+    const membership = await callerBusiness(context as Ctx);
     if (!membership) throw new Error("No business found for your account.");
 
     const { data: both } = await context.supabase
@@ -218,7 +218,7 @@ export const inviteCustomerToPortal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ customerId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }): Promise<{ token: string }> => {
-    const membership = await callerBusinessId(context as never);
+    const membership = await callerBusiness(context as Ctx);
     if (!membership) throw new Error("No business found for your account.");
 
     const { generateInviteToken, hashInviteToken, expiryFromNow } = await import(
