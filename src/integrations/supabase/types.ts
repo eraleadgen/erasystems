@@ -1029,6 +1029,41 @@ export type Database = {
           },
         ]
       }
+      tenant_chat_usage: {
+        Row: {
+          business_id: string
+          cap_notified_at: string | null
+          messages: number
+          updated_at: string
+          usage_day: string
+          visitor_key: string
+        }
+        Insert: {
+          business_id: string
+          cap_notified_at?: string | null
+          messages?: number
+          updated_at?: string
+          usage_day: string
+          visitor_key?: string
+        }
+        Update: {
+          business_id?: string
+          cap_notified_at?: string | null
+          messages?: number
+          updated_at?: string
+          usage_day?: string
+          visitor_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_chat_usage_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1068,6 +1103,20 @@ export type Database = {
         Returns: {
           minutes: number
           total_cents: number
+        }[]
+      }
+      tenant_chat_consume: {
+        Args: {
+          _business_daily_cap?: number
+          _business_id: string
+          _visitor_daily_cap?: number
+          _visitor_key: string
+        }
+        Returns: {
+          allowed: boolean
+          business_messages: number
+          just_capped: boolean
+          reason: string
         }[]
       }
     }
