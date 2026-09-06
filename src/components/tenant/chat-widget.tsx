@@ -33,7 +33,7 @@ export function TenantChatWidget({
   businessId: string;
   businessName: string;
   primary: string;
-  accent?: string;
+  accent?: string | undefined;
 }) {
   const send = useServerFn(sendTenantChatMessage);
   const [open, setOpen] = useState(false);
