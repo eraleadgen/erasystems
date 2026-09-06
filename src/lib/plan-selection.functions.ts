@@ -50,15 +50,15 @@ export const getMyPlanSelection = createServerFn({ method: "GET" })
   });
 
 /**
- * A client choosing their own tier and whether the downloadable apps are part of
- * the build. Elevated write: `plan_tier` and `business_addons` are staff-guarded
+ * A client choosing their own tier. Elevated write: `plan_tier` is staff-guarded
  * under RLS, so the change is applied with the service-role client *after* the
  * caller is authorized through their own membership row (see
  * docs/elevated-access.md). Nothing about price comes from the request: the
  * amounts are read from the server's own PLAN_PRICING table.
  *
- * Add-ons are written inactive; only verified payment activates them.
+ * Add-ons are never bought here — both are quoted per business by staff.
  */
+
 export const selectMyPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => selectPlanInput.parse(input))
