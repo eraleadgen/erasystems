@@ -19,7 +19,9 @@ export type PortalWorkspace = {
     startsAt: string;
     status: string;
     totalCents: number;
+    specialistId: string | null;
   }[];
+
   team: { id: string; role: string; userId: string }[];
   payments: { id: string; status: string; amountCents: number; createdAt: string }[];
 };
