@@ -31,16 +31,23 @@ and it is a two-minute, fully reversible test.
   records at all, so no live pipeline depends on the next few minutes.
 - Site traffic over the last three days: 23 visitors, 80 pageviews, almost entirely direct and
   consistent with our own testing. Today: 7 visitors.
-- Conclusion: no evidence of an active campaign. Shane still gets the final word before the
-  flag is flipped.
+- Conclusion: no evidence of an active campaign. You give the final go-ahead before the flag is
+  flipped.
 
 ## Step 1 — the decisive test (reversible, ~2 minutes)
 
-1. In Project Settings → Domains, unset the Primary flag (leave all three domains connected).
-   Only Shane can do this — there is no tool that changes the flag.
-2. Immediately, in the same window, re-request all three addresses and read the status codes.
-   If all three are not clean 200s within a minute or two, Primary goes straight back on
-   `eraleadgen.com` before any further investigation.
+You are the Owner of this workspace and the only member, so you can do this yourself — nobody
+else needs to be involved. I have no tool that can change this flag, which is the only reason
+it has to be done by hand.
+
+1. Open the project name in the top-left → **Settings** → **Project** → **Domains**.
+2. Find `eraleadgen.com` in the list, open its three-dot menu (⋯), and turn off / clear
+   **Primary** (on some builds this appears as "Set as primary" being toggled off, or by making
+   no domain primary). Leave all three addresses connected — do not remove anything.
+3. Tell me the moment it's off. I will immediately re-request all three addresses and read the
+   results in real time. If all three are not clean 200s within a minute or two, you re-set
+   Primary on `eraleadgen.com` straight away and we stop.
+
 3. Interpretation:
    - **All three return 200** → the third path is real. One deployment, many tenant domains,
      the multi-tenant premise of the rebuild holds, and neither of the two costly options is
