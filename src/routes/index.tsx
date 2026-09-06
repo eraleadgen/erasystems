@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { resolveTenant, getTenantServices } from "@/lib/tenant.functions";
+import { getHostContext } from "@/lib/host-context.functions";
 import { MarketingSite } from "@/components/marketing/marketing-site";
 import { TenantHome } from "@/components/tenant-home";
 import { VdsSite } from "@/components/vds/vds-site";
@@ -23,7 +24,12 @@ export const Route = createFileRoute("/")({
   loader: async ({ deps }) => {
     // Marketing site is only served on the platform host with no tenant override.
     // Real tenant hostnames always resolve to their business before render.
-    const tenant = await resolveTenant({ data: { tenant: deps.tenant } });
+    const [tenant, host] = await Promise.all([
+      resolveTenant({ data: { tenant: deps.tenant } }),
+      getHostContext(),
+    ]);
+    // A hostname nobody owns must resolve to nothing — never fall back to ERA.
+    if (!tenant && !host.isPlatformHost) throw notFound();
     const showMarketing = !deps.tenant && (tenant === null || tenant.isPlatformHost);
     if (showMarketing) return { marketing: true as const, tenant: null, services: [] };
     const services = tenant
@@ -32,38 +38,64 @@ export const Route = createFileRoute("/")({
     return { marketing: false as const, tenant, services };
   },
 
-  head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:url", content: "https://eraleadgen.com/" },
-      { property: "og:image", content: "https://eraleadgen.com/og-era.jpg" },
-      { name: "twitter:image", content: "https://eraleadgen.com/og-era.jpg" },
-    ],
-    links: [{ rel: "canonical", href: "https://eraleadgen.com/" }],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "SoftwareApplication",
-          name: "ERA Core",
-          applicationCategory: "BusinessApplication",
-          operatingSystem: "Web",
-          description: DESCRIPTION,
-          offers: [
-            { "@type": "Offer", name: "Basic", price: "199", priceCurrency: "USD" },
-            { "@type": "Offer", name: "Growth", price: "499", priceCurrency: "USD" },
-            { "@type": "Offer", name: "Enterprise", price: "1499", priceCurrency: "USD" },
-          ],
-        }),
-      },
-    ],
-  }),
+
+  head: ({ loaderData }) => {
+    const tenant = loaderData && !loaderData.marketing ? loaderData.tenant : null;
+
+    // On a client's own domain nothing about ERA may appear — not the title,
+    // not the share image, not ERA's pricing structured data.
+    if (tenant) {
+      const title = tenant.name;
+      const description = `${tenant.name} — book online, view services and get in touch.`;
+      return {
+        meta: [
+          { title },
+          { name: "description", content: description },
+          { property: "og:title", content: title },
+          { property: "og:description", content: description },
+          { name: "author", content: tenant.name },
+          { property: "og:site_name", content: tenant.name },
+          { property: "og:type", content: "website" },
+          { name: "twitter:card", content: "summary_large_image" },
+        ],
+      };
+    }
+
+    return {
+      meta: [
+        { title: TITLE },
+        { name: "author", content: "ERA Systems" },
+        { name: "description", content: DESCRIPTION },
+        { property: "og:title", content: TITLE },
+        { property: "og:description", content: DESCRIPTION },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { property: "og:url", content: "https://eraleadgen.com/" },
+        { property: "og:image", content: "https://eraleadgen.com/og-era.jpg" },
+        { name: "twitter:image", content: "https://eraleadgen.com/og-era.jpg" },
+      ],
+      links: [{ rel: "canonical", href: "https://eraleadgen.com/" }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            name: "ERA Core",
+            applicationCategory: "BusinessApplication",
+            operatingSystem: "Web",
+            description: DESCRIPTION,
+            offers: [
+              { "@type": "Offer", name: "Basic", price: "199", priceCurrency: "USD" },
+              { "@type": "Offer", name: "Growth", price: "499", priceCurrency: "USD" },
+              { "@type": "Offer", name: "Enterprise", price: "1499", priceCurrency: "USD" },
+            ],
+          }),
+        },
+      ],
+    };
+  },
+
   component: Index,
   errorComponent: ({ error }) => (
     <div className="flex min-h-screen items-center justify-center bg-background p-8">

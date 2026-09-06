@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
+
+import { getHostContext } from "@/lib/host-context.functions";
 
 import { MarketingShell, PageHero, Reveal, ClosingCta } from "@/components/marketing/chrome";
 import { addons } from "@/components/marketing/content";
@@ -8,6 +10,10 @@ const DESCRIPTION =
   "Ad Management and branded Downloadable Apps are available on any ERA tier, including Basic. Both are quoted per business on a discovery call and never bundled into a plan.";
 
 export const Route = createFileRoute("/addons")({
+  // ERA-only page: never served on a client's own domain.
+  loader: async () => {
+    if ((await getHostContext()).tenantAttached) throw notFound();
+  },
   head: () => ({
     meta: [
       { title: TITLE },

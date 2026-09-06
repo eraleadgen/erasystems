@@ -24,23 +24,31 @@ export const Route = createFileRoute("/specialists")({
     // Plan gating is UX only; the underlying tables stay RLS-gated per business.
     return { tenant, allowed };
   },
-  head: () => ({
-    meta: [
-      { title: "Specialist portal | ERA Systems" },
-      {
-        name: "description",
-        content: "Employee and specialist workspace for Growth and Enterprise tier businesses.",
-      },
-      { property: "og:title", content: "Specialist portal | ERA Systems" },
-      {
-        property: "og:description",
-        content: "Schedules, assigned jobs and availability for a business's specialists.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "robots", content: "noindex, nofollow" },
-    ],
-  }),
+  head: ({ loaderData }) => {
+    // On a client's own domain the portal carries the client's name, not ERA's.
+    const brand = loaderData?.tenant?.name ?? "ERA Systems";
+    const title = `Specialist portal | ${brand}`;
+    return {
+      meta: [
+        { title },
+        { name: "author", content: brand },
+        { property: "og:site_name", content: brand },
+        {
+          name: "description",
+          content: "Schedules, assigned jobs and availability for this business's specialists.",
+        },
+        { property: "og:title", content: title },
+        {
+          property: "og:description",
+          content: "Schedules, assigned jobs and availability for this business's specialists.",
+        },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "robots", content: "noindex, nofollow" },
+      ],
+    };
+  },
+
   component: Specialists,
   errorComponent: ({ error }) => (
     <div className="era-app flex min-h-screen items-center justify-center bg-background p-8">

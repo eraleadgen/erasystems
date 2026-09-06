@@ -26,9 +26,20 @@ export function TenantSurface({
   return (
     <div className="era-app min-h-screen bg-background text-foreground">
       <header className="era-topbar flex items-center gap-3 px-5 py-4 sm:px-8">
-        <Link to="/">
-          <img src={logoAsset.url} alt="ERA Systems" className="h-7 w-auto" />
-        </Link>
+        {/* On a client's own domain, never show ERA's mark or link back to ERA. */}
+        {tenant ? (
+          <Link to="/" className="flex items-center gap-3">
+            {tenant.logoUrl ? (
+              <img src={tenant.logoUrl} alt={tenant.name} className="h-7 w-auto" />
+            ) : (
+              <span className="text-sm font-semibold text-foreground">{tenant.name}</span>
+            )}
+          </Link>
+        ) : (
+          <Link to="/">
+            <img src={logoAsset.url} alt="ERA Systems" className="h-7 w-auto" />
+          </Link>
+        )}
         <span className="text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
           {kicker}
         </span>
@@ -53,11 +64,11 @@ export function TenantSurface({
         ) : !allowed ? (
           <div className="era-card mt-6 p-6">
             <p className="text-sm text-muted-foreground">
-              This business&apos;s plan doesn&apos;t include{" "}
-              <code className="text-foreground">{feature}</code>. Add-ons and tier changes are
-              arranged with an ERA representative.
+              This area isn&apos;t enabled for {tenant.name} yet
+              <span className="sr-only"> ({feature})</span>.
             </p>
           </div>
+
         ) : (
           <div className="era-card mt-6 p-6">
             <p className="text-sm text-muted-foreground">{body}</p>
