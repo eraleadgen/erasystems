@@ -113,8 +113,11 @@ export const Route = createFileRoute("/")({
 function Index() {
   const data = Route.useLoaderData();
   if (data.marketing) return <MarketingSite />;
-  if (data.tenant?.slug === "vds") {
+  if (!data.tenant) return null;
+  // VDS keeps its bespoke vehicle-detailing variant; every other tenant gets
+  // the generic template driven purely by their own catalog and branding.
+  if (data.tenant.slug === "vds") {
     return <VdsSite tenant={data.tenant} services={data.services} />;
   }
-  return <TenantHome tenant={data.tenant} services={data.services} />;
+  return <TenantSite tenant={data.tenant} services={data.services} site={data.site} />;
 }
