@@ -118,7 +118,22 @@ the only source of an add-on amount is what staff enter per client.
 - `src/lib/pricing.ts` loses `appAddonCents`; `dashboard.tsx` and
   `plan-selection.functions.ts` drop the fixed-price branch.
 
-Acceptance: on a brand-new Growth client with no hand-written code, two
-bookings from the same email land on one customer, that customer signs in and
-sees both, a specialist is invited and assigned, and the specialist sees only
-their own jobs.
+## Acceptance test (run for real, results reported)
+
+On a brand-new Growth client with no hand-written code:
+
+1. Two bookings from the same email land on one customer; that customer signs
+   in and sees both.
+2. A specialist is invited and assigned; the specialist sees only their own jobs.
+3. **Shared phone number.** Two different people using the same phone but
+   different emails must stay two separate customers, not merge.
+4. **Mistyped email.** The same person with a slightly different email is
+   matched by phone where safe, and where it isn't, the result is two records
+   that can be merged by hand rather than a wrong silent merge. Matching is
+   exact-match only on normalized email, then phone, and only when the other
+   identifier doesn't contradict — it never guesses at near-matches.
+5. **Cross-business isolation.** A customer account is created in two different
+   businesses with the same email and phone, and it is verified directly that
+   signing in shows only the bookings of the business being viewed, never the
+   other one's.
+
