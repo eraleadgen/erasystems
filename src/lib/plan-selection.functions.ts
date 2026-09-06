@@ -91,10 +91,6 @@ export const selectMyPlan = createServerFn({ method: "POST" })
       throw new Error("Your plan was already agreed with your ERA representative.");
     }
 
-    const price = PLAN_PRICING[data.tier];
-    // App builds on every tier are scoped on a call before any money is collected.
-    const includeApp = data.includeApp && !price.appRequiresCall;
-
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { error: tierError } = await supabaseAdmin
@@ -104,29 +100,6 @@ export const selectMyPlan = createServerFn({ method: "POST" })
       .in("lifecycle", ["pending_payment", "expired"]);
     if (tierError) throw new Error(tierError.message);
 
-    if (includeApp) {
-      const { error } = await supabaseAdmin.from("business_addons").upsert(
-        {
-          business_id: business.id,
-          addon: APP_ADDON,
-          price_cents: price.appAddonCents,
-          billing_interval: "one_time",
-          is_active: false,
-          deactivated_at: new Date().toISOString(),
-          notes: "Selected by the client at checkout.",
-        },
-        { onConflict: "business_id,addon" },
-      );
-      if (error) throw new Error(error.message);
-    } else {
-      const { error } = await supabaseAdmin
-        .from("business_addons")
-        .delete()
-        .eq("business_id", business.id)
-        .eq("addon", APP_ADDON)
-        .eq("is_active", false);
-      if (error) throw new Error(error.message);
-    }
 
     return { ok: true };
   });
