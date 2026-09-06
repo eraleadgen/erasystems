@@ -113,7 +113,10 @@ function SpecialistJobs({ businessId, brand }: { businessId: string; brand: stri
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["my-assigned-jobs", businessId] }),
   });
 
+  const myJobs = jobs.data ?? null;
+
   return (
+
     <main className="era-app min-h-screen bg-background px-6 py-16">
       <div className="mx-auto w-full max-w-3xl space-y-6">
         <header>

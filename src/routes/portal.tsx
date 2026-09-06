@@ -121,7 +121,10 @@ function CustomerPortal({ businessId, brand }: { businessId: string; brand: stri
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signedIn, claim, account.data]);
 
+  const acct = account.data ?? null;
+
   return (
+
     <main className="era-app min-h-screen bg-background px-6 py-16">
       <div className="mx-auto w-full max-w-3xl space-y-6">
         <header>
