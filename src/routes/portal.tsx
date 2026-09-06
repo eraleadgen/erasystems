@@ -142,7 +142,7 @@ function CustomerPortal({ businessId, brand }: { businessId: string; brand: stri
           <div className="era-card p-6">
             <p className="text-sm text-muted-foreground">Loading…</p>
           </div>
-        ) : account.data === null ? (
+        ) : !account.data ? (
           <div className="era-card p-6">
             <p className="text-sm text-muted-foreground">
               This login isn't linked to a customer record at {brand} yet. Use the portal link{" "}
@@ -157,14 +157,14 @@ function CustomerPortal({ businessId, brand }: { businessId: string; brand: stri
         ) : (
           <>
             <p className="text-sm text-muted-foreground">
-              Signed in as {account.data.name}. Bookings shown here are only your own with {brand}.
+              Signed in as {acct.name}. Bookings shown here are only your own with {brand}.
             </p>
             <div className="era-card overflow-hidden">
-              {account.data.bookings.length === 0 ? (
+              {acct.bookings.length === 0 ? (
                 <p className="p-6 text-sm text-muted-foreground">No bookings on your account yet.</p>
               ) : (
                 <ul className="divide-y divide-border/60">
-                  {account.data.bookings.map((b) => (
+                  {acct.bookings.map((b) => (
                     <li key={b.id} className="flex flex-wrap items-center justify-between gap-3 p-5">
                       <div>
                         <p className="text-sm font-medium text-foreground">

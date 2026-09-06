@@ -132,23 +132,23 @@ function SpecialistJobs({ businessId, brand }: { businessId: string; brand: stri
           <div className="era-card p-6">
             <p className="text-sm text-muted-foreground">Loading…</p>
           </div>
-        ) : jobs.data === null ? (
+        ) : !jobs.data ? (
           <div className="era-card p-6">
             <p className="text-sm text-muted-foreground">
               This login isn't set up as a specialist at {brand} yet. Ask the owner to link your
               account on the Team tab.
             </p>
           </div>
-        ) : jobs.data.jobs.length === 0 ? (
+        ) : myJobs.jobs.length === 0 ? (
           <div className="era-card p-6">
             <p className="text-sm text-muted-foreground">
-              Nothing assigned to you right now, {jobs.data.name}.
+              Nothing assigned to you right now, {myJobs.name}.
             </p>
           </div>
         ) : (
           <div className="era-card overflow-hidden">
             <ul className="divide-y divide-border/60">
-              {jobs.data.jobs.map((j) => (
+              {myJobs.jobs.map((j) => (
                 <li key={j.id} className="flex flex-wrap items-center justify-between gap-3 p-5">
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-foreground">{j.customerName}</p>
