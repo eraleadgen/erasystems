@@ -33,11 +33,15 @@ export const Route = createFileRoute("/")({
     // A hostname nobody owns must resolve to nothing — never fall back to ERA.
     if (!tenant && !host.isPlatformHost) throw notFound();
     const showMarketing = !deps.tenant && (tenant === null || tenant.isPlatformHost);
-    if (showMarketing) return { marketing: true as const, tenant: null, services: [] };
-    const services = tenant
-      ? await getTenantServices({ data: { businessId: tenant.businessId } })
-      : [];
-    return { marketing: false as const, tenant, services };
+    if (showMarketing)
+      return { marketing: true as const, tenant: null, services: [], site: emptySiteContent() };
+    const [services, site] = tenant
+      ? await Promise.all([
+          getTenantServices({ data: { businessId: tenant.businessId } }),
+          getTenantSite({ data: { businessId: tenant.businessId } }),
+        ])
+      : [[], emptySiteContent()];
+    return { marketing: false as const, tenant, services, site };
   },
 
 
