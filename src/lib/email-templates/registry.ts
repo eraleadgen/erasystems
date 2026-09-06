@@ -3,6 +3,7 @@ import type { ComponentType } from 'react'
 import { template as discoveryRequestTemplate } from './discovery-request'
 import { template as tierPurchasedTemplate } from './tier-purchased'
 import { template as clientDeliveryRequestTemplate } from './client-delivery-request'
+import { template as chatLimitReachedTemplate } from './chat-limit-reached'
 
 
 export interface TemplateEntry {
@@ -26,5 +27,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'discovery-request': discoveryRequestTemplate,
   'tier-purchased': tierPurchasedTemplate,
   'client-delivery-request': clientDeliveryRequestTemplate,
+  'chat-limit-reached': chatLimitReachedTemplate,
 }
 

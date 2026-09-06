@@ -9,6 +9,7 @@ import {
   type TenantSiteContent,
 } from "@/lib/tenant-site";
 import { TenantBookingForm } from "@/components/tenant/booking-form";
+import { TenantChatWidget } from "@/components/tenant/chat-widget";
 
 /**
  * The generic public website every tenant gets.
@@ -213,6 +214,13 @@ export function TenantSite({
           © {new Date().getFullYear()} {tenant.name}. All rights reserved.
         </div>
       </footer>
+
+      <TenantChatWidget
+        businessId={tenant.businessId}
+        businessName={tenant.name}
+        primary={primary}
+        accent={accent}
+      />
     </div>
   );
 }

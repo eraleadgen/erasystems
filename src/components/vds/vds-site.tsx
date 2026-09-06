@@ -5,6 +5,7 @@ import logo from "@/assets/vds-logo.png.asset.json";
 import type { ResolvedTenant } from "@/lib/tenant.functions";
 import type { TenantService } from "@/components/tenant-home";
 import { requestTenantBooking } from "@/lib/tenant-booking.functions";
+import { TenantChatWidget } from "@/components/tenant/chat-widget";
 import {
   VDS_EMAIL,
   VDS_FAQ,
@@ -755,6 +756,12 @@ export function VdsSite({
         <Faq />
       </main>
       <Footer />
+      <TenantChatWidget
+        businessId={tenant.businessId}
+        businessName={tenant.name}
+        primary={tenant.brandPrimary || "#d4af37"}
+        accent={tenant.brandAccent || undefined}
+      />
       <a
         href={`sms:${VDS_PHONE_E164}`}
         aria-label="Text VDS Mobile"
