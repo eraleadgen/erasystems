@@ -10,14 +10,21 @@ import { createHmac, timingSafeEqual } from "crypto";
 
 const STRIPE_API = "https://api.stripe.com/v1";
 
+/**
+ * Test-mode override. When STRIPE_SECRET_KEY_TEST is present the whole payment
+ * path (session creation, verification, webhook signature) runs against Stripe
+ * test mode. Removing that secret restores live mode with no code change, so a
+ * rehearsal can never leave the live key half-swapped.
+ */
 function secretKey(): string {
-  const key = process.env["STRIPE_SECRET_KEY"];
+  const key = process.env["STRIPE_SECRET_KEY_TEST"] || process.env["STRIPE_SECRET_KEY"];
   if (!key) throw new Error("STRIPE_SECRET_KEY is not configured");
   return key;
 }
 
 export function webhookSecret(): string {
-  const key = process.env["STRIPE_WEBHOOK_SECRET"];
+  const key =
+    process.env["STRIPE_WEBHOOK_SECRET_TEST"] || process.env["STRIPE_WEBHOOK_SECRET"];
   if (!key) throw new Error("STRIPE_WEBHOOK_SECRET is not configured");
   return key;
 }
