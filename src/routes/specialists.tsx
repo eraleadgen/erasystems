@@ -135,7 +135,7 @@ function SpecialistJobs({ businessId, brand }: { businessId: string; brand: stri
           <div className="era-card p-6">
             <p className="text-sm text-muted-foreground">Loading…</p>
           </div>
-        ) : !jobs.data ? (
+        ) : !myJobs ? (
           <div className="era-card p-6">
             <p className="text-sm text-muted-foreground">
               This login isn't set up as a specialist at {brand} yet. Ask the owner to link your

@@ -145,7 +145,7 @@ function CustomerPortal({ businessId, brand }: { businessId: string; brand: stri
           <div className="era-card p-6">
             <p className="text-sm text-muted-foreground">Loading…</p>
           </div>
-        ) : !account.data ? (
+        ) : !acct ? (
           <div className="era-card p-6">
             <p className="text-sm text-muted-foreground">
               This login isn't linked to a customer record at {brand} yet. Use the portal link{" "}
