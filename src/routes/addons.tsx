@@ -10,7 +10,7 @@ const DESCRIPTION =
   "Ad Management and branded Downloadable Apps are available on any ERA tier, including Basic. Both are quoted per business on a discovery call and never bundled into a plan.";
 
 export const Route = createFileRoute("/addons")({
-  // ERA-only page: never served on a client\'s own domain.
+  // ERA-only page: never served on a client's own domain.
   loader: async () => {
     if (await isTenantHost()) throw notFound();
   },

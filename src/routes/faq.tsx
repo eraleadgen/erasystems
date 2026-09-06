@@ -10,7 +10,7 @@ const DESCRIPTION =
   "Why there is no public sign-up, what happens on a discovery call, whether add-ons are tied to a tier, how tier changes work, and who ERA Core is built for.";
 
 export const Route = createFileRoute("/faq")({
-  // ERA-only page: never served on a client\'s own domain.
+  // ERA-only page: never served on a client's own domain.
   loader: async () => {
     if (await isTenantHost()) throw notFound();
   },

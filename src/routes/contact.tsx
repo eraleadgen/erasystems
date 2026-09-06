@@ -10,7 +10,7 @@ const DESCRIPTION =
   "Tell us about your business and we'll set up a discovery call. It's a conversation, not a demo script, and it's the only route to an ERA account.";
 
 export const Route = createFileRoute("/contact")({
-  // ERA-only page: never served on a client\'s own domain.
+  // ERA-only page: never served on a client's own domain.
   loader: async () => {
     if (await isTenantHost()) throw notFound();
   },

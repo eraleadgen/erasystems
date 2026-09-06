@@ -10,7 +10,7 @@ const DESCRIPTION =
   "Website, AI chat widget, scheduling, customers, jobs and payments on one record. See what ERA Core does day to day and how onboarding works.";
 
 export const Route = createFileRoute("/platform")({
-  // ERA-only page: never served on a client\'s own domain.
+  // ERA-only page: never served on a client's own domain.
   loader: async () => {
     if (await isTenantHost()) throw notFound();
   },
