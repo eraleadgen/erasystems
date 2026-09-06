@@ -53,7 +53,7 @@ export const getPortalWorkspace = createServerFn({ method: "GET" })
         .order("sort_order", { ascending: true }),
       context.supabase
         .from("bookings")
-        .select("id, customer_name, starts_at, status, total_cents")
+        .select("id, customer_name, starts_at, status, total_cents, specialist_id")
         .eq("business_id", businessId)
         .order("starts_at", { ascending: false })
         .limit(50),
@@ -85,7 +85,9 @@ export const getPortalWorkspace = createServerFn({ method: "GET" })
         startsAt: b.starts_at,
         status: b.status,
         totalCents: b.total_cents,
+        specialistId: b.specialist_id,
       })),
+
       team: (team.data ?? []).map((m) => ({ id: m.id, role: m.role, userId: m.user_id })),
       payments: (payments.data ?? []).map((p) => ({
         id: p.id,
