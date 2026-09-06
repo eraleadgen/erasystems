@@ -1,23 +1,22 @@
 /**
- * "Convergence": scattered, restless strands are drawn into the ERA Core and
- * leave as three clean, lit beams. Light does the work — no grids, no orbits.
- * Everything is SVG + SMIL so it stays crisp at any size and identical on
- * mobile and desktop.
+ * "Convergence": the real ERA Core feature set feeds the core as pulses of
+ * light, and leaves the other side as results. Symmetrical by design — four
+ * mirrored inbound rails, four mirrored outbound rails, one core between them.
+ * SVG + SMIL so it stays crisp and identical on mobile and desktop.
  */
 
-const STRANDS = [
-  "M -20 34 C 78 18, 52 92, 138 66 C 172 56, 158 112, 196 96",
-  "M -20 92 C 62 82, 80 38, 136 92 C 166 122, 156 78, 196 112",
-  "M -20 152 C 74 152, 56 104, 128 134 C 172 152, 150 146, 196 130",
-  "M -20 214 C 66 228, 80 172, 136 202 C 174 224, 154 176, 196 150",
-  "M -20 272 C 76 292, 54 220, 130 242 C 172 254, 148 198, 196 166",
-];
+const ROWS = [-96, -46, 46, 96];
 
-const BEAMS = [
-  "M 218 130 C 272 116, 320 108, 404 102",
-  "M 218 130 C 274 130, 322 132, 404 132",
-  "M 218 130 C 272 144, 320 152, 404 162",
-];
+const INPUTS = ["Website", "AI chat", "Scheduling", "Payments"];
+const OUTPUTS = ["Booked jobs", "Invoices paid", "Follow-ups", "Insights"];
+
+const CORE_X = 200;
+const CORE_Y = 130;
+
+/** Inbound rail: from the label column into the left edge of the core. */
+const inPath = (y: number) => `M 92 ${y} C 140 ${y}, 150 ${CORE_Y}, ${CORE_X - 26} ${CORE_Y}`;
+/** Outbound rail: mirror image, from the core out to the results column. */
+const outPath = (y: number) => `M ${CORE_X + 26} ${CORE_Y} C 250 ${CORE_Y}, 260 ${y}, 308 ${y}`;
 
 export function HeroVisual() {
   return (
@@ -29,23 +28,13 @@ export function HeroVisual() {
         preserveAspectRatio="xMidYMid meet"
       >
         <defs>
-          <linearGradient id="era-strand" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="currentColor" stopOpacity="0" />
-            <stop offset="60%" stopColor="currentColor" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="currentColor" stopOpacity="0.06" />
-          </linearGradient>
-          <linearGradient id="era-beam" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="currentColor" stopOpacity="1" />
-            <stop offset="55%" stopColor="currentColor" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-          </linearGradient>
           <radialGradient id="era-bloom">
             <stop offset="0%" stopColor="currentColor" stopOpacity="0.5" />
             <stop offset="45%" stopColor="currentColor" stopOpacity="0.16" />
             <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
           </radialGradient>
-          <filter id="era-glow" x="-60%" y="-60%" width="220%" height="220%">
-            <feGaussianBlur stdDeviation="3.2" result="b" />
+          <filter id="era-glow" x="-120%" y="-120%" width="340%" height="340%">
+            <feGaussianBlur stdDeviation="2.6" result="b" />
             <feMerge>
               <feMergeNode in="b" />
               <feMergeNode in="SourceGraphic" />
@@ -53,58 +42,65 @@ export function HeroVisual() {
           </filter>
         </defs>
 
-        {/* restless inbound strands */}
-        <g className="text-muted-foreground">
-          {STRANDS.map((d, i) => (
-            <g key={d}>
-              <path
-                d={d}
-                fill="none"
-                stroke="url(#era-strand)"
-                strokeWidth={1}
-                strokeLinecap="round"
-              />
-              <path
-                d={d}
-                fill="none"
-                stroke="currentColor"
-                strokeOpacity={0.85}
-                strokeWidth={1.3}
-                strokeLinecap="round"
-                strokeDasharray="26 300"
-              >
-                <animate
-                  attributeName="stroke-dashoffset"
-                  from="326"
-                  to="0"
-                  dur={`${5 + i * 0.7}s`}
-                  begin={`${i * 0.55}s`}
-                  repeatCount="indefinite"
+        {/* inbound: real features, each on its own rail */}
+        <g>
+          {ROWS.map((offset, i) => {
+            const y = CORE_Y + offset;
+            const d = inPath(y);
+            return (
+              <g key={INPUTS[i]}>
+                <path
+                  d={d}
+                  fill="none"
+                  className="stroke-muted-foreground/25"
+                  strokeWidth={0.8}
+                  strokeLinecap="round"
                 />
-                <animate
-                  attributeName="stroke-opacity"
-                  values="0;0.75;0"
-                  dur={`${5 + i * 0.7}s`}
-                  begin={`${i * 0.55}s`}
-                  repeatCount="indefinite"
-                />
-              </path>
-            </g>
-          ))}
+                <text
+                  x="84"
+                  y={y + 3}
+                  textAnchor="end"
+                  className="fill-muted-foreground text-[9px]"
+                  style={{ letterSpacing: "0.08em" }}
+                >
+                  {INPUTS[i]}
+                </text>
+                <circle cx="89" cy={y} r="1.8" className="fill-muted-foreground/60" />
+                <circle r="2.6" className="fill-primary" filter="url(#era-glow)">
+                  <animateMotion
+                    dur="4.4s"
+                    begin={`${i * 1.1}s`}
+                    repeatCount="indefinite"
+                    path={d}
+                    keyPoints="0;1"
+                    keyTimes="0;1"
+                    calcMode="linear"
+                  />
+                  <animate
+                    attributeName="opacity"
+                    values="0;1;1;0"
+                    keyTimes="0;0.12;0.82;1"
+                    dur="4.4s"
+                    begin={`${i * 1.1}s`}
+                    repeatCount="indefinite"
+                  />
+                </circle>
+              </g>
+            );
+          })}
         </g>
 
         {/* the core */}
         <g className="text-primary">
-          <circle cx="207" cy="130" r="96" fill="url(#era-bloom)">
+          <circle cx={CORE_X} cy={CORE_Y} r="96" fill="url(#era-bloom)">
             <animate attributeName="r" values="84;104;84" dur="7s" repeatCount="indefinite" />
           </circle>
 
-          {/* expanding rings of light */}
           {[0, 1, 2].map((i) => (
             <circle
               key={i}
-              cx="207"
-              cy="130"
+              cx={CORE_X}
+              cy={CORE_Y}
               r="18"
               fill="none"
               className="stroke-primary"
@@ -112,7 +108,7 @@ export function HeroVisual() {
             >
               <animate
                 attributeName="r"
-                values="18;64"
+                values="18;60"
                 dur="4.5s"
                 begin={`${i * 1.5}s`}
                 repeatCount="indefinite"
@@ -127,12 +123,11 @@ export function HeroVisual() {
             </circle>
           ))}
 
-          {/* counter-rotating aperture blades */}
           <g filter="url(#era-glow)">
             <g>
               <circle
-                cx="207"
-                cy="130"
+                cx={CORE_X}
+                cy={CORE_Y}
                 r="30"
                 fill="none"
                 className="stroke-primary/50"
@@ -142,16 +137,16 @@ export function HeroVisual() {
               <animateTransform
                 attributeName="transform"
                 type="rotate"
-                from="0 207 130"
-                to="360 207 130"
+                from={`0 ${CORE_X} ${CORE_Y}`}
+                to={`360 ${CORE_X} ${CORE_Y}`}
                 dur="26s"
                 repeatCount="indefinite"
               />
             </g>
             <g>
               <circle
-                cx="207"
-                cy="130"
+                cx={CORE_X}
+                cy={CORE_Y}
                 r="21"
                 fill="none"
                 className="stroke-gold/60"
@@ -161,14 +156,14 @@ export function HeroVisual() {
               <animateTransform
                 attributeName="transform"
                 type="rotate"
-                from="360 207 130"
-                to="0 207 130"
+                from={`360 ${CORE_X} ${CORE_Y}`}
+                to={`0 ${CORE_X} ${CORE_Y}`}
                 dur="15s"
                 repeatCount="indefinite"
               />
             </g>
-            <circle cx="207" cy="130" r="12" className="fill-primary/20 stroke-primary/80" />
-            <circle cx="207" cy="130" r="4.6" className="fill-gold">
+            <circle cx={CORE_X} cy={CORE_Y} r="12" className="fill-primary/20 stroke-primary/80" />
+            <circle cx={CORE_X} cy={CORE_Y} r="4.6" className="fill-gold">
               <animate
                 attributeName="r"
                 values="4.2;6;4.2"
@@ -179,51 +174,56 @@ export function HeroVisual() {
           </g>
         </g>
 
-        {/* clean outbound beams */}
-        <g className="text-primary">
-          {BEAMS.map((d, i) => (
-            <g key={d}>
-              <path
-                d={d}
-                fill="none"
-                stroke="url(#era-beam)"
-                strokeWidth={1.2}
-                strokeLinecap="round"
-                strokeOpacity={0.5}
-              />
-              <path
-                d={d}
-                fill="none"
-                className="stroke-gold"
-                strokeWidth={1.6}
-                strokeLinecap="round"
-                strokeDasharray="34 260"
-                filter="url(#era-glow)"
-              >
-                <animate
-                  attributeName="stroke-dashoffset"
-                  from="294"
-                  to="0"
-                  dur={`${3 + i * 0.4}s`}
-                  begin={`${i * 0.45}s`}
-                  repeatCount="indefinite"
+        {/* outbound: results leaving the core, mirrored */}
+        <g>
+          {ROWS.map((offset, i) => {
+            const y = CORE_Y + offset;
+            const d = outPath(y);
+            return (
+              <g key={OUTPUTS[i]}>
+                <path
+                  d={d}
+                  fill="none"
+                  className="stroke-gold/25"
+                  strokeWidth={0.8}
+                  strokeLinecap="round"
                 />
-                <animate
-                  attributeName="stroke-opacity"
-                  values="0.9;0.9;0"
-                  keyTimes="0;0.65;1"
-                  dur={`${3 + i * 0.4}s`}
-                  begin={`${i * 0.45}s`}
-                  repeatCount="indefinite"
-                />
-              </path>
-            </g>
-          ))}
+                <text
+                  x="316"
+                  y={y + 3}
+                  className="fill-gold text-[9px]"
+                  style={{ letterSpacing: "0.08em" }}
+                >
+                  {OUTPUTS[i]}
+                </text>
+                <circle cx="311" cy={y} r="1.8" className="fill-gold/60" />
+                <circle r="2.6" className="fill-gold" filter="url(#era-glow)">
+                  <animateMotion
+                    dur="4.4s"
+                    begin={`${1.4 + i * 1.1}s`}
+                    repeatCount="indefinite"
+                    path={d}
+                    keyPoints="0;1"
+                    keyTimes="0;1"
+                    calcMode="linear"
+                  />
+                  <animate
+                    attributeName="opacity"
+                    values="0;1;1;0"
+                    keyTimes="0;0.12;0.82;1"
+                    dur="4.4s"
+                    begin={`${1.4 + i * 1.1}s`}
+                    repeatCount="indefinite"
+                  />
+                </circle>
+              </g>
+            );
+          })}
         </g>
 
         <text
           x="4"
-          y="268"
+          y="272"
           className="fill-muted-foreground text-[9px] uppercase"
           style={{ letterSpacing: "0.28em" }}
         >
@@ -231,7 +231,7 @@ export function HeroVisual() {
         </text>
         <text
           x="396"
-          y="268"
+          y="272"
           textAnchor="end"
           className="fill-gold text-[9px] uppercase"
           style={{ letterSpacing: "0.28em" }}
