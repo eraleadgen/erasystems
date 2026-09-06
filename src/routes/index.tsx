@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { resolveTenant, getTenantServices } from "@/lib/tenant.functions";
+import { getHostContext } from "@/lib/host-context.functions";
 import { MarketingSite } from "@/components/marketing/marketing-site";
 import { TenantHome } from "@/components/tenant-home";
 import { VdsSite } from "@/components/vds/vds-site";
