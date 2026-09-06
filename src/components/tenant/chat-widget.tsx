@@ -109,7 +109,7 @@ export function TenantChatWidget({
                 }
                 style={message.role === "user" ? { background: accent || primary } : undefined}
               >
-                {message.content}
+                {message.content.replace(/\*\*/g, "")}
               </p>
             ))}
             {busy ? <p className="text-xs text-neutral-500">Typing…</p> : null}

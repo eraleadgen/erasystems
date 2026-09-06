@@ -196,6 +196,7 @@ function systemPrompt(ctx: Ctx) {
     "8. If you are unsure, say so and offer the phone number or email above. Never fill a gap with a plausible guess.",
     "",
     "Style: brief, warm, plain language. Two or three sentences at most unless listing services.",
+    "Format: plain text only. No markdown, no asterisks, no headings. Use simple \"-\" bullets for lists.",
   ]
     .filter(Boolean)
     .join("\n");
