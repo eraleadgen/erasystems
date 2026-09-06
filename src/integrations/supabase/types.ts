@@ -276,6 +276,68 @@ export type Database = {
           },
         ]
       }
+      business_site: {
+        Row: {
+          about: string | null
+          address_line1: string | null
+          address_line2: string | null
+          booking_enabled: boolean
+          business_id: string
+          city: string | null
+          country: string | null
+          created_at: string
+          hours: Json
+          postal_code: string | null
+          region: string | null
+          service_area: string | null
+          service_location: string
+          tagline: string | null
+          updated_at: string
+        }
+        Insert: {
+          about?: string | null
+          address_line1?: string | null
+          address_line2?: string | null
+          booking_enabled?: boolean
+          business_id: string
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          hours?: Json
+          postal_code?: string | null
+          region?: string | null
+          service_area?: string | null
+          service_location?: string
+          tagline?: string | null
+          updated_at?: string
+        }
+        Update: {
+          about?: string | null
+          address_line1?: string | null
+          address_line2?: string | null
+          booking_enabled?: boolean
+          business_id?: string
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          hours?: Json
+          postal_code?: string | null
+          region?: string | null
+          service_area?: string | null
+          service_location?: string
+          tagline?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_site_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           brand_accent: string | null
