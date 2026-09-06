@@ -13,9 +13,61 @@ import {
 import type { PlatformFeature } from "@/lib/entitlements";
 
 /**
+ * Shell + entitlement gate without the shared workspace payload, for tabs that
+ * load their own data. Access is still enforced server side by RLS.
+ */
+export function PortalShell({
+  title,
+  feature,
+  children,
+}: {
+  title: string;
+  feature: PlatformFeature;
+  children: (businessId: string) => ReactNode;
+}) {
+  const fetchContext = useServerFn(getMyPortalContext);
+
+  const { data: hasSession } = useQuery({
+    queryKey: ["has-session"],
+    queryFn: async () => Boolean((await supabase.auth.getSession()).data.session),
+    retry: false,
+  });
+
+  const entitlements = useQuery({
+    queryKey: ["my-portal-context"],
+    queryFn: () => fetchContext(),
+    enabled: hasSession === true,
+    retry: false,
+  });
+
+  const features = entitlements.data?.features ?? [];
+  const allowed = features.includes(feature);
+  const businessId = entitlements.data?.businessId;
+
+  return (
+    <AppShell title={title} navItems={buildClientNav(features)}>
+      {entitlements.isLoading ? (
+        <div className="era-card p-6">
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        </div>
+      ) : !allowed ? (
+        <div className="era-card p-6">
+          <p className="text-sm text-muted-foreground">
+            {title} is part of a higher plan. Your ERA representative can add it to your account.
+          </p>
+        </div>
+      ) : businessId ? (
+        children(businessId)
+      ) : null}
+    </AppShell>
+  );
+}
+
+/**
  * Shared frame for every entitlement-gated client tab: same shell, same nav,
  * same gate. Access is still enforced server side by the RLS-scoped reads.
  */
+
 export function PortalPage({
   title,
   feature,
