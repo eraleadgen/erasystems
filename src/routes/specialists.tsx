@@ -31,6 +31,8 @@ export const Route = createFileRoute("/specialists")({
     return {
       meta: [
         { title },
+        { name: "author", content: brand },
+        { property: "og:site_name", content: brand },
         {
           name: "description",
           content: "Schedules, assigned jobs and availability for this business's specialists.",

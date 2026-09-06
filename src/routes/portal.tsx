@@ -31,6 +31,8 @@ export const Route = createFileRoute("/portal")({
     return {
       meta: [
         { title },
+        { name: "author", content: brand },
+        { property: "og:site_name", content: brand },
         {
           name: "description",
           content: "Bookings, invoices and history for members of this business.",
