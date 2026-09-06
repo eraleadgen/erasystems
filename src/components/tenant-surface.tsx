@@ -62,14 +62,13 @@ export function TenantSurface({
             </Link>
           </div>
         ) : !allowed ? (
-
           <div className="era-card mt-6 p-6">
             <p className="text-sm text-muted-foreground">
-              This business&apos;s plan doesn&apos;t include{" "}
-              <code className="text-foreground">{feature}</code>. Add-ons and tier changes are
-              arranged with an ERA representative.
+              This area isn&apos;t enabled for {tenant.name} yet
+              <span className="sr-only"> ({feature})</span>.
             </p>
           </div>
+
         ) : (
           <div className="era-card mt-6 p-6">
             <p className="text-sm text-muted-foreground">{body}</p>
