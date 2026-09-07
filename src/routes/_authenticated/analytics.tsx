@@ -286,11 +286,32 @@ function AnalyticsBody() {
 
 function StatementsCard() {
   const fetchMonths = useServerFn(listStatementMonths);
+  const fetchSettings = useServerFn(getStatementEmailSettings);
+  const saveEnabled = useServerFn(setStatementEmailEnabled);
+  const sendNow = useServerFn(sendStatementEmailNow);
+  const queryClient = useQueryClient();
+  const [notice, setNotice] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+
   const months = useQuery({
     queryKey: ["statement-months"],
     queryFn: () => fetchMonths(),
     retry: false,
   });
+
+  const settings = useQuery({
+    queryKey: ["statement-email-settings"],
+    queryFn: () => fetchSettings(),
+    retry: false,
+  });
+
+  const toggle = useMutation({
+    mutationFn: (enabled: boolean) => saveEnabled({ data: { enabled } }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["statement-email-settings"] });
+    },
+  });
+
 
   return (
     <section className="era-card p-6">
