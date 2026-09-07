@@ -38,6 +38,7 @@ import { Route as AuthenticatedAdminDeliveryRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminDocumentsRouteImport } from './routes/_authenticated/admin.documents'
 import { Route as AuthenticatedAdminInvitesRouteImport } from './routes/_authenticated/admin.invites'
 import { Route as AuthenticatedAdminSalesRouteImport } from './routes/_authenticated/admin.sales'
+import { Route as AuthenticatedStatementMonthRouteImport } from './routes/_authenticated/statement.$month'
 import { Route as AuthenticatedAdminClientsIndexRouteImport } from './routes/_authenticated/admin.clients.index'
 import { Route as AuthenticatedAdminClientsBusinessIdRouteImport } from './routes/_authenticated/admin.clients.$businessId'
 import { Route as ApiPublicCronExpireBusinessesRouteImport } from './routes/api/public/cron/expire-businesses'
@@ -193,6 +194,12 @@ const AuthenticatedAdminSalesRoute = AuthenticatedAdminSalesRouteImport.update({
   path: '/sales',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedStatementMonthRoute =
+  AuthenticatedStatementMonthRouteImport.update({
+    id: '/statement/$month',
+    path: '/statement/$month',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminClientsIndexRoute =
   AuthenticatedAdminClientsIndexRouteImport.update({
     id: '/clients/',
@@ -252,6 +259,7 @@ export interface FileRoutesByFullPath {
   '/admin/documents': typeof AuthenticatedAdminDocumentsRoute
   '/admin/invites': typeof AuthenticatedAdminInvitesRoute
   '/admin/sales': typeof AuthenticatedAdminSalesRoute
+  '/statement/$month': typeof AuthenticatedStatementMonthRoute
   '/admin/clients/$businessId': typeof AuthenticatedAdminClientsBusinessIdRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
@@ -287,6 +295,7 @@ export interface FileRoutesByTo {
   '/admin/documents': typeof AuthenticatedAdminDocumentsRoute
   '/admin/invites': typeof AuthenticatedAdminInvitesRoute
   '/admin/sales': typeof AuthenticatedAdminSalesRoute
+  '/statement/$month': typeof AuthenticatedStatementMonthRoute
   '/admin/clients/$businessId': typeof AuthenticatedAdminClientsBusinessIdRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
@@ -324,6 +333,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/documents': typeof AuthenticatedAdminDocumentsRoute
   '/_authenticated/admin/invites': typeof AuthenticatedAdminInvitesRoute
   '/_authenticated/admin/sales': typeof AuthenticatedAdminSalesRoute
+  '/_authenticated/statement/$month': typeof AuthenticatedStatementMonthRoute
   '/_authenticated/admin/clients/$businessId': typeof AuthenticatedAdminClientsBusinessIdRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
@@ -361,6 +371,7 @@ export interface FileRouteTypes {
     | '/admin/documents'
     | '/admin/invites'
     | '/admin/sales'
+    | '/statement/$month'
     | '/admin/clients/$businessId'
     | '/api/public/cron/expire-businesses'
     | '/api/public/webhooks/stripe'
@@ -396,6 +407,7 @@ export interface FileRouteTypes {
     | '/admin/documents'
     | '/admin/invites'
     | '/admin/sales'
+    | '/statement/$month'
     | '/admin/clients/$businessId'
     | '/api/public/cron/expire-businesses'
     | '/api/public/webhooks/stripe'
@@ -432,6 +444,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/documents'
     | '/_authenticated/admin/invites'
     | '/_authenticated/admin/sales'
+    | '/_authenticated/statement/$month'
     | '/_authenticated/admin/clients/$businessId'
     | '/api/public/cron/expire-businesses'
     | '/api/public/webhooks/stripe'
@@ -663,6 +676,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSalesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/statement/$month': {
+      id: '/_authenticated/statement/$month'
+      path: '/statement/$month'
+      fullPath: '/statement/$month'
+      preLoaderRoute: typeof AuthenticatedStatementMonthRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/clients/': {
       id: '/_authenticated/admin/clients/'
       path: '/clients'
@@ -738,6 +758,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
+  AuthenticatedStatementMonthRoute: typeof AuthenticatedStatementMonthRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -751,6 +772,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedTeamRoute: AuthenticatedTeamRoute,
+  AuthenticatedStatementMonthRoute: AuthenticatedStatementMonthRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
