@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Area,
@@ -16,7 +16,13 @@ import { PortalShell } from "@/components/app/portal-page";
 import { StatTile } from "@/components/app/stat-tile";
 import { formatMoney } from "@/lib/entitlements";
 import { RANGES, RANGE_LABELS, type AnalyticsRange } from "@/lib/analytics";
-import { getAnalyticsReport, listStatementMonths } from "@/lib/analytics.functions";
+import {
+  getAnalyticsReport,
+  getStatementEmailSettings,
+  listStatementMonths,
+  sendStatementEmailNow,
+  setStatementEmailEnabled,
+} from "@/lib/analytics.functions";
 
 export const Route = createFileRoute("/_authenticated/analytics")({
   head: () => ({
@@ -286,11 +292,32 @@ function AnalyticsBody() {
 
 function StatementsCard() {
   const fetchMonths = useServerFn(listStatementMonths);
+  const fetchSettings = useServerFn(getStatementEmailSettings);
+  const saveEnabled = useServerFn(setStatementEmailEnabled);
+  const sendNow = useServerFn(sendStatementEmailNow);
+  const queryClient = useQueryClient();
+  const [notice, setNotice] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+
   const months = useQuery({
     queryKey: ["statement-months"],
     queryFn: () => fetchMonths(),
     retry: false,
   });
+
+  const settings = useQuery({
+    queryKey: ["statement-email-settings"],
+    queryFn: () => fetchSettings(),
+    retry: false,
+  });
+
+  const toggle = useMutation({
+    mutationFn: (enabled: boolean) => saveEnabled({ data: { enabled } }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["statement-email-settings"] });
+    },
+  });
+
 
   return (
     <section className="era-card p-6">
@@ -318,6 +345,51 @@ function StatementsCard() {
             </a>
           ))
         )}
+      </div>
+
+      <div className="mt-6 border-t border-border/50 pt-5">
+        <label className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            className="mt-1 h-4 w-4 accent-primary"
+            checked={settings.data?.enabled ?? false}
+            disabled={settings.isLoading || toggle.isPending}
+            onChange={(e) => toggle.mutate(e.target.checked)}
+          />
+          <span>
+            <span className="block text-sm text-foreground">
+              Email this statement to us every month
+            </span>
+            <span className="block text-xs text-muted-foreground">
+              Sent on the 1st for the month just finished
+              {settings.data?.recipient ? ` to ${settings.data.recipient}` : ""}. Figures are
+              produced fresh at send time.
+            </span>
+          </span>
+        </label>
+
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            className="era-ghost-button text-muted-foreground hover:text-foreground"
+            disabled={sending}
+            onClick={async () => {
+              setSending(true);
+              setNotice(null);
+              try {
+                const result = await sendNow({ data: {} });
+                setNotice(result.detail);
+              } catch {
+                setNotice("Could not send just now — try again in a moment.");
+              } finally {
+                setSending(false);
+              }
+            }}
+          >
+            {sending ? "Sending…" : "Send me last month's statement now"}
+          </button>
+          {notice && <p className="text-xs text-muted-foreground">{notice}</p>}
+        </div>
       </div>
     </section>
   );
