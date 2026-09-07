@@ -1,69 +1,76 @@
-# Real advanced analytics (Enterprise only)
+# Monthly statement document (Enterprise)
 
-Replaces the four counters on the Analytics tab with metrics computed from the
-business's own bookings, customers and services. Scope is limited to the
-Enterprise-gated Analytics tab: no other tab, page, table, policy or pricing
-changes, and no elevated (service-role) access — everything is read through the
-signed-in user's own RLS-scoped client, filtered by their `business_id`, the
-same pattern the other client tabs already use.
+A one-page monthly performance statement a client can download from their portal.
+Every figure comes from the same calculation code the Analytics tab already uses —
+there is no second set of maths anywhere.
 
-## Time range
+## Where the numbers come from
 
-A selector on the tab: last 30 days, 90 days, 12 months, or year to date.
-The chosen range is sent to the server, which reads all bookings in that window
-(no 50-row cap). All figures below are computed over that window.
+The existing analytics calculation is refactored once: the body that today lives
+inside the Analytics server function moves into a shared, business-scoped
+function that takes a start date and an end date. The Analytics tab calls it with
+its selected range; the statement calls it with the first and last moment of a
+calendar month, in the business's own timezone. Same code, same rounding, same
+rules about which bookings count. If a rule ever changes, both change together.
 
-## How each metric is calculated
+## What the document contains
 
-**Revenue trend**
-- Counts only bookings with status `completed` — money actually earned, not
-  requested. `cancelled` and `no_show` are excluded; `pending`/`confirmed` are
-  shown separately as "booked, not yet completed" so the trend line isn't
-  inflated by work that hasn't happened.
-- Grouped by day for ranges up to 90 days, by month beyond that, using the
-  booking's `starts_at` in the business's own timezone.
-- Rendered as a bar/area chart plus totals: revenue, completed jobs, average
-  ticket, and the change against the immediately preceding equal-length period.
+One page, the client's own branding (logo, name, colours), covering a single
+named month:
 
-**Customer lifetime value**
-- Per customer record: sum of `total_cents` on their `completed` bookings, over
-  the customer's whole history (lifetime is lifetime, not windowed), plus first
-  and last booking dates and job count.
-- Headline CLV = average of those per-customer totals, across customers who have
-  at least one completed booking. Median is shown alongside, because one large
-  job otherwise distorts a small book of business.
-- Bookings with no `customer_id` attached (walk-ins typed by name only) are
-  excluded from CLV and flagged with a count, so the number is honest rather
-  than silently partial.
-- A "top customers by lifetime value" table lists the top 10.
+1. Header — business name, "Monthly statement", the month, the date generated.
+2. Headline figures — revenue from completed work, completed jobs, average
+   ticket, booked-but-not-yet-completed value, and the change against the
+   previous month.
+3. Revenue by day — a simple bar list for the month, no chart library needed
+   in the document.
+4. Customers — average and median lifetime value, number of new customers,
+   repeat rate, and the top customers of the month.
+5. Services — per service: jobs, revenue, average ticket, hours booked,
+   earnings per hour, with the same "earnings, not profit" note as the tab.
+6. Footer — a plain note that figures cover completed work only, and that
+   cancelled and no-show jobs are excluded.
 
-**New vs repeat**
-- For each booking in the window, look up that customer's earliest booking date.
-  If it equals the booking in question, the booking is "new customer"; otherwise
-  "repeat".
-- Reported as counts and revenue split for each, plus a repeat rate
-  (repeat bookings / total attributed bookings), and new customers acquired in
-  the window.
+## Format
 
-**Service profitability**
-- Per `service_id`: bookings, completed revenue, average ticket, total booked
-  minutes, and revenue per hour (completed revenue / booked hours) — the last is
-  what actually ranks services, since a cheap 20-minute job can out-earn an
-  expensive 3-hour one.
-- Sorted by revenue, with revenue per hour shown next to it. Services with no
-  bookings in the window are listed at zero rather than hidden, so gaps in the
-  catalog are visible. "Profitability" here is revenue-based: the system holds no
-  cost data, and the tab says so plainly rather than implying margin.
+Server-rendered HTML with print styling, opened in a new tab so the client can
+read it or save it as a PDF with the browser's own print dialog. No PDF library
+is added: the server runtime can't run the usual PDF/native tooling reliably, and
+a print-ready page gives an identical result with none of that risk. If a true
+attached PDF is later needed for email, that decision can be revisited on its own.
 
-## Technical notes
+## Where it appears
 
-- New `src/lib/analytics.functions.ts`: one `createServerFn` with
-  `requireSupabaseAuth`, resolving the caller's business through the existing
-  `callerBusiness` helper, then reading `bookings`, `customers` and `services`
-  with explicit `.eq("business_id", …)`. Aggregation happens in the handler; the
-  client receives finished numbers.
-- Enterprise gating unchanged: the tab keeps `feature="advanced_analytics"`
-  through the existing portal shell.
-- `src/routes/_authenticated/analytics.tsx` is rewritten to render the new
-  sections; charts use the `recharts` setup already in the project.
-- No migration, no RLS change, no new permissions.
+A "Statements" card on the Analytics tab (Enterprise-gated, same as the tab):
+a list of every completed calendar month since the business went live, each with
+a download link. Nothing is pre-generated or stored — the statement is produced
+on request from live data, so it can never be stale, and a corrected booking is
+reflected the next time it's opened.
+
+## Generation trigger
+
+Pull-only for now, and I'd recommend keeping it that way for this pass:
+
+- The statement is generated on click, always from current data.
+- Automatic email would need a monthly scheduled job, a recipient rule (owner
+  only? every admin?), and a decision about what happens when a booking is
+  corrected after the email went out — the client then holds a statement that
+  no longer matches the portal.
+- The email mechanism already in the project is ready to reuse, so adding a
+  "email me this month's statement" button, or a scheduled send on the 1st, is
+  a small follow-up once the document itself is proven in real use.
+
+## Scope
+
+- Refactor of the analytics calculation into a shared date-range function.
+- New statement server function and a printable route, both Enterprise-gated and
+  business-scoped through the caller's own access — no elevated access.
+- A statements list on the Analytics tab.
+- No database changes, no pricing changes, nothing outside these surfaces.
+
+## Acceptance check
+
+A test Enterprise client with real bookings across two months: each month's
+statement must match, figure for figure, what the Analytics tab shows for the
+same range, and a second business must be unable to open the first one's
+statement.
