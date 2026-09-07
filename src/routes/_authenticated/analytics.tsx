@@ -72,6 +72,8 @@ function AnalyticsBody() {
         ))}
       </div>
 
+      <StatementsCard />
+
       {report.isLoading || !data ? (
         <div className="era-card p-6">
           <p className="text-sm text-muted-foreground">Loading your numbers…</p>
