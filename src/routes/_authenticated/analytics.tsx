@@ -15,12 +15,8 @@ import {
 import { PortalShell } from "@/components/app/portal-page";
 import { StatTile } from "@/components/app/stat-tile";
 import { formatMoney } from "@/lib/entitlements";
-import {
-  RANGES,
-  RANGE_LABELS,
-  getAnalyticsReport,
-  type AnalyticsRange,
-} from "@/lib/analytics.functions";
+import { RANGES, RANGE_LABELS, type AnalyticsRange } from "@/lib/analytics";
+import { getAnalyticsReport, listStatementMonths } from "@/lib/analytics.functions";
 
 export const Route = createFileRoute("/_authenticated/analytics")({
   head: () => ({
