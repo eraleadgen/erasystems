@@ -8,3 +8,9 @@
 - [x] System prompt: refuse competitors / other pricing / owner-personal topics, redirect to services
 - [x] Branded bubble in shared tenant site template (+ VDS variant)
 - [x] Acceptance test with throwaway client, then delete
+
+## Next: monthly statement document (Enterprise)
+- [ ] Plan format + generation trigger (approval required before code)
+- [ ] Reuse the analytics calculation functions only — no second computation path
+- [ ] One statement per business per calendar month, downloadable in portal
+- [ ] Decide: auto-email via existing sender vs pull-only
