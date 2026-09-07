@@ -1,76 +1,69 @@
-# AI chat assistant for every client site
+# Real advanced analytics (Enterprise only)
 
-A chat bubble on every client's public website, on all three tiers, with no
-entitlement gate. It answers questions about that client's services, prices,
-how long jobs take, and opening hours, and can start a booking request — always
-using that client's own live records.
+Replaces the four counters on the Analytics tab with metrics computed from the
+business's own bookings, customers and services. Scope is limited to the
+Enterprise-gated Analytics tab: no other tab, page, table, policy or pricing
+changes, and no elevated (service-role) access — everything is read through the
+signed-in user's own RLS-scoped client, filtered by their `business_id`, the
+same pattern the other client tabs already use.
 
-## How it stays truthful
+## Time range
 
-The assistant is never asked to remember or guess a business's details.
+A selector on the tab: last 30 days, 90 days, 12 months, or year to date.
+The chosen range is sent to the server, which reads all bookings in that window
+(no 50-row cap). All figures below are computed over that window.
 
-1. Every message the visitor sends triggers a fresh read of that client's
-   current services, prices, durations, opening hours, location, and active
-   team members straight from the database at that moment. Nothing is baked
-   into the assistant's wording and nothing is cached between messages, so a
-   price edited in the Catalog tab a minute earlier is the price quoted.
-2. The assistant is not allowed to state a price by writing one out. To quote,
-   it must call a quote step that adds up real catalog rows by their IDs and
-   returns the total and duration. If it names a service that doesn't exist in
-   that client's catalog, there is no ID to pass and the step fails rather than
-   inventing a number.
-3. To book, it calls the exact same guarded booking step the manual booking
-   form already uses (`request_tenant_booking`), which re-prices from the
-   catalog inside the database, checks the business is live, matches or creates
-   the customer record, and writes the booking. There is no second pricing path
-   to drift.
-4. Availability is described from the client's real published hours only. The
-   assistant proposes a requested time; the booking is created as **pending**
-   exactly like the manual form, so nothing is promised as confirmed.
-5. Instructions tell it plainly: if the answer isn't in the supplied live data,
-   say so and offer the business's phone/email rather than guessing.
+## How each metric is calculated
 
-## How one client can never see another's data
+**Revenue trend**
+- Counts only bookings with status `completed` — money actually earned, not
+  requested. `cancelled` and `no_show` are excluded; `pending`/`confirmed` are
+  shown separately as "booked, not yet completed" so the trend line isn't
+  inflated by work that hasn't happened.
+- Grouped by day for ranges up to 90 days, by month beyond that, using the
+  booking's `starts_at` in the business's own timezone.
+- Rendered as a bar/area chart plus totals: revenue, completed jobs, average
+  ticket, and the change against the immediately preceding equal-length period.
 
-- The conversation is bound to a business at the server, resolved from the
-  website address the visitor is on — the same hostname-to-tenant resolution
-  already proven in the isolation tests. The browser never supplies which
-  business it is talking about.
-- Every read and the booking step are filtered by that resolved business ID and
-  run through the existing tenant-scoped access rules; there is no query in the
-  chat path that reads across businesses.
-- The assistant only ever receives that one client's data in its context, so it
-  has nothing else to leak, and any service ID a visitor tries to inject is
-  rejected because it isn't in that business's catalog.
-- An address attached to no client keeps returning "not found" — no chat.
+**Customer lifetime value**
+- Per customer record: sum of `total_cents` on their `completed` bookings, over
+  the customer's whole history (lifetime is lifetime, not windowed), plus first
+  and last booking dates and job count.
+- Headline CLV = average of those per-customer totals, across customers who have
+  at least one completed booking. Median is shown alongside, because one large
+  job otherwise distorts a small book of business.
+- Bookings with no `customer_id` attached (walk-ins typed by name only) are
+  excluded from CLV and flagged with a count, so the number is honest rather
+  than silently partial.
+- A "top customers by lifetime value" table lists the top 10.
 
-## Cost control (runs on every tier, including test traffic)
+**New vs repeat**
+- For each booking in the window, look up that customer's earliest booking date.
+  If it equals the booking in question, the booking is "new customer"; otherwise
+  "repeat".
+- Reported as counts and revenue split for each, plus a repeat rate
+  (repeat bookings / total attributed bookings), and new customers acquired in
+  the window.
 
-- Short, capped conversations: a message limit per conversation and a hard cap
-  on reply length; older turns are trimmed so context can't grow unbounded.
-- Per-visitor and per-business rate limits (messages per minute and per day),
-  enforced server-side, with a polite "please call us" fallback when hit.
-- A compact prompt: only the catalog fields needed (name, price, duration,
-  short description) and hours — not the whole database.
-- Uses the efficient default model with reasoning off for this task.
-- Clients whose business isn't live (unpaid/expired) get no chat at all.
-- Server-side daily spend guard per business: past the cap, the widget shows a
-  contact-us message instead of calling the model.
+**Service profitability**
+- Per `service_id`: bookings, completed revenue, average ticket, total booked
+  minutes, and revenue per hour (completed revenue / booked hours) — the last is
+  what actually ranks services, since a cheap 20-minute job can out-earn an
+  expensive 3-hour one.
+- Sorted by revenue, with revenue per hour shown next to it. Services with no
+  bookings in the window are listed at zero rather than hidden, so gaps in the
+  catalog are visible. "Profitability" here is revenue-based: the system holds no
+  cost data, and the tab says so plainly rather than implying margin.
 
-## What gets built
+## Technical notes
 
-- Chat server functions: tenant-resolved context load, guarded quote step,
-  booking step reusing the existing database booking function, rate limiting.
-- A branded chat bubble component using each client's own colours, added to the
-  shared public site template (and the VDS variant, which keeps its
-  vehicle-specific booking fields).
-- Rate-limit/usage table keyed by business, with the same scoping rules.
-
-## Acceptance test before it's called done
-
-Spin up a throwaway client of a business type unlike any existing one, feed it
-only onboarding data, then verify on its own site: it answers only from that
-catalog, refuses a service it doesn't offer, quotes a total that matches the
-booking form's total to the cent, creates a real pending booking visible in
-that client's Bookings tab, never mentions ERA or another client, and stops
-responding once the message cap is hit. Then delete the test client.
+- New `src/lib/analytics.functions.ts`: one `createServerFn` with
+  `requireSupabaseAuth`, resolving the caller's business through the existing
+  `callerBusiness` helper, then reading `bookings`, `customers` and `services`
+  with explicit `.eq("business_id", …)`. Aggregation happens in the handler; the
+  client receives finished numbers.
+- Enterprise gating unchanged: the tab keeps `feature="advanced_analytics"`
+  through the existing portal shell.
+- `src/routes/_authenticated/analytics.tsx` is rewritten to render the new
+  sections; charts use the `recharts` setup already in the project.
+- No migration, no RLS change, no new permissions.
