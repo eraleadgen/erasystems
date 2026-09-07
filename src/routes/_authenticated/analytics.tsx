@@ -15,12 +15,8 @@ import {
 import { PortalShell } from "@/components/app/portal-page";
 import { StatTile } from "@/components/app/stat-tile";
 import { formatMoney } from "@/lib/entitlements";
-import {
-  RANGES,
-  RANGE_LABELS,
-  getAnalyticsReport,
-  type AnalyticsRange,
-} from "@/lib/analytics.functions";
+import { RANGES, RANGE_LABELS, type AnalyticsRange } from "@/lib/analytics";
+import { getAnalyticsReport, listStatementMonths } from "@/lib/analytics.functions";
 
 export const Route = createFileRoute("/_authenticated/analytics")({
   head: () => ({
@@ -75,6 +71,8 @@ function AnalyticsBody() {
           </button>
         ))}
       </div>
+
+      <StatementsCard />
 
       {report.isLoading || !data ? (
         <div className="era-card p-6">
@@ -283,5 +281,44 @@ function AnalyticsBody() {
         </>
       )}
     </div>
+  );
+}
+
+function StatementsCard() {
+  const fetchMonths = useServerFn(listStatementMonths);
+  const months = useQuery({
+    queryKey: ["statement-months"],
+    queryFn: () => fetchMonths(),
+    retry: false,
+  });
+
+  return (
+    <section className="era-card p-6">
+      <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        Monthly statements
+      </h2>
+      <p className="mt-1 text-xs text-muted-foreground">
+        A printable one-page summary for a calendar month, built from these exact figures.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {months.isLoading ? (
+          <p className="text-sm text-muted-foreground">Loading months…</p>
+        ) : (months.data ?? []).length === 0 ? (
+          <p className="text-sm text-muted-foreground">No months to report on yet.</p>
+        ) : (
+          (months.data ?? []).map((m) => (
+            <a
+              key={m.key}
+              href={`/statement/${m.key}`}
+              target="_blank"
+              rel="noreferrer"
+              className="era-ghost-button text-muted-foreground hover:text-foreground"
+            >
+              {m.label}
+            </a>
+          ))
+        )}
+      </div>
+    </section>
   );
 }
