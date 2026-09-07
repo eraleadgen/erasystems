@@ -258,10 +258,10 @@ export const getAnalyticsReport = createServerFn({ method: "GET" })
     // --- Service performance in the window ---
     const perService = new Map<
       string,
-      { bookings: number; revenueCents: number; minutes: number }
+      { bookings: number; completed: number; revenueCents: number; minutes: number }
     >();
     for (const s of services ?? []) {
-      perService.set(s.id, { bookings: 0, revenueCents: 0, minutes: 0 });
+      perService.set(s.id, { bookings: 0, completed: 0, revenueCents: 0, minutes: 0 });
     }
     const durationById = new Map<string, number>();
     const { data: durations } = await context.supabase
@@ -274,11 +274,13 @@ export const getAnalyticsReport = createServerFn({ method: "GET" })
       if (!b.service_id) continue;
       const entry = perService.get(b.service_id) ?? {
         bookings: 0,
+        completed: 0,
         revenueCents: 0,
         minutes: 0,
       };
       entry.bookings += 1;
       if (b.status === COMPLETED) {
+        entry.completed += 1;
         entry.revenueCents += b.total_cents;
         entry.minutes += durationById.get(b.service_id) ?? 0;
       }
@@ -292,7 +294,9 @@ export const getAnalyticsReport = createServerFn({ method: "GET" })
         name: serviceNames.get(id) ?? "Removed service",
         bookings: v.bookings,
         revenueCents: v.revenueCents,
-        averageTicketCents: v.bookings ? Math.round(v.revenueCents / v.bookings) : 0,
+        // Average ticket is completed revenue over completed jobs only, so an
+        // unfinished booking can't drag the figure down.
+        averageTicketCents: v.completed ? Math.round(v.revenueCents / v.completed) : 0,
         minutes: v.minutes,
         revenuePerHourCents: v.minutes ? Math.round((v.revenueCents / v.minutes) * 60) : 0,
       }))
