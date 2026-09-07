@@ -254,3 +254,16 @@ their own tier before paying.
   owner's auth email. No listing, no writes.
 - The email goes to the fixed internal address `support@eraleadgen.com`; a send
   failure is logged and never fails the payment.
+
+### Monthly statement send (2026-09-07)
+
+`src/routes/api/public/cron/monthly-statements.ts` — `POST`, authenticated by the
+cron secret before any elevated import.
+
+- No user session exists on this path. The job reads only `business_site` rows whose
+  `statement_email_enabled` is true, then handles each business one at a time.
+- Every read for a statement goes through `sendStatementEmail(client, businessId)`,
+  which filters on that explicit `business_id`; there is no cross-tenant query and
+  no write to tenant data.
+- A business is skipped unless it is active and on Enterprise, and the recipient is
+  the business's own configured address — never anything from the request.
