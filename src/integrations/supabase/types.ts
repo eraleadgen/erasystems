@@ -305,6 +305,8 @@ export type Database = {
           region: string | null
           service_area: string | null
           service_location: string
+          statement_email_enabled: boolean
+          statement_email_to: string | null
           tagline: string | null
           updated_at: string
         }
@@ -322,6 +324,8 @@ export type Database = {
           region?: string | null
           service_area?: string | null
           service_location?: string
+          statement_email_enabled?: boolean
+          statement_email_to?: string | null
           tagline?: string | null
           updated_at?: string
         }
@@ -339,6 +343,8 @@ export type Database = {
           region?: string | null
           service_area?: string | null
           service_location?: string
+          statement_email_enabled?: boolean
+          statement_email_to?: string | null
           tagline?: string | null
           updated_at?: string
         }
