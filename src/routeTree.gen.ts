@@ -17,6 +17,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as PortalRouteImport } from './routes/portal'
+import { Route as PortalDotwebmanifestRouteImport } from './routes/portal[.]webmanifest'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ProofRouteImport } from './routes/proof'
 import { Route as RegisterRouteImport } from './routes/register'
@@ -86,6 +87,11 @@ const PlatformRoute = PlatformRouteImport.update({
 const PortalRoute = PortalRouteImport.update({
   id: '/portal',
   path: '/portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalDotwebmanifestRoute = PortalDotwebmanifestRouteImport.update({
+  id: '/portal.webmanifest',
+  path: '/portal.webmanifest',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -264,6 +270,7 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/platform': typeof PlatformRoute
   '/portal': typeof PortalRoute
+  '/portal.webmanifest': typeof PortalDotwebmanifestRoute
   '/pricing': typeof PricingRoute
   '/proof': typeof ProofRoute
   '/register': typeof RegisterRoute
@@ -304,6 +311,7 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/platform': typeof PlatformRoute
   '/portal': typeof PortalRoute
+  '/portal.webmanifest': typeof PortalDotwebmanifestRoute
   '/pricing': typeof PricingRoute
   '/proof': typeof ProofRoute
   '/register': typeof RegisterRoute
@@ -346,6 +354,7 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/platform': typeof PlatformRoute
   '/portal': typeof PortalRoute
+  '/portal.webmanifest': typeof PortalDotwebmanifestRoute
   '/pricing': typeof PricingRoute
   '/proof': typeof ProofRoute
   '/register': typeof RegisterRoute
@@ -388,6 +397,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/platform'
     | '/portal'
+    | '/portal.webmanifest'
     | '/pricing'
     | '/proof'
     | '/register'
@@ -428,6 +438,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/platform'
     | '/portal'
+    | '/portal.webmanifest'
     | '/pricing'
     | '/proof'
     | '/register'
@@ -469,6 +480,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/platform'
     | '/portal'
+    | '/portal.webmanifest'
     | '/pricing'
     | '/proof'
     | '/register'
@@ -511,6 +523,7 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   PlatformRoute: typeof PlatformRoute
   PortalRoute: typeof PortalRoute
+  PortalDotwebmanifestRoute: typeof PortalDotwebmanifestRoute
   PricingRoute: typeof PricingRoute
   ProofRoute: typeof ProofRoute
   RegisterRoute: typeof RegisterRoute
@@ -580,6 +593,13 @@ declare module '@tanstack/react-router' {
       path: '/portal'
       fullPath: '/portal'
       preLoaderRoute: typeof PortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal.webmanifest': {
+      id: '/portal.webmanifest'
+      path: '/portal.webmanifest'
+      fullPath: '/portal.webmanifest'
+      preLoaderRoute: typeof PortalDotwebmanifestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -870,6 +890,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   PlatformRoute: PlatformRoute,
   PortalRoute: PortalRoute,
+  PortalDotwebmanifestRoute: PortalDotwebmanifestRoute,
   PricingRoute: PricingRoute,
   ProofRoute: ProofRoute,
   RegisterRoute: RegisterRoute,
