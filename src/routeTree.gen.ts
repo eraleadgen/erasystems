@@ -48,6 +48,7 @@ import { Route as AuthenticatedAdminClientsBusinessIdRouteImport } from './route
 import { Route as ApiPublicCronBookingRemindersRouteImport } from './routes/api/public/cron/booking-reminders'
 import { Route as ApiPublicCronExpireBusinessesRouteImport } from './routes/api/public/cron/expire-businesses'
 import { Route as ApiPublicCronMonthlyStatementsRouteImport } from './routes/api/public/cron/monthly-statements'
+import { Route as ApiPublicCronReviewRequestsRouteImport } from './routes/api/public/cron/review-requests'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
@@ -257,6 +258,12 @@ const ApiPublicCronMonthlyStatementsRoute =
     path: '/api/public/cron/monthly-statements',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCronReviewRequestsRoute =
+  ApiPublicCronReviewRequestsRouteImport.update({
+    id: '/api/public/cron/review-requests',
+    path: '/api/public/cron/review-requests',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
   id: '/api/public/webhooks/stripe',
   path: '/api/public/webhooks/stripe',
@@ -307,6 +314,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/booking-reminders': typeof ApiPublicCronBookingRemindersRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/cron/monthly-statements': typeof ApiPublicCronMonthlyStatementsRoute
+  '/api/public/cron/review-requests': typeof ApiPublicCronReviewRequestsRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/admin/clients/': typeof AuthenticatedAdminClientsIndexRoute
@@ -349,6 +357,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/booking-reminders': typeof ApiPublicCronBookingRemindersRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/cron/monthly-statements': typeof ApiPublicCronMonthlyStatementsRoute
+  '/api/public/cron/review-requests': typeof ApiPublicCronReviewRequestsRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/admin/clients': typeof AuthenticatedAdminClientsIndexRoute
@@ -393,6 +402,7 @@ export interface FileRoutesById {
   '/api/public/cron/booking-reminders': typeof ApiPublicCronBookingRemindersRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/cron/monthly-statements': typeof ApiPublicCronMonthlyStatementsRoute
+  '/api/public/cron/review-requests': typeof ApiPublicCronReviewRequestsRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/_authenticated/admin/clients/': typeof AuthenticatedAdminClientsIndexRoute
@@ -437,6 +447,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/booking-reminders'
     | '/api/public/cron/expire-businesses'
     | '/api/public/cron/monthly-statements'
+    | '/api/public/cron/review-requests'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/transactional/preview'
     | '/admin/clients/'
@@ -479,6 +490,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/booking-reminders'
     | '/api/public/cron/expire-businesses'
     | '/api/public/cron/monthly-statements'
+    | '/api/public/cron/review-requests'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/transactional/preview'
     | '/admin/clients'
@@ -522,6 +534,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/booking-reminders'
     | '/api/public/cron/expire-businesses'
     | '/api/public/cron/monthly-statements'
+    | '/api/public/cron/review-requests'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/transactional/preview'
     | '/_authenticated/admin/clients/'
@@ -547,6 +560,7 @@ export interface RootRouteChildren {
   ApiPublicCronBookingRemindersRoute: typeof ApiPublicCronBookingRemindersRoute
   ApiPublicCronExpireBusinessesRoute: typeof ApiPublicCronExpireBusinessesRoute
   ApiPublicCronMonthlyStatementsRoute: typeof ApiPublicCronMonthlyStatementsRoute
+  ApiPublicCronReviewRequestsRoute: typeof ApiPublicCronReviewRequestsRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
@@ -826,6 +840,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronMonthlyStatementsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/review-requests': {
+      id: '/api/public/cron/review-requests'
+      path: '/api/public/cron/review-requests'
+      fullPath: '/api/public/cron/review-requests'
+      preLoaderRoute: typeof ApiPublicCronReviewRequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/stripe': {
       id: '/api/public/webhooks/stripe'
       path: '/api/public/webhooks/stripe'
@@ -922,6 +943,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronBookingRemindersRoute: ApiPublicCronBookingRemindersRoute,
   ApiPublicCronExpireBusinessesRoute: ApiPublicCronExpireBusinessesRoute,
   ApiPublicCronMonthlyStatementsRoute: ApiPublicCronMonthlyStatementsRoute,
+  ApiPublicCronReviewRequestsRoute: ApiPublicCronReviewRequestsRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
