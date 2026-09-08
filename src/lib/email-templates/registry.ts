@@ -5,6 +5,10 @@ import { template as tierPurchasedTemplate } from './tier-purchased'
 import { template as clientDeliveryRequestTemplate } from './client-delivery-request'
 import { template as chatLimitReachedTemplate } from './chat-limit-reached'
 import { template as monthlyStatementTemplate } from './monthly-statement'
+import { template as bookingConfirmationTemplate } from './booking-confirmation'
+import { template as appointmentReminderTemplate } from './appointment-reminder'
+import { template as reviewRequestTemplate } from './review-request'
+import { template as ownerWelcomeTemplate } from './owner-welcome'
 
 
 export interface TemplateEntry {
@@ -30,5 +34,9 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'client-delivery-request': clientDeliveryRequestTemplate,
   'chat-limit-reached': chatLimitReachedTemplate,
   'monthly-statement': monthlyStatementTemplate,
+  'booking-confirmation': bookingConfirmationTemplate,
+  'appointment-reminder': appointmentReminderTemplate,
+  'review-request': reviewRequestTemplate,
+  'owner-welcome': ownerWelcomeTemplate,
 }
 

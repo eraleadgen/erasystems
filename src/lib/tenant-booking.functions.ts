@@ -79,6 +79,14 @@ export const requestTenantBooking = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
 
     const result = Array.isArray(rows) ? rows[0] : rows;
+
+    // Acknowledge the customer immediately. A failed email never fails a booking.
+    const bookingId = (result as { booking_id?: string } | null)?.booking_id;
+    if (bookingId && data.customerEmail) {
+      const { sendBookingConfirmationSafely } = await import("@/lib/customer-emails.server");
+      await sendBookingConfirmationSafely(bookingId);
+    }
+
     return {
       ok: true,
       totalCents: result?.total_cents ?? 0,

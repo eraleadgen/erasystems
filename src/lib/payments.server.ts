@@ -196,6 +196,10 @@ export async function verifyAndActivate(sessionId: string): Promise<Verification
   if (transitioned) {
     const { notifyTierPurchased } = await import("./purchase-notification.server");
     await notifyTierPurchased(payment.business_id, payment.amount_cents);
+
+    // And the owner hears from us directly, once.
+    const { sendOwnerWelcome } = await import("./owner-welcome.server");
+    await sendOwnerWelcome(payment.business_id);
   }
 
   return { ok: true };
