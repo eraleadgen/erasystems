@@ -274,3 +274,18 @@ Both cron routes (`expire-businesses`, `monthly-statements`) additionally insert
 update one row in `scheduled_job_runs`, keyed by that run's own id. The table holds no
 tenant data and is readable only by platform staff. It exists so an unattended firing
 of the scheduler can be observed after the fact rather than assumed.
+
+### Partner / referral network (2026-09-08)
+
+No elevated access. Two guarded database functions instead:
+
+- `request_tenant_booking` now resolves an optional referral code itself. A code that
+  is unknown, switched off, belongs to a non-Enterprise or inactive business, or
+  belongs to the receiving business simply yields an unattributed booking.
+- `referrals_sent(business_id)` is `SECURITY DEFINER` because the referrer is not a
+  member of the business that served the job. It returns only the receiving business
+  name, date, status and value — never customer name, email or phone — and its body
+  requires `private.is_member_of(_business_id)` or platform staff. `EXECUTE` is
+  revoked from `public`/`anon`.
+- `bookings.referred_by_business_id` is write-once: `guard_booking_referrer` rejects
+  any later change.
