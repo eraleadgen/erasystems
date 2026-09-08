@@ -32,6 +32,7 @@ import { Route as AuthenticatedCustomersRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedAdminAddonsRouteImport } from './routes/_authenticated/admin.addons'
 import { Route as AuthenticatedAdminCalendarRouteImport } from './routes/_authenticated/admin.calendar'
 import { Route as AuthenticatedAdminDeliveryRouteImport } from './routes/_authenticated/admin.delivery'
@@ -160,6 +161,11 @@ const AuthenticatedTeamRoute = AuthenticatedTeamRouteImport.update({
   path: '/team',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminAddonsRoute =
   AuthenticatedAdminAddonsRouteImport.update({
     id: '/addons',
@@ -260,6 +266,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/team': typeof AuthenticatedTeamRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/addons': typeof AuthenticatedAdminAddonsRoute
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
@@ -297,6 +304,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/team': typeof AuthenticatedTeamRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/addons': typeof AuthenticatedAdminAddonsRoute
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
@@ -336,6 +344,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/admin/addons': typeof AuthenticatedAdminAddonsRoute
   '/_authenticated/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/_authenticated/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
@@ -375,6 +384,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/onboarding'
     | '/team'
+    | '/.lovable/oauth/consent'
     | '/admin/addons'
     | '/admin/calendar'
     | '/admin/delivery'
@@ -412,6 +422,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/onboarding'
     | '/team'
+    | '/.lovable/oauth/consent'
     | '/admin/addons'
     | '/admin/calendar'
     | '/admin/delivery'
@@ -450,6 +461,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
     | '/_authenticated/team'
+    | '/.lovable/oauth/consent'
     | '/_authenticated/admin/addons'
     | '/_authenticated/admin/calendar'
     | '/_authenticated/admin/delivery'
@@ -479,6 +491,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SpecialistsRoute: typeof SpecialistsRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicCronExpireBusinessesRoute: typeof ApiPublicCronExpireBusinessesRoute
   ApiPublicCronMonthlyStatementsRoute: typeof ApiPublicCronMonthlyStatementsRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
@@ -648,6 +661,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeamRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin/addons': {
       id: '/_authenticated/admin/addons'
       path: '/addons'
@@ -813,6 +833,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SpecialistsRoute: SpecialistsRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicCronExpireBusinessesRoute: ApiPublicCronExpireBusinessesRoute,
   ApiPublicCronMonthlyStatementsRoute: ApiPublicCronMonthlyStatementsRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
