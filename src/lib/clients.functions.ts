@@ -343,3 +343,71 @@ export const setClientDomainVerified = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export type ClientActivity = {
+  /** Last 30 days, from the same computeReport calculation the client's own Analytics tab uses. */
+  revenueCents: number;
+  completedJobs: number;
+  pipelineCents: number;
+  pipelineJobs: number;
+  averageTicketCents: number;
+  revenueChangePct: number | null;
+  recent: {
+    id: string;
+    customerName: string;
+    startsAt: string;
+    status: string;
+    totalCents: number;
+  }[];
+};
+
+/**
+ * Bookings + revenue snapshot for one client, for the Agency Console.
+ * Reuses computeReport — the single analytics calculation behind the client's
+ * Analytics tab and monthly statement — rather than recomputing totals here.
+ * Reads go through the caller's RLS-scoped client (platform staff read policy
+ * on bookings) and are explicitly business_id filtered. No elevated access.
+ */
+export const getClientActivity = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => businessIdInput.parse(input))
+  .handler(async ({ data, context }): Promise<ClientActivity | null> => {
+    const { computeReport } = await import("./analytics.server");
+    const now = new Date();
+    const start = new Date(now);
+    start.setUTCDate(start.getUTCDate() - 30);
+    const windowMs = now.getTime() - start.getTime();
+
+    const [{ report }, recent] = await Promise.all([
+      computeReport(context.supabase, data.businessId, {
+        start,
+        end: now,
+        prevStart: new Date(start.getTime() - windowMs),
+        prevEnd: start,
+        bucket: "day",
+      }),
+      context.supabase
+        .from("bookings")
+        .select("id, customer_name, starts_at, status, total_cents")
+        .eq("business_id", data.businessId)
+        .order("starts_at", { ascending: false })
+        .limit(5),
+    ]);
+    if (recent.error) throw new Error(recent.error.message);
+
+    return {
+      revenueCents: report.totals.revenueCents,
+      completedJobs: report.totals.completedJobs,
+      pipelineCents: report.totals.pipelineCents,
+      pipelineJobs: report.totals.pipelineJobs,
+      averageTicketCents: report.totals.averageTicketCents,
+      revenueChangePct: report.totals.revenueChangePct,
+      recent: (recent.data ?? []).map((b) => ({
+        id: b.id,
+        customerName: b.customer_name,
+        startsAt: b.starts_at,
+        status: b.status as string,
+        totalCents: b.total_cents,
+      })),
+    };
+  });
