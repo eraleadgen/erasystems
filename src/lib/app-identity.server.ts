@@ -71,7 +71,9 @@ export function monogram(name: string): string {
     .replace(/[^A-Za-z0-9 ]/g, " ")
     .split(/\s+/)
     .filter(Boolean);
-  if (words.length === 0) return "•";
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
-  return (words[0][0] + words[1][0]).toUpperCase();
+  const first = words[0];
+  if (!first) return "•";
+  const second = words[1];
+  if (!second) return first.slice(0, 2).toUpperCase();
+  return `${first[0]}${second[0]}`.toUpperCase();
 }
