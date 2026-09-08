@@ -125,6 +125,9 @@ function ClientProfilePage() {
           ← All clients
         </Link>
 
+        <ClientSummary businessId={businessId} profile={profile} />
+
+
         <div className="grid gap-6 lg:grid-cols-2">
           <section className="era-card p-6">
             <h2 className="text-base font-semibold">Business</h2>
