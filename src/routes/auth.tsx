@@ -50,8 +50,14 @@ function AuthPage() {
       // Staff land in the agency console, clients land in their own app.
       return await routing().catch(() => ({ isStaff: false, hasBusiness: false }));
     },
-    onSuccess: (result) =>
-      navigate({ to: result.isStaff ? "/admin/invites" : "/dashboard" }),
+    onSuccess: (result) => {
+      const target = safeNext(next);
+      if (target) {
+        window.location.href = target;
+        return;
+      }
+      void navigate({ to: result.isStaff ? "/admin/invites" : "/dashboard" });
+    },
     onError: (err: Error) => setError(err.message),
   });
 
