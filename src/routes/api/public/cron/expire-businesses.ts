@@ -21,6 +21,22 @@ export const Route = createFileRoute("/api/public/cron/expire-businesses")({
         if (denied) return denied;
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data: runRow } = await supabaseAdmin
+          .from("scheduled_job_runs")
+          .insert({ job_name: "expire-businesses" })
+          .select("id")
+          .maybeSingle();
+        const finishRun = async (succeeded: boolean, detail: unknown) => {
+          if (!runRow?.id) return;
+          await supabaseAdmin
+            .from("scheduled_job_runs")
+            .update({
+              finished_at: new Date().toISOString(),
+              succeeded,
+              detail: detail as never,
+            })
+            .eq("id", runRow.id);
+        };
         const cutoff = new Date(
           Date.now() - EXPIRE_AFTER_DAYS * 24 * 60 * 60 * 1000,
         ).toISOString();

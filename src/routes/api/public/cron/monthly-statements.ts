@@ -19,6 +19,23 @@ export const Route = createFileRoute("/api/public/cron/monthly-statements")({
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { sendStatementEmail } = await import("@/lib/statements.server");
 
+        const { data: runRow } = await supabaseAdmin
+          .from("scheduled_job_runs")
+          .insert({ job_name: "monthly-statements" })
+          .select("id")
+          .maybeSingle();
+        const finishRun = async (succeeded: boolean, detail: unknown) => {
+          if (!runRow?.id) return;
+          await supabaseAdmin
+            .from("scheduled_job_runs")
+            .update({
+              finished_at: new Date().toISOString(),
+              succeeded,
+              detail: detail as never,
+            })
+            .eq("id", runRow.id);
+        };
+
         const { data: optedIn, error } = await supabaseAdmin
           .from("business_site")
           .select("business_id")
