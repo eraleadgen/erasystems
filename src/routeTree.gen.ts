@@ -40,6 +40,7 @@ import { Route as AuthenticatedAdminDocumentsRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminInvitesRouteImport } from './routes/_authenticated/admin.invites'
 import { Route as AuthenticatedAdminSalesRouteImport } from './routes/_authenticated/admin.sales'
 import { Route as AuthenticatedStatementMonthRouteImport } from './routes/_authenticated/statement.$month'
+import { Route as AppIconBusinessIdVariantRouteImport } from './routes/app-icon/$businessId/$variant'
 import { Route as AuthenticatedAdminClientsIndexRouteImport } from './routes/_authenticated/admin.clients.index'
 import { Route as AuthenticatedAdminClientsBusinessIdRouteImport } from './routes/_authenticated/admin.clients.$businessId'
 import { Route as ApiPublicCronExpireBusinessesRouteImport } from './routes/api/public/cron/expire-businesses'
@@ -207,6 +208,12 @@ const AuthenticatedStatementMonthRoute =
     path: '/statement/$month',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AppIconBusinessIdVariantRoute =
+  AppIconBusinessIdVariantRouteImport.update({
+    id: '/app-icon/$businessId/$variant',
+    path: '/app-icon/$businessId/$variant',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedAdminClientsIndexRoute =
   AuthenticatedAdminClientsIndexRouteImport.update({
     id: '/clients/',
@@ -274,6 +281,7 @@ export interface FileRoutesByFullPath {
   '/admin/invites': typeof AuthenticatedAdminInvitesRoute
   '/admin/sales': typeof AuthenticatedAdminSalesRoute
   '/statement/$month': typeof AuthenticatedStatementMonthRoute
+  '/app-icon/$businessId/$variant': typeof AppIconBusinessIdVariantRoute
   '/admin/clients/$businessId': typeof AuthenticatedAdminClientsBusinessIdRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/cron/monthly-statements': typeof ApiPublicCronMonthlyStatementsRoute
@@ -312,6 +320,7 @@ export interface FileRoutesByTo {
   '/admin/invites': typeof AuthenticatedAdminInvitesRoute
   '/admin/sales': typeof AuthenticatedAdminSalesRoute
   '/statement/$month': typeof AuthenticatedStatementMonthRoute
+  '/app-icon/$businessId/$variant': typeof AppIconBusinessIdVariantRoute
   '/admin/clients/$businessId': typeof AuthenticatedAdminClientsBusinessIdRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/cron/monthly-statements': typeof ApiPublicCronMonthlyStatementsRoute
@@ -352,6 +361,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/invites': typeof AuthenticatedAdminInvitesRoute
   '/_authenticated/admin/sales': typeof AuthenticatedAdminSalesRoute
   '/_authenticated/statement/$month': typeof AuthenticatedStatementMonthRoute
+  '/app-icon/$businessId/$variant': typeof AppIconBusinessIdVariantRoute
   '/_authenticated/admin/clients/$businessId': typeof AuthenticatedAdminClientsBusinessIdRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/cron/monthly-statements': typeof ApiPublicCronMonthlyStatementsRoute
@@ -392,6 +402,7 @@ export interface FileRouteTypes {
     | '/admin/invites'
     | '/admin/sales'
     | '/statement/$month'
+    | '/app-icon/$businessId/$variant'
     | '/admin/clients/$businessId'
     | '/api/public/cron/expire-businesses'
     | '/api/public/cron/monthly-statements'
@@ -430,6 +441,7 @@ export interface FileRouteTypes {
     | '/admin/invites'
     | '/admin/sales'
     | '/statement/$month'
+    | '/app-icon/$businessId/$variant'
     | '/admin/clients/$businessId'
     | '/api/public/cron/expire-businesses'
     | '/api/public/cron/monthly-statements'
@@ -469,6 +481,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/invites'
     | '/_authenticated/admin/sales'
     | '/_authenticated/statement/$month'
+    | '/app-icon/$businessId/$variant'
     | '/_authenticated/admin/clients/$businessId'
     | '/api/public/cron/expire-businesses'
     | '/api/public/cron/monthly-statements'
@@ -491,6 +504,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SpecialistsRoute: typeof SpecialistsRoute
+  AppIconBusinessIdVariantRoute: typeof AppIconBusinessIdVariantRoute
   ApiPublicCronExpireBusinessesRoute: typeof ApiPublicCronExpireBusinessesRoute
   ApiPublicCronMonthlyStatementsRoute: typeof ApiPublicCronMonthlyStatementsRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
@@ -716,6 +730,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStatementMonthRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/app-icon/$businessId/$variant': {
+      id: '/app-icon/$businessId/$variant'
+      path: '/app-icon/$businessId/$variant'
+      fullPath: '/app-icon/$businessId/$variant'
+      preLoaderRoute: typeof AppIconBusinessIdVariantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin/clients/': {
       id: '/_authenticated/admin/clients/'
       path: '/clients'
@@ -834,6 +855,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SpecialistsRoute: SpecialistsRoute,
+  AppIconBusinessIdVariantRoute: AppIconBusinessIdVariantRoute,
   ApiPublicCronExpireBusinessesRoute: ApiPublicCronExpireBusinessesRoute,
   ApiPublicCronMonthlyStatementsRoute: ApiPublicCronMonthlyStatementsRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
