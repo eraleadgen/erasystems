@@ -64,6 +64,7 @@ export type Database = {
       bookings: {
         Row: {
           business_id: string
+          confirmation_sent_at: string | null
           created_at: string
           customer_email: string | null
           customer_id: string | null
@@ -73,6 +74,8 @@ export type Database = {
           id: string
           notes: string | null
           referred_by_business_id: string | null
+          reminder_sent_at: string | null
+          review_request_sent_at: string | null
           service_id: string | null
           specialist_id: string | null
           starts_at: string
@@ -82,6 +85,7 @@ export type Database = {
         }
         Insert: {
           business_id: string
+          confirmation_sent_at?: string | null
           created_at?: string
           customer_email?: string | null
           customer_id?: string | null
@@ -91,6 +95,8 @@ export type Database = {
           id?: string
           notes?: string | null
           referred_by_business_id?: string | null
+          reminder_sent_at?: string | null
+          review_request_sent_at?: string | null
           service_id?: string | null
           specialist_id?: string | null
           starts_at: string
@@ -100,6 +106,7 @@ export type Database = {
         }
         Update: {
           business_id?: string
+          confirmation_sent_at?: string | null
           created_at?: string
           customer_email?: string | null
           customer_id?: string | null
@@ -109,6 +116,8 @@ export type Database = {
           id?: string
           notes?: string | null
           referred_by_business_id?: string | null
+          reminder_sent_at?: string | null
+          review_request_sent_at?: string | null
           service_id?: string | null
           specialist_id?: string | null
           starts_at?: string
@@ -489,6 +498,7 @@ export type Database = {
           support_phone: string | null
           timezone: string
           updated_at: string
+          welcome_email_sent_at: string | null
         }
         Insert: {
           brand_accent?: string | null
@@ -508,6 +518,7 @@ export type Database = {
           support_phone?: string | null
           timezone?: string
           updated_at?: string
+          welcome_email_sent_at?: string | null
         }
         Update: {
           brand_accent?: string | null
@@ -527,6 +538,7 @@ export type Database = {
           support_phone?: string | null
           timezone?: string
           updated_at?: string
+          welcome_email_sent_at?: string | null
         }
         Relationships: [
           {
@@ -1325,6 +1337,7 @@ export type Database = {
               _subject: string
             }
             Returns: {
+              booking_id: string
               minutes: number
               total_cents: number
             }[]
