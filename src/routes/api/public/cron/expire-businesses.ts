@@ -46,7 +46,10 @@ export const Route = createFileRoute("/api/public/cron/expire-businesses")({
           .select("id")
           .eq("lifecycle", "pending_payment")
           .lt("created_at", cutoff);
-        if (error) return Response.json({ error: error.message }, { status: 500 });
+        if (error) {
+          await finishRun(false, { error: error.message });
+          return Response.json({ error: error.message }, { status: 500 });
+        }
 
         const expired: string[] = [];
         for (const row of stale ?? []) {
@@ -58,6 +61,7 @@ export const Route = createFileRoute("/api/public/cron/expire-businesses")({
           if (!updateError) expired.push(row.id);
         }
 
+        await finishRun(true, { expired: expired.length });
         return Response.json({ expired: expired.length });
       },
     },

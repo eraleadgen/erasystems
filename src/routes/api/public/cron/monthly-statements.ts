@@ -40,7 +40,10 @@ export const Route = createFileRoute("/api/public/cron/monthly-statements")({
           .from("business_site")
           .select("business_id")
           .eq("statement_email_enabled", true);
-        if (error) return Response.json({ error: error.message }, { status: 500 });
+        if (error) {
+          await finishRun(false, { error: error.message });
+          return Response.json({ error: error.message }, { status: 500 });
+        }
 
         let sent = 0;
         let skipped = 0;
@@ -65,6 +68,7 @@ export const Route = createFileRoute("/api/public/cron/monthly-statements")({
           }
         }
 
+        await finishRun(true, { sent, skipped });
         return Response.json({ sent, skipped });
       },
     },
