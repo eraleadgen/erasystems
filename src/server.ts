@@ -44,9 +44,34 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+/**
+ * The project's own *.lovable.app addresses are a second public front door onto
+ * the same deployment. ERA's public address is eraleadgen.com, so send visitors
+ * there instead of serving the marketing site twice.
+ *
+ * Deliberately narrow:
+ *  - preview hostnames (id-preview--*) are untouched, so editing keeps working;
+ *  - /api/public/* is untouched, because the payment webhook and the scheduled
+ *    jobs call in over these hostnames;
+ *  - custom domains never reach this branch at all.
+ */
+const PUBLISHED_PLATFORM_HOST = /^(erasystems|project--[0-9a-f-]+)\.lovable\.app$/i;
+
+function platformRedirect(request: Request): Response | null {
+  const url = new URL(request.url);
+  const host = (request.headers.get("host") ?? url.host).split(":")[0]!.toLowerCase();
+  if (!PUBLISHED_PLATFORM_HOST.test(host)) return null;
+  if (url.pathname.startsWith("/api/public/")) return null;
+
+  const target = new URL(url.pathname + url.search, "https://eraleadgen.com");
+  return new Response(null, { status: 308, headers: { location: target.toString() } });
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const redirect = platformRedirect(request);
+      if (redirect) return redirect;
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
@@ -59,3 +84,4 @@ export default {
     }
   },
 };
+
