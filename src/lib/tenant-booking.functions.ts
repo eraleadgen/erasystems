@@ -27,6 +27,9 @@ const input = z.object({
   notes: z.string().trim().max(1000).optional().default(""),
   startsAt: z.string().datetime(),
   specialistId: z.string().uuid().nullable().optional().default(null),
+  // Referral code hint from a partner link or typed in by the customer. Always
+  // re-validated in the database; a bad code just means an unattributed booking.
+  referralCode: z.string().trim().max(24).optional().default(""),
 });
 
 function anonClient() {
@@ -71,6 +74,7 @@ export const requestTenantBooking = createServerFn({ method: "POST" })
       _notes: data.notes,
       _starts_at: new Date(data.startsAt).toISOString(),
       ...(data.specialistId ? { _specialist_id: data.specialistId } : {}),
+      _referral_code: data.referralCode ? data.referralCode.toUpperCase() : null,
     });
     if (error) throw new Error(error.message);
 
