@@ -31,6 +31,7 @@ import { Route as AuthenticatedCatalogRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedCustomersRouteImport } from './routes/_authenticated/customers'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedReferralsRouteImport } from './routes/_authenticated/referrals'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 import { Route as AuthenticatedAdminAddonsRouteImport } from './routes/_authenticated/admin.addons'
 import { Route as AuthenticatedAdminCalendarRouteImport } from './routes/_authenticated/admin.calendar'
@@ -155,6 +156,11 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedReferralsRoute = AuthenticatedReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTeamRoute = AuthenticatedTeamRouteImport.update({
   id: '/team',
   path: '/team',
@@ -259,6 +265,7 @@ export interface FileRoutesByFullPath {
   '/customers': typeof AuthenticatedCustomersRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/referrals': typeof AuthenticatedReferralsRoute
   '/team': typeof AuthenticatedTeamRoute
   '/admin/addons': typeof AuthenticatedAdminAddonsRoute
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
@@ -296,6 +303,7 @@ export interface FileRoutesByTo {
   '/customers': typeof AuthenticatedCustomersRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/referrals': typeof AuthenticatedReferralsRoute
   '/team': typeof AuthenticatedTeamRoute
   '/admin/addons': typeof AuthenticatedAdminAddonsRoute
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
@@ -335,6 +343,7 @@ export interface FileRoutesById {
   '/_authenticated/customers': typeof AuthenticatedCustomersRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/referrals': typeof AuthenticatedReferralsRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
   '/_authenticated/admin/addons': typeof AuthenticatedAdminAddonsRoute
   '/_authenticated/admin/calendar': typeof AuthenticatedAdminCalendarRoute
@@ -374,6 +383,7 @@ export interface FileRouteTypes {
     | '/customers'
     | '/dashboard'
     | '/onboarding'
+    | '/referrals'
     | '/team'
     | '/admin/addons'
     | '/admin/calendar'
@@ -411,6 +421,7 @@ export interface FileRouteTypes {
     | '/customers'
     | '/dashboard'
     | '/onboarding'
+    | '/referrals'
     | '/team'
     | '/admin/addons'
     | '/admin/calendar'
@@ -449,6 +460,7 @@ export interface FileRouteTypes {
     | '/_authenticated/customers'
     | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
+    | '/_authenticated/referrals'
     | '/_authenticated/team'
     | '/_authenticated/admin/addons'
     | '/_authenticated/admin/calendar'
@@ -641,6 +653,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/referrals': {
+      id: '/_authenticated/referrals'
+      path: '/referrals'
+      fullPath: '/referrals'
+      preLoaderRoute: typeof AuthenticatedReferralsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/team': {
       id: '/_authenticated/team'
       path: '/team'
@@ -778,6 +797,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCustomersRoute: typeof AuthenticatedCustomersRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedReferralsRoute: typeof AuthenticatedReferralsRoute
   AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
   AuthenticatedStatementMonthRoute: typeof AuthenticatedStatementMonthRoute
 }
@@ -792,6 +812,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCustomersRoute: AuthenticatedCustomersRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedReferralsRoute: AuthenticatedReferralsRoute,
   AuthenticatedTeamRoute: AuthenticatedTeamRoute,
   AuthenticatedStatementMonthRoute: AuthenticatedStatementMonthRoute,
 }
