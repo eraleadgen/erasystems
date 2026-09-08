@@ -289,3 +289,20 @@ No elevated access. Two guarded database functions instead:
   revoked from `public`/`anon`.
 - `bookings.referred_by_business_id` is write-once: `guard_booking_referrer` rejects
   any later change.
+
+### Customer-facing booking emails (2026-09-08)
+
+`src/lib/customer-emails.server.ts` plus the `booking-reminders` and
+`review-requests` cron routes, and `src/lib/owner-welcome.server.ts`.
+
+- Callers are either the public booking path (the customer is anonymous, there is no
+  session) or a scheduled job authenticated by the cron secret.
+- Every send resolves one booking by id, then reads that booking's own `business_id`
+  for name, timezone, brand colour and support contacts. Nothing cross-tenant is read.
+- The recipient always comes from the stored booking row (or, for the owner welcome,
+  from the owner membership on that business). No caller may name a recipient or a
+  template.
+- Sends are claimed before dispatch (`confirmation_sent_at`, `reminder_sent_at`,
+  `review_request_sent_at`, `businesses.welcome_email_sent_at`) so overlapping runs or
+  webhook retries can never double-email; the claim is released if the send errors.
+- Nothing else in tenant data is written.
