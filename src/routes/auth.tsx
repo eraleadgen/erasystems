@@ -24,11 +24,19 @@ export const Route = createFileRoute("/auth")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>): { next?: string } =>
+    typeof search["next"] === "string" ? { next: search["next"] } : {},
   component: AuthPage,
 });
 
+/** Only same-origin relative paths are ever followed after sign-in. */
+function safeNext(next: string | undefined) {
+  return next && next.startsWith("/") && !next.startsWith("//") ? next : null;
+}
+
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const routing = useServerFn(getAccountRouting);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,8 +49,14 @@ function AuthPage() {
       // Staff land in the agency console, clients land in their own app.
       return await routing().catch(() => ({ isStaff: false, hasBusiness: false }));
     },
-    onSuccess: (result) =>
-      navigate({ to: result.isStaff ? "/admin/invites" : "/dashboard" }),
+    onSuccess: (result) => {
+      const target = safeNext(next);
+      if (target) {
+        window.location.href = target;
+        return;
+      }
+      void navigate({ to: result.isStaff ? "/admin/invites" : "/dashboard" });
+    },
     onError: (err: Error) => setError(err.message),
   });
 

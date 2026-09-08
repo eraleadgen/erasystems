@@ -29,7 +29,8 @@ export const dayHoursSchema = z.object({
   close: z.string().max(5),
 });
 
-export const weekHoursSchema = z.record(z.enum(WEEK_DAYS), dayHoursSchema);
+/** Partial: a business may have hours for only some days. */
+export const weekHoursSchema = z.partialRecord(z.enum(WEEK_DAYS), dayHoursSchema);
 
 export const siteContentSchema = z.object({
   tagline: z.string().trim().max(200).default(""),
