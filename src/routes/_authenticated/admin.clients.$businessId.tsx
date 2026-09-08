@@ -7,12 +7,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
 import {
   addClientDomain,
+  getClientActivity,
   getClientProfile,
   removeClientDomain,
   saveClientProvisioning,
   setClientDomainVerified,
   setPrimaryClientDomain,
+  type ClientProfile,
 } from "@/lib/clients.functions";
+import { getDeliveryBoard } from "@/lib/delivery-tasks.functions";
+import { getAiAgentDelivery } from "@/lib/ai-agents.functions";
+import { AI_AGENT_TRACK_LIST, trackProgress } from "@/lib/ai-agents";
 import { ADDON_LABELS, FEATURE_LABELS, formatMoney } from "@/lib/entitlements";
 import { getBusinessAddons, getMyEntitlements } from "@/lib/entitlements.functions";
 import {
