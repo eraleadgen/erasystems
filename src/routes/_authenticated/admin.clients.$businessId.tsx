@@ -154,6 +154,14 @@ function ClientProfilePage() {
               />
               <Row label="Services" value={String(profile.services.length)} />
               <Row
+                label="Referral code"
+                value={
+                  profile.referral
+                    ? `${profile.referral.code} (${profile.referral.isActive ? "active" : "paused"}) · ${profile.referral.sentCount} referred`
+                    : "None"
+                }
+              />
+              <Row
                 label="Last payment"
                 value={
                   profile.payments[0]
