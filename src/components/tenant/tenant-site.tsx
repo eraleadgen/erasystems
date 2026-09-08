@@ -10,6 +10,7 @@ import {
 } from "@/lib/tenant-site";
 import { TenantBookingForm } from "@/components/tenant/booking-form";
 import { TenantChatWidget } from "@/components/tenant/chat-widget";
+import { InstallApp } from "@/components/pwa/install-app";
 
 /**
  * The generic public website every tenant gets.
