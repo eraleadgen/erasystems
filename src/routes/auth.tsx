@@ -24,11 +24,20 @@ export const Route = createFileRoute("/auth")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    next: typeof search["next"] === "string" ? search["next"] : undefined,
+  }),
   component: AuthPage,
 });
 
+/** Only same-origin relative paths are ever followed after sign-in. */
+function safeNext(next: string | undefined) {
+  return next && next.startsWith("/") && !next.startsWith("//") ? next : null;
+}
+
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const routing = useServerFn(getAccountRouting);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
