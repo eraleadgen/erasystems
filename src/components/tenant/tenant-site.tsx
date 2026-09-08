@@ -85,6 +85,11 @@ export function TenantSite({
         </div>
       </header>
 
+      <div className="mx-auto max-w-5xl px-6 pt-4">
+        <InstallApp kind="customer" />
+      </div>
+
+
       <section className="border-b border-border">
         <div className="mx-auto max-w-5xl px-6 py-16 text-center sm:py-20 lg:text-left">
           {site.serviceArea && (
