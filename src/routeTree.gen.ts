@@ -20,6 +20,7 @@ import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ProofRouteImport } from './routes/proof'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as SiteDotwebmanifestRouteImport } from './routes/site[.]webmanifest'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SpecialistsRouteImport } from './routes/specialists'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -100,6 +101,11 @@ const ProofRoute = ProofRouteImport.update({
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SiteDotwebmanifestRoute = SiteDotwebmanifestRouteImport.update({
+  id: '/site.webmanifest',
+  path: '/site.webmanifest',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -261,6 +267,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/proof': typeof ProofRoute
   '/register': typeof RegisterRoute
+  '/site.webmanifest': typeof SiteDotwebmanifestRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -300,6 +307,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/proof': typeof ProofRoute
   '/register': typeof RegisterRoute
+  '/site.webmanifest': typeof SiteDotwebmanifestRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -341,6 +349,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/proof': typeof ProofRoute
   '/register': typeof RegisterRoute
+  '/site.webmanifest': typeof SiteDotwebmanifestRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -382,6 +391,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/proof'
     | '/register'
+    | '/site.webmanifest'
     | '/sitemap.xml'
     | '/specialists'
     | '/admin'
@@ -421,6 +431,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/proof'
     | '/register'
+    | '/site.webmanifest'
     | '/sitemap.xml'
     | '/specialists'
     | '/admin'
@@ -461,6 +472,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/proof'
     | '/register'
+    | '/site.webmanifest'
     | '/sitemap.xml'
     | '/specialists'
     | '/_authenticated/admin'
@@ -502,6 +514,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   ProofRoute: typeof ProofRoute
   RegisterRoute: typeof RegisterRoute
+  SiteDotwebmanifestRoute: typeof SiteDotwebmanifestRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SpecialistsRoute: typeof SpecialistsRoute
   AppIconBusinessIdVariantRoute: typeof AppIconBusinessIdVariantRoute
@@ -588,6 +601,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/site.webmanifest': {
+      id: '/site.webmanifest'
+      path: '/site.webmanifest'
+      fullPath: '/site.webmanifest'
+      preLoaderRoute: typeof SiteDotwebmanifestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -853,6 +873,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   ProofRoute: ProofRoute,
   RegisterRoute: RegisterRoute,
+  SiteDotwebmanifestRoute: SiteDotwebmanifestRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SpecialistsRoute: SpecialistsRoute,
   AppIconBusinessIdVariantRoute: AppIconBusinessIdVariantRoute,
