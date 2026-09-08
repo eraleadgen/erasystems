@@ -242,14 +242,8 @@ export const DELIVERY_PHASES: DeliveryPhase[] = [
         day: 5,
         requires: { kind: "feature", feature: "sms_automations" },
       },
-      {
-        key: "voice_agent",
-        label: "AI voice agent configured",
-        detail: "Greeting, qualification script, booking handoff and after-hours behaviour tested.",
-        owner: "era",
-        day: 5,
-        requires: { kind: "feature", feature: "voice_sms_agent" },
-      },
+      // The AI SMS and voice agents are tracked step by step in their own two
+      // checklists, switched on per client. Neither is assumed for Enterprise.
       {
         key: "reactivation",
         label: "Reactivation campaign scheduled",

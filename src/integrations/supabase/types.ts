@@ -197,6 +197,76 @@ export type Database = {
           },
         ]
       }
+      business_ai_agent_steps: {
+        Row: {
+          business_id: string
+          created_at: string
+          note: string | null
+          status: string
+          step_key: string
+          track: Database["public"]["Enums"]["ai_agent_track"]
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          note?: string | null
+          status?: string
+          step_key: string
+          track: Database["public"]["Enums"]["ai_agent_track"]
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          note?: string | null
+          status?: string
+          step_key?: string
+          track?: Database["public"]["Enums"]["ai_agent_track"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_ai_agent_steps_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_ai_agent_tracks: {
+        Row: {
+          business_id: string
+          created_at: string
+          is_enabled: boolean
+          track: Database["public"]["Enums"]["ai_agent_track"]
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          is_enabled?: boolean
+          track: Database["public"]["Enums"]["ai_agent_track"]
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          is_enabled?: boolean
+          track?: Database["public"]["Enums"]["ai_agent_track"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_ai_agent_tracks_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_domains: {
         Row: {
           business_id: string
@@ -1128,6 +1198,7 @@ export type Database = {
     }
     Enums: {
       addon_kind: "ad_management" | "white_label_branding"
+      ai_agent_track: "ai_sms" | "ai_voice"
       booking_status:
         | "pending"
         | "confirmed"
@@ -1282,6 +1353,7 @@ export const Constants = {
   public: {
     Enums: {
       addon_kind: ["ad_management", "white_label_branding"],
+      ai_agent_track: ["ai_sms", "ai_voice"],
       booking_status: [
         "pending",
         "confirmed",

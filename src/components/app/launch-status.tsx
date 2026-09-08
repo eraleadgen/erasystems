@@ -48,7 +48,11 @@ export function LaunchStatusPanel({
   rows: LaunchStatusRow[];
 }) {
   const items = [
-    ...features.map((f) => ({ key: f as string, label: FEATURE_LABELS[f] })),
+    // The AI agents get their own honest, step-by-step panel, and only when the
+    // client is actually getting one, so they are not listed here as a single flag.
+    ...features
+      .filter((f) => f !== "voice_sms_agent")
+      .map((f) => ({ key: f as string, label: FEATURE_LABELS[f] })),
     ...addons.map((a) => ({ key: a as string, label: ADDON_LABELS[a] })),
   ];
   if (items.length === 0) return null;

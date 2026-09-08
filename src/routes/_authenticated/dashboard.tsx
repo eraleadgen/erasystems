@@ -19,6 +19,7 @@ import { StatusBanner } from "@/components/app/status-banner";
 import { StatTile, CopyRow } from "@/components/app/stat-tile";
 import { SetupProgress, type StepState } from "@/components/app/setup-progress";
 import { LaunchStatusPanel } from "@/components/app/launch-status";
+import { AiAgentStatusPanel } from "@/components/app/ai-agent-delivery";
 import { getLaunchStatus } from "@/lib/launch-status.functions";
 import { buildClientNav } from "@/components/app/client-nav";
 import { getMyPortalContext } from "@/lib/portal.functions";
@@ -223,6 +224,7 @@ function Dashboard() {
       </div>
 
       <StatusSection businessId={data.id} />
+      <AiAgentStatusPanel businessId={data.id} />
 
       {(data.lifecycle === "pending_payment" || data.lifecycle === "expired") && (
         <>

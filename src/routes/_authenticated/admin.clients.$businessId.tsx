@@ -23,6 +23,7 @@ import {
 } from "@/lib/launch-status.functions";
 import { StatusLight, statusFor } from "@/components/app/launch-status";
 import { DeliveryWorkspace } from "@/components/app/delivery-workspace";
+import { AiAgentDeliveryEditor } from "@/components/app/ai-agent-delivery";
 
 export const Route = createFileRoute("/_authenticated/admin/clients/$businessId")({
   head: () => ({
@@ -391,6 +392,8 @@ function ClientProfilePage() {
 
           <LaunchStatusEditor businessId={businessId} />
 
+          <AiAgentDeliveryEditor businessId={businessId} />
+
           <DeliveryWorkspace
             businessId={businessId}
             planTier={profile.planTier}
@@ -439,7 +442,10 @@ function LaunchStatusEditor({ businessId }: { businessId: string }) {
   });
 
   const items = [
-    ...(entitlements.data?.features ?? []).map((f) => ({ key: f as string, label: FEATURE_LABELS[f] })),
+    ...(entitlements.data?.features ?? [])
+      // The AI agents are tracked step by step in their own checklists below.
+      .filter((f) => f !== "voice_sms_agent")
+      .map((f) => ({ key: f as string, label: FEATURE_LABELS[f] })),
     ...(addons.data ?? [])
       .filter((a) => a.isActive)
       .map((a) => ({ key: a.addon as string, label: ADDON_LABELS[a.addon] })),
