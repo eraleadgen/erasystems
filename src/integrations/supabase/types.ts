@@ -949,6 +949,36 @@ export type Database = {
         }
         Relationships: []
       }
+      scheduled_job_runs: {
+        Row: {
+          created_at: string
+          detail: Json | null
+          finished_at: string | null
+          id: string
+          job_name: string
+          started_at: string
+          succeeded: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          detail?: Json | null
+          finished_at?: string | null
+          id?: string
+          job_name: string
+          started_at?: string
+          succeeded?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          detail?: Json | null
+          finished_at?: string | null
+          id?: string
+          job_name?: string
+          started_at?: string
+          succeeded?: boolean | null
+        }
+        Relationships: []
+      }
       services: {
         Row: {
           base_price_cents: number

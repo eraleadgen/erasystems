@@ -267,3 +267,10 @@ cron secret before any elevated import.
   no write to tenant data.
 - A business is skipped unless it is active and on Enterprise, and the recipient is
   the business's own configured address — never anything from the request.
+
+### Scheduled-job run log (2026-09-08)
+
+Both cron routes (`expire-businesses`, `monthly-statements`) additionally insert and
+update one row in `scheduled_job_runs`, keyed by that run's own id. The table holds no
+tenant data and is readable only by platform staff. It exists so an unattended firing
+of the scheduler can be observed after the fact rather than assumed.
