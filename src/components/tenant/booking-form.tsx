@@ -1,7 +1,8 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
 
 import { requestTenantBooking } from "@/lib/tenant-booking.functions";
+import { captureReferralFromUrl } from "@/lib/referrals";
 import type { TenantService } from "@/components/tenant-home";
 
 /**
@@ -66,9 +67,17 @@ export function TenantBookingForm({
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [startsAt, setStartsAt] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState<{ totalCents: number; minutes: number } | null>(null);
+
+  // A partner link (?ref=CODE) pre-fills the field; it is only ever a hint and
+  // is re-validated server-side.
+  useEffect(() => {
+    const code = captureReferralFromUrl();
+    if (code) setReferralCode(code);
+  }, []);
 
   const multiplier = extras?.multiplier ?? 1;
   const estimate = Math.round(subtotal * multiplier);
@@ -118,6 +127,7 @@ export function TenantBookingForm({
               address,
               notes,
               startsAt: new Date(startsAt).toISOString(),
+              referralCode: referralCode.trim().toUpperCase(),
             },
           });
           setConfirmed({ totalCents: result.totalCents, minutes: result.minutes });
@@ -213,6 +223,16 @@ export function TenantBookingForm({
             />
           </label>
         )}
+        <label className="block">
+          <span className={label}>Referral code (optional)</span>
+          <input
+            className={input}
+            value={referralCode}
+            maxLength={24}
+            placeholder="If a partner sent you"
+            onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+          />
+        </label>
         <label className="block sm:col-span-2">
           <span className={label}>Anything we should know? (optional)</span>
           <textarea

@@ -45,6 +45,8 @@ export type ClientProfile = {
     acceptedAt: string | null;
   } | null;
   addons: { addon: AddonKind; isActive: boolean; priceCents: number }[];
+  /** Partner-network code this client shares, and how many bookings it produced. */
+  referral: { code: string; isActive: boolean; sentCount: number } | null;
   services: { id: string; name: string; basePriceCents: number }[];
   payments: { id: string; status: string; amountCents: number; createdAt: string }[];
   provisioning: ProvisioningState;
@@ -81,7 +83,8 @@ export const getClientProfile = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (!business) return null;
 
-    const [addons, services, payments, provisioning, domains, members] = await Promise.all([
+    const [addons, services, payments, provisioning, domains, members, referralCode, referralsSent] =
+      await Promise.all([
       context.supabase
         .from("business_addons")
         .select("addon, is_active, price_cents")
@@ -112,6 +115,12 @@ export const getClientProfile = createServerFn({ method: "GET" })
         .select("user_id, role, created_at")
         .eq("business_id", business.id)
         .order("created_at", { ascending: true }),
+      context.supabase
+        .from("business_referral_codes")
+        .select("code, is_active")
+        .eq("business_id", business.id)
+        .maybeSingle(),
+      context.supabase.rpc("referrals_sent", { _business_id: business.id }),
     ]);
 
     // Signed terms live on the invite this account was created from.
@@ -164,6 +173,13 @@ export const getClientProfile = createServerFn({ method: "GET" })
         createdAt: m.created_at,
       })),
       membership,
+      referral: referralCode.data
+        ? {
+            code: referralCode.data.code,
+            isActive: referralCode.data.is_active,
+            sentCount: (referralsSent.data ?? []).length,
+          }
+        : null,
       addons: (addons.data ?? []).map((a) => ({
         addon: a.addon as AddonKind,
         isActive: a.is_active,

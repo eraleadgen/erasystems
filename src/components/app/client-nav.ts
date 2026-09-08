@@ -24,5 +24,6 @@ export function buildClientNav(features: PlatformFeature[] | null | undefined): 
     gated("Team", "/team", "specialist_portal"),
     gated("Billing", "/billing", "payments"),
     gated("Analytics", "/analytics", "advanced_analytics"),
+    gated("Referrals", "/referrals", "partner_network"),
   ];
 }
