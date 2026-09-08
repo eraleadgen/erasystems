@@ -72,6 +72,7 @@ export type Database = {
           ends_at: string | null
           id: string
           notes: string | null
+          referred_by_business_id: string | null
           service_id: string | null
           specialist_id: string | null
           starts_at: string
@@ -89,6 +90,7 @@ export type Database = {
           ends_at?: string | null
           id?: string
           notes?: string | null
+          referred_by_business_id?: string | null
           service_id?: string | null
           specialist_id?: string | null
           starts_at: string
@@ -106,6 +108,7 @@ export type Database = {
           ends_at?: string | null
           id?: string
           notes?: string | null
+          referred_by_business_id?: string | null
           service_id?: string | null
           specialist_id?: string | null
           starts_at?: string
@@ -126,6 +129,13 @@ export type Database = {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_referred_by_business_id_fkey"
+            columns: ["referred_by_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
           {
@@ -355,6 +365,38 @@ export type Database = {
             foreignKeyName: "business_members_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_referral_codes: {
+        Row: {
+          business_id: string
+          code: string
+          created_at: string
+          is_active: boolean
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          code: string
+          created_at?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          code?: string
+          created_at?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_referral_codes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
@@ -1212,26 +1254,59 @@ export type Database = {
       invite_throttle_check: { Args: { _ip: string }; Returns: boolean }
       invite_throttle_record: { Args: { _ip: string }; Returns: undefined }
       is_platform_staff: { Args: never; Returns: boolean }
-      release_invite: { Args: { _invite_id: string }; Returns: undefined }
-      request_tenant_booking: {
-        Args: {
-          _address: string
-          _business_id: string
-          _customer_email: string
-          _customer_name: string
-          _customer_phone: string
-          _multiplier: number
-          _notes: string
-          _service_ids: string[]
-          _specialist_id?: string
-          _starts_at: string
-          _subject: string
-        }
+      referrals_sent: {
+        Args: { _business_id: string }
         Returns: {
-          minutes: number
+          booking_id: string
+          created_at: string
+          received_by_business_id: string
+          received_by_name: string
+          starts_at: string
+          status: Database["public"]["Enums"]["booking_status"]
           total_cents: number
         }[]
       }
+      release_invite: { Args: { _invite_id: string }; Returns: undefined }
+      request_tenant_booking:
+        | {
+            Args: {
+              _address: string
+              _business_id: string
+              _customer_email: string
+              _customer_name: string
+              _customer_phone: string
+              _multiplier: number
+              _notes: string
+              _service_ids: string[]
+              _specialist_id?: string
+              _starts_at: string
+              _subject: string
+            }
+            Returns: {
+              minutes: number
+              total_cents: number
+            }[]
+          }
+        | {
+            Args: {
+              _address: string
+              _business_id: string
+              _customer_email: string
+              _customer_name: string
+              _customer_phone: string
+              _multiplier: number
+              _notes: string
+              _referral_code?: string
+              _service_ids: string[]
+              _specialist_id?: string
+              _starts_at: string
+              _subject: string
+            }
+            Returns: {
+              minutes: number
+              total_cents: number
+            }[]
+          }
       tenant_chat_consume: {
         Args: {
           _business_daily_cap?: number
