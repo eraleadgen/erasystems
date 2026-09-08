@@ -810,6 +810,27 @@ export type Database = {
         }
         Relationships: []
       }
+      job_http_secrets: {
+        Row: {
+          created_at: string
+          name: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          name: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          name?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       onboarding_drafts: {
         Row: {
           business_id: string | null
