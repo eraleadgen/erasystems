@@ -19,12 +19,12 @@ export const outcomes = [
   {
     stat: "Faster cash",
     title: "Money moves without chasing",
-    body: "Deposits, invoices and reminders fire off the job itself. Fewer unpaid jobs sitting in someone's head and fewer awkward follow-up texts.",
+    body: "Deposits and invoices run off the job itself, and the appointment reminder emails the customer the day before. Fewer unpaid jobs sitting in someone's head and fewer no-shows.",
   },
   {
     stat: "Repeat work",
     title: "Follow-up that never forgets",
-    body: "Automations bring past customers back on schedule and ask for the review at the right moment, turning one job into the next one automatically.",
+    body: "Every booking is confirmed by email straight away, reminded the day before, and followed by a review request once the job is done — automatically, in the business's own name.",
   },
 ];
 
