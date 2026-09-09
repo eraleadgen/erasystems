@@ -58,10 +58,11 @@ function PlatformPage() {
           >
             <p className="font-display text-xl font-semibold">Revenue on autopilot</p>
             <p className="mt-3 max-w-3xl text-sm leading-relaxed text-primary-foreground/85">
-              A lead lands at 11pm and the chat widget answers it. The quote goes out, the reminder
-              fires, the deposit clears, the job closes, the review request sends, and the customer
-              gets pulled back in months later, without anyone remembering to do any of it.
-              That&apos;s the difference between a business you run and a business that runs.
+              A lead lands at 11pm and the chat widget answers it. The booking confirmation goes out
+              the second it&apos;s made, the reminder emails the customer the day before, the deposit
+              clears, the job closes and the review request sends itself, without anyone remembering
+              to do any of it. That&apos;s the difference between a business you run and a business
+              that runs.
             </p>
           </Reveal>
         </div>
