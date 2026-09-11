@@ -1,9 +1,9 @@
-import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate, useSearch } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
-import { getMyBusiness, type MyBusiness } from "@/lib/business.functions";
+import { getAccountRouting, getMyBusiness, type MyBusiness } from "@/lib/business.functions";
 import { createCheckoutSession, getMyTerms, verifyMyPayment } from "@/lib/payments.functions";
 import { ADDON_LABELS, formatMoney, type PlanTier } from "@/lib/entitlements";
 import { getMyPlanSelection, selectMyPlan } from "@/lib/plan-selection.functions";
@@ -15,7 +15,7 @@ import {
 } from "@/lib/pricing";
 import { intervalLabel } from "@/lib/payments";
 import { AppShell } from "@/components/app/app-shell";
-import { InstallApp } from "@/components/pwa/install-app";
+import { AppDownloads } from "@/components/pwa/app-downloads";
 import { StatusBanner } from "@/components/app/status-banner";
 import { StatTile, CopyRow } from "@/components/app/stat-tile";
 import { SetupProgress, type StepState } from "@/components/app/setup-progress";
@@ -136,6 +136,15 @@ const STATE_COPY: Record<
 };
 
 function Dashboard() {
+  // ERA staff belong in the agency console. Their own client-side portal was
+  // only ever confusing, so it is not offered to them at all.
+  const fetchRouting = useServerFn(getAccountRouting);
+  const routing = useQuery({
+    queryKey: ["account-routing"],
+    queryFn: () => fetchRouting(),
+    retry: false,
+  });
+
   const fetchBusiness = useServerFn(getMyBusiness);
   const { data, isPending, error } = useQuery({
     queryKey: ["my-business"],
@@ -143,7 +152,11 @@ function Dashboard() {
     retry: false,
   });
 
-  if (isPending) {
+  if (routing.data?.isStaff) {
+    return <Navigate to="/admin/clients" replace />;
+  }
+
+  if (isPending || routing.isLoading) {
     return (
       <Shell>
         <div className="era-skeleton h-28 w-full" />
@@ -215,7 +228,10 @@ function Dashboard() {
           : {})}
       />
 
-      <InstallApp kind="team" businessId={data.id} />
+      <AppDownloads
+        businessId={data.id}
+        siteUrl={data.primaryDomain ? `https://${data.primaryDomain}` : null}
+      />
 
       <SetupProgress steps={steps} />
 

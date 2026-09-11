@@ -1,32 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { appIdentityById, monogram } from "@/lib/app-identity.server";
+import { monogramPng } from "@/lib/app-icon.server";
 
 /**
- * Per-business app icon.
+ * Per-business home-screen icon, always a real PNG (iOS ignores SVG icons,
+ * which is why the install prompt previously showed a broken tile).
  *
- * - Logo uploaded  → that business's own logo.
- * - No logo yet    → a generated monogram tile in that business's brand colours,
- *                    with safe padding on the `maskable` variant so Android does
- *                    not crop the initials.
+ * - Logo uploaded  → that business's own logo file.
+ * - No logo yet    → a generated monogram tile in that business's brand colour,
+ *                    with extra padding on the `maskable` variant so Android
+ *                    does not crop the initials.
  *
  * Returns nothing at all unless the business is live with the Downloadable Apps
  * add-on active, so an icon can never be fetched for a client who is not entitled.
  */
-function monogramSvg(text: string, bg: string, fg: string, maskable: boolean) {
-  const pad = maskable ? 0.62 : 0.78; // maskable keeps the initials inside the safe zone
-  const size = 512;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${text}">
-  <rect width="${size}" height="${size}" rx="${maskable ? 0 : 96}" fill="${bg}"/>
-  <text x="50%" y="50%" dy="0.35em" text-anchor="middle"
-    font-family="system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
-    font-weight="700" font-size="${Math.round(size * 0.42 * pad)}" fill="${fg}">${text}</text>
-</svg>`;
-}
-
-function safeColor(value: string | null, fallback: string) {
-  return value && /^#[0-9a-fA-F]{3,8}$/.test(value) ? value : fallback;
-}
+const CONTENT_TYPES: Record<string, string> = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+  svg: "image/svg+xml",
+};
 
 export const Route = createFileRoute("/app-icon/$businessId/$variant")({
   server: {
@@ -40,18 +35,41 @@ export const Route = createFileRoute("/app-icon/$businessId/$variant")({
           return new Response("Not found", { status: 404 });
         }
 
+        // Entitlement gate: returns a row only for a live business with the add-on.
         const identity = await appIdentityById(params.businessId);
         if (!identity) return new Response("Not found", { status: 404 });
 
-        if (identity.logoUrl) {
-          return Response.redirect(identity.logoUrl, 302);
+        const logo = identity.logoUrl;
+        if (logo) {
+          if (/^https?:\/\//i.test(logo)) return Response.redirect(logo, 302);
+
+          // Uploaded logos live in a private bucket, so they are read server-side
+          // and streamed back. Scoped to this business's own stored path only.
+          try {
+            const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+            const { data } = await supabaseAdmin.storage.from("onboarding-logos").download(logo);
+            if (data) {
+              const extension = logo.split(".").pop()?.toLowerCase() ?? "png";
+              return new Response(await data.arrayBuffer(), {
+                headers: {
+                  "Content-Type": CONTENT_TYPES[extension] ?? "image/png",
+                  "Cache-Control": "private, max-age=300",
+                },
+              });
+            }
+          } catch {
+            /* fall through to the generated tile */
+          }
         }
 
-        const bg = safeColor(identity.brandPrimary, "#0f766e");
-        const svg = monogramSvg(monogram(identity.name), bg, "#ffffff", variant === "maskable");
-        return new Response(svg, {
+        const png = monogramPng(
+          monogram(identity.name),
+          identity.brandPrimary,
+          variant === "maskable",
+        );
+        return new Response(new Uint8Array(png), {
           headers: {
-            "Content-Type": "image/svg+xml; charset=utf-8",
+            "Content-Type": "image/png",
             "Cache-Control": "private, max-age=300",
           },
         });

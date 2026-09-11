@@ -12,6 +12,12 @@ import {
 
 const tokenInput = z.object({ token: z.string().min(20).max(200) });
 
+/**
+ * Emailed invitations always point at the live public site, never at whatever
+ * host a staff member happened to be signed in to.
+ */
+const PUBLIC_SITE_ORIGIN = "https://www.eraleadgen.com";
+
 const INVITE_COLUMNS =
   "id, email, full_name, notes, status, expires_at, created_at, accepted_at, plan_tier, subscription_price_cents, setup_fee_cents, billing_interval";
 
@@ -92,7 +98,16 @@ export const createInvite = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data, context }): Promise<{ token: string; invite: InviteSummary }> => {
+  .handler(
+    async ({
+      data,
+      context,
+    }): Promise<{
+      token: string;
+      invite: InviteSummary;
+      emailed: boolean;
+      emailError: string | null;
+    }> => {
     const { data: isStaff } = await context.supabase.rpc("is_platform_staff");
     if (!isStaff) throw new Error("Only platform staff can issue invites.");
 
@@ -137,8 +152,35 @@ export const createInvite = createServerFn({ method: "POST" })
       addonRows = (inserted ?? []) as AddonRow[];
     }
 
-    return { token, invite: toSummary(row as InviteRow, addonRows) };
-  });
+    // The prospect gets the welcome email with their own registration link.
+    // A delivery problem must not lose the invite, so the copyable link is
+    // still returned and the failure is reported back to staff.
+    let emailed = false;
+    let emailError: string | null = null;
+    try {
+      const { sendTemplateEmail } = await import("./email-templates/send-email");
+      const { inviteUrl } = await import("./invites");
+      const result = await sendTemplateEmail("invite-welcome", row.email, {
+        templateData: {
+          fullName: row.full_name.split(" ")[0] || row.full_name,
+          registerUrl: inviteUrl(PUBLIC_SITE_ORIGIN, token),
+          expiresOn: new Date(row.expires_at).toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          }),
+        },
+        idempotencyKey: `invite-welcome-${row.id}`,
+      });
+      emailed = result.sent;
+      if (!result.sent) emailError = "This address is blocked from receiving our email.";
+    } catch (error) {
+      emailError = error instanceof Error ? error.message : "The invitation email did not send.";
+    }
+
+      return { token, invite: toSummary(row as InviteRow, addonRows), emailed, emailError };
+    },
+  );
 
 /** Staff-only: the invite register. Never exposes token_hash. */
 export const listInvites = createServerFn({ method: "GET" })
