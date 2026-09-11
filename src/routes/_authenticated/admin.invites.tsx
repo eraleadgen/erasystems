@@ -108,6 +108,14 @@ function InvitesAdmin() {
     onSuccess: (result) => {
       const origin = typeof window === "undefined" ? "" : window.location.origin;
       setIssuedLink(inviteUrl(origin, result.token));
+      setEmailStatus(
+        result.emailed
+          ? { ok: true, message: `A welcome email with this link was sent to ${result.invite.email}.` }
+          : {
+              ok: false,
+              message: `The welcome email did not send${result.emailError ? `: ${result.emailError}` : ""}. Send the link above manually.`,
+            },
+      );
       setEmail("");
       setFullName("");
       setNotes("");
