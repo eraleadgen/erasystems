@@ -92,7 +92,16 @@ export const createInvite = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data, context }): Promise<{ token: string; invite: InviteSummary }> => {
+  .handler(
+    async ({
+      data,
+      context,
+    }): Promise<{
+      token: string;
+      invite: InviteSummary;
+      emailed: boolean;
+      emailError: string | null;
+    }> => {
     const { data: isStaff } = await context.supabase.rpc("is_platform_staff");
     if (!isStaff) throw new Error("Only platform staff can issue invites.");
 
