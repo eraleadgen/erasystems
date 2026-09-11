@@ -23,15 +23,10 @@ export function buildManifest(identity: AppIdentity, kind: AppKind) {
     theme_color: identity.brandPrimary,
     background_color: identity.brandAccent || identity.brandPrimary,
     icons: [
-      { src: `${base}/any`, sizes: "512x512", type: iconType(identity), purpose: "any" },
-      { src: `${base}/maskable`, sizes: "512x512", type: iconType(identity), purpose: "maskable" },
+      { src: `${base}/any.png`, sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: `${base}/maskable.png`, sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
   };
-}
-
-function iconType(identity: AppIdentity) {
-  if (!identity.logoUrl) return "image/svg+xml";
-  return identity.logoUrl.toLowerCase().endsWith(".svg") ? "image/svg+xml" : "image/png";
 }
 
 function shorten(name: string) {
