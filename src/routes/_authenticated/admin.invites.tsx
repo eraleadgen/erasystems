@@ -64,6 +64,7 @@ function InvitesAdmin() {
     white_label_branding: "",
   });
   const [issuedLink, setIssuedLink] = useState<string | null>(null);
+  const [emailStatus, setEmailStatus] = useState<{ ok: boolean; message: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Anonymous visitors carry no bearer token; the staff-only fn would 401 and
@@ -282,6 +283,13 @@ function InvitesAdmin() {
             Copy this link now (shown once)
           </p>
           <code className="mt-2 block break-all text-sm text-foreground">{issuedLink}</code>
+          {emailStatus ? (
+            <p
+              className={`mt-3 text-sm ${emailStatus.ok ? "text-muted-foreground" : "text-destructive"}`}
+            >
+              {emailStatus.message}
+            </p>
+          ) : null}
         </div>
       ) : null}
 
