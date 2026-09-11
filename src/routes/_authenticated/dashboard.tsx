@@ -1,9 +1,9 @@
-import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate, useSearch } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
-import { getMyBusiness, type MyBusiness } from "@/lib/business.functions";
+import { getAccountRouting, getMyBusiness, type MyBusiness } from "@/lib/business.functions";
 import { createCheckoutSession, getMyTerms, verifyMyPayment } from "@/lib/payments.functions";
 import { ADDON_LABELS, formatMoney, type PlanTier } from "@/lib/entitlements";
 import { getMyPlanSelection, selectMyPlan } from "@/lib/plan-selection.functions";
@@ -152,7 +152,11 @@ function Dashboard() {
     retry: false,
   });
 
-  if (isPending) {
+  if (routing.data?.isStaff) {
+    return <Navigate to="/admin/clients" replace />;
+  }
+
+  if (isPending || routing.isLoading) {
     return (
       <Shell>
         <div className="era-skeleton h-28 w-full" />
