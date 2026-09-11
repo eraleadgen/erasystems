@@ -136,6 +136,15 @@ const STATE_COPY: Record<
 };
 
 function Dashboard() {
+  // ERA staff belong in the agency console. Their own client-side portal was
+  // only ever confusing, so it is not offered to them at all.
+  const fetchRouting = useServerFn(getAccountRouting);
+  const routing = useQuery({
+    queryKey: ["account-routing"],
+    queryFn: () => fetchRouting(),
+    retry: false,
+  });
+
   const fetchBusiness = useServerFn(getMyBusiness);
   const { data, isPending, error } = useQuery({
     queryKey: ["my-business"],
