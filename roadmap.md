@@ -11,3 +11,9 @@
 
 ## Next: monthly statement document (Enterprise)
 - [x] Monthly statement (Enterprise): built, verified, pull-only
+
+## Installable apps + invite flow (Sep 2026)
+- [ ] Real PNG home-screen icons (logo from private storage, monogram fallback)
+- [ ] Two clearly separated app downloads: business admin app + customer app
+- [ ] ERA's own dashboard: hide client-facing customer portal surfaces
+- [ ] Generate invite link also emails the prospect a welcome + register link
