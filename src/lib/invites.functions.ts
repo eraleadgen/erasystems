@@ -12,6 +12,12 @@ import {
 
 const tokenInput = z.object({ token: z.string().min(20).max(200) });
 
+/**
+ * Emailed invitations always point at the live public site, never at whatever
+ * host a staff member happened to be signed in to.
+ */
+const PUBLIC_SITE_ORIGIN = "https://www.eraleadgen.com";
+
 const INVITE_COLUMNS =
   "id, email, full_name, notes, status, expires_at, created_at, accepted_at, plan_tier, subscription_price_cents, setup_fee_cents, billing_interval";
 
@@ -172,8 +178,9 @@ export const createInvite = createServerFn({ method: "POST" })
       emailError = error instanceof Error ? error.message : "The invitation email did not send.";
     }
 
-    return { token, invite: toSummary(row as InviteRow, addonRows), emailed, emailError };
-  });
+      return { token, invite: toSummary(row as InviteRow, addonRows), emailed, emailError };
+    },
+  );
 
 /** Staff-only: the invite register. Never exposes token_hash. */
 export const listInvites = createServerFn({ method: "GET" })
