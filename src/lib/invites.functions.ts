@@ -137,7 +137,33 @@ export const createInvite = createServerFn({ method: "POST" })
       addonRows = (inserted ?? []) as AddonRow[];
     }
 
-    return { token, invite: toSummary(row as InviteRow, addonRows) };
+    // The prospect gets the welcome email with their own registration link.
+    // A delivery problem must not lose the invite, so the copyable link is
+    // still returned and the failure is reported back to staff.
+    let emailed = false;
+    let emailError: string | null = null;
+    try {
+      const { sendTemplateEmail } = await import("./email-templates/send-email");
+      const { inviteUrl } = await import("./invites");
+      const result = await sendTemplateEmail("invite-welcome", row.email, {
+        templateData: {
+          fullName: row.full_name.split(" ")[0] || row.full_name,
+          registerUrl: inviteUrl(PUBLIC_SITE_ORIGIN, token),
+          expiresOn: new Date(row.expires_at).toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          }),
+        },
+        idempotencyKey: `invite-welcome-${row.id}`,
+      });
+      emailed = result.sent;
+      if (!result.sent) emailError = "This address is blocked from receiving our email.";
+    } catch (error) {
+      emailError = error instanceof Error ? error.message : "The invitation email did not send.";
+    }
+
+    return { token, invite: toSummary(row as InviteRow, addonRows), emailed, emailError };
   });
 
 /** Staff-only: the invite register. Never exposes token_hash. */
