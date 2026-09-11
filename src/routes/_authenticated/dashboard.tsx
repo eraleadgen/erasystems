@@ -15,7 +15,7 @@ import {
 } from "@/lib/pricing";
 import { intervalLabel } from "@/lib/payments";
 import { AppShell } from "@/components/app/app-shell";
-import { InstallApp } from "@/components/pwa/install-app";
+import { AppDownloads } from "@/components/pwa/app-downloads";
 import { StatusBanner } from "@/components/app/status-banner";
 import { StatTile, CopyRow } from "@/components/app/stat-tile";
 import { SetupProgress, type StepState } from "@/components/app/setup-progress";
@@ -215,7 +215,10 @@ function Dashboard() {
           : {})}
       />
 
-      <InstallApp kind="team" businessId={data.id} />
+      <AppDownloads
+        businessId={data.id}
+        siteUrl={data.primaryDomain ? `https://${data.primaryDomain}` : null}
+      />
 
       <SetupProgress steps={steps} />
 
