@@ -1356,6 +1356,7 @@ export type Database = {
           reason: string
         }[]
       }
+      tenant_site_is_live: { Args: { _business_id: string }; Returns: boolean }
     }
     Enums: {
       addon_kind: "ad_management" | "white_label_branding"

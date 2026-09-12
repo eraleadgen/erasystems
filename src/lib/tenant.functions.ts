@@ -95,6 +95,17 @@ export const resolveTenant = createServerFn({ method: "GET" })
 
     if (!business) return null;
 
+    // A client's public site stays dark until staff mark the website live in
+    // the delivery checklist. Staff previews (?tenant= on a platform host) are
+    // deliberately exempt so an unfinished site can still be reviewed.
+    if (businessId) {
+      const { data: isLive } = await supabasePublic.rpc("tenant_site_is_live", {
+        _business_id: businessId,
+      });
+      if (!isLive) return null;
+    }
+
+
     return {
       businessId: business.id,
       slug: business.slug,
