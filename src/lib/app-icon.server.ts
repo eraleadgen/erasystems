@@ -437,13 +437,16 @@ export function monogramPng(text: string, brandHex: string, maskable: boolean, s
   type Seg = { a: Pt; b: Pt };
   const segments: Seg[] = [];
   letters.forEach((ch, i) => {
-    const glyph = FONT[ch] ?? FONT["O"];
+    const glyph = FONT[ch] ?? FONT["O"] ?? [];
     const ox = originX + i * (glyphWidth + gap);
     for (const poly of glyph) {
       for (let j = 0; j < poly.length - 1; j += 1) {
+        const p = poly[j];
+        const q = poly[j + 1];
+        if (!p || !q) continue;
         segments.push({
-          a: [ox + poly[j][0] * glyphWidth, originY + poly[j][1] * boxHeight],
-          b: [ox + poly[j + 1][0] * glyphWidth, originY + poly[j + 1][1] * boxHeight],
+          a: [ox + p[0] * glyphWidth, originY + p[1] * boxHeight],
+          b: [ox + q[0] * glyphWidth, originY + q[1] * boxHeight],
         });
       }
     }
@@ -483,7 +486,8 @@ const CRC_TABLE = (() => {
 
 function crc32(buf: Buffer) {
   let c = 0xffffffff;
-  for (let i = 0; i < buf.length; i += 1) c = CRC_TABLE[(c ^ buf[i]) & 0xff] ^ (c >>> 8);
+  for (let i = 0; i < buf.length; i += 1)
+    c = (CRC_TABLE[(c ^ (buf[i] ?? 0)) & 0xff] ?? 0) ^ (c >>> 8);
   return (c ^ 0xffffffff) >>> 0;
 }
 
