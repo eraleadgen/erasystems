@@ -306,3 +306,19 @@ No elevated access. Two guarded database functions instead:
   `review_request_sent_at`, `businesses.welcome_email_sent_at`) so overlapping runs or
   webhook retries can never double-email; the claim is released if the send errors.
 - Nothing else in tenant data is written.
+
+### App icons (2026-09-09)
+
+`src/routes/app-icon/$businessId/$variant.ts`.
+
+- Public, unauthenticated route: a home-screen icon must be fetchable by the phone
+  installing the app, and by anyone the client shares their site with.
+- Entitlement is resolved first through `appIdentityById`, which only returns a row
+  for an active business holding the downloadable-app add-on. A business without it
+  gets a 404 and no elevated call is made.
+- Elevation is used for exactly one thing: reading the logo object out of the private
+  `onboarding-logos` bucket. The storage path comes from that business's own
+  `logo_url` column, resolved server-side from the validated `businessId` in the URL;
+  no caller-supplied path is ever passed to storage.
+- No table is written and nothing but the image bytes is returned. If the object is
+  missing or unreadable, the route falls back to a generated monogram.
