@@ -180,25 +180,30 @@ function ClientProfilePage() {
               <Row label="Account created" value={new Date(profile.createdAt).toLocaleDateString()} />
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              <a
-                href={`/?tenant=${profile.slug}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground"
-              >
-                Preview client website
-              </a>
+              {/* A client with their own live address is best previewed there:
+                  the internal ?tenant= preview is a build-time view and, for
+                  ERA's own record, renders a stub instead of the real site. */}
               {profile.primaryDomain ? (
                 <a
                   href={`https://${profile.primaryDomain}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex rounded-md border border-border/70 px-3 py-2 text-xs font-medium"
+                  className="inline-flex rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground"
                 >
                   Open {profile.primaryDomain}
                 </a>
-              ) : null}
+              ) : (
+                <a
+                  href={`/?tenant=${profile.slug}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground"
+                >
+                  Preview client website
+                </a>
+              )}
             </div>
+
           </section>
 
 
