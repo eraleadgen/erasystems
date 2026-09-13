@@ -33,7 +33,7 @@ function AddonsPage() {
       <PageHero
         eyebrow="Add-ons"
         title="Two add-ons, priced per business"
-        lede="Available on any tier, including Basic. They are never included in a plan and never granted by upgrading. The price is quoted for your business on the discovery call."
+        lede="Both add-ons are coming soon. They will be available on any tier, including Basic, never included in a plan and never granted by upgrading. The price is quoted for your business on the discovery call."
       />
 
       <section className="section-glow">
@@ -46,12 +46,14 @@ function AddonsPage() {
                     <h2 className="font-display text-lg font-semibold text-foreground">
                       {addon.name}
                     </h2>
-                    <span className="shrink-0 text-xs font-semibold uppercase tracking-widest text-gold">
-                      Custom pricing
+                    <span className="shrink-0 rounded-full border border-gold/40 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-gold">
+                      Coming soon
                     </span>
                   </div>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{addon.body}</p>
-                  <p className="mt-5 text-xs text-muted-foreground">Available on any tier</p>
+                  <p className="mt-5 text-xs text-muted-foreground">
+                    Coming soon · available on any tier
+                  </p>
                 </article>
               </Reveal>
             ))}
