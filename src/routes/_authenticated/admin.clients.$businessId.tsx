@@ -29,6 +29,7 @@ import {
 import { StatusLight, statusFor } from "@/components/app/launch-status";
 import { DeliveryWorkspace } from "@/components/app/delivery-workspace";
 import { AiAgentDeliveryEditor } from "@/components/app/ai-agent-delivery";
+import { ClientAppLinks } from "@/components/pwa/client-app-links";
 
 export const Route = createFileRoute("/_authenticated/admin/clients/$businessId")({
   head: () => ({
@@ -131,6 +132,9 @@ function ClientProfilePage() {
         </Link>
 
         <ClientSummary businessId={businessId} profile={profile} />
+
+        <ClientAppLinks businessId={businessId} primaryDomain={profile.primaryDomain ?? null} />
+
 
 
         <div className="grid gap-6 lg:grid-cols-2">
