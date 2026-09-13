@@ -17,11 +17,9 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as PortalRouteImport } from './routes/portal'
-import { Route as PortalDotwebmanifestRouteImport } from './routes/portal[.]webmanifest'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ProofRouteImport } from './routes/proof'
 import { Route as RegisterRouteImport } from './routes/register'
-import { Route as SiteDotwebmanifestRouteImport } from './routes/site[.]webmanifest'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SpecialistsRouteImport } from './routes/specialists'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -42,7 +40,6 @@ import { Route as AuthenticatedAdminDocumentsRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminInvitesRouteImport } from './routes/_authenticated/admin.invites'
 import { Route as AuthenticatedAdminSalesRouteImport } from './routes/_authenticated/admin.sales'
 import { Route as AuthenticatedStatementMonthRouteImport } from './routes/_authenticated/statement.$month'
-import { Route as AppIconBusinessIdVariantRouteImport } from './routes/app-icon/$businessId/$variant'
 import { Route as AuthenticatedAdminClientsIndexRouteImport } from './routes/_authenticated/admin.clients.index'
 import { Route as AuthenticatedAdminClientsBusinessIdRouteImport } from './routes/_authenticated/admin.clients.$businessId'
 import { Route as ApiPublicCronBookingRemindersRouteImport } from './routes/api/public/cron/booking-reminders'
@@ -91,11 +88,6 @@ const PortalRoute = PortalRouteImport.update({
   path: '/portal',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PortalDotwebmanifestRoute = PortalDotwebmanifestRouteImport.update({
-  id: '/portal.webmanifest',
-  path: '/portal.webmanifest',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
@@ -109,11 +101,6 @@ const ProofRoute = ProofRouteImport.update({
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SiteDotwebmanifestRoute = SiteDotwebmanifestRouteImport.update({
-  id: '/site.webmanifest',
-  path: '/site.webmanifest',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -222,12 +209,6 @@ const AuthenticatedStatementMonthRoute =
     path: '/statement/$month',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AppIconBusinessIdVariantRoute =
-  AppIconBusinessIdVariantRouteImport.update({
-    id: '/app-icon/$businessId/$variant',
-    path: '/app-icon/$businessId/$variant',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const AuthenticatedAdminClientsIndexRoute =
   AuthenticatedAdminClientsIndexRouteImport.update({
     id: '/clients/',
@@ -284,11 +265,9 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/platform': typeof PlatformRoute
   '/portal': typeof PortalRoute
-  '/portal.webmanifest': typeof PortalDotwebmanifestRoute
   '/pricing': typeof PricingRoute
   '/proof': typeof ProofRoute
   '/register': typeof RegisterRoute
-  '/site.webmanifest': typeof SiteDotwebmanifestRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -309,7 +288,6 @@ export interface FileRoutesByFullPath {
   '/admin/invites': typeof AuthenticatedAdminInvitesRoute
   '/admin/sales': typeof AuthenticatedAdminSalesRoute
   '/statement/$month': typeof AuthenticatedStatementMonthRoute
-  '/app-icon/$businessId/$variant': typeof AppIconBusinessIdVariantRoute
   '/admin/clients/$businessId': typeof AuthenticatedAdminClientsBusinessIdRoute
   '/api/public/cron/booking-reminders': typeof ApiPublicCronBookingRemindersRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
@@ -327,11 +305,9 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/platform': typeof PlatformRoute
   '/portal': typeof PortalRoute
-  '/portal.webmanifest': typeof PortalDotwebmanifestRoute
   '/pricing': typeof PricingRoute
   '/proof': typeof ProofRoute
   '/register': typeof RegisterRoute
-  '/site.webmanifest': typeof SiteDotwebmanifestRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -352,7 +328,6 @@ export interface FileRoutesByTo {
   '/admin/invites': typeof AuthenticatedAdminInvitesRoute
   '/admin/sales': typeof AuthenticatedAdminSalesRoute
   '/statement/$month': typeof AuthenticatedStatementMonthRoute
-  '/app-icon/$businessId/$variant': typeof AppIconBusinessIdVariantRoute
   '/admin/clients/$businessId': typeof AuthenticatedAdminClientsBusinessIdRoute
   '/api/public/cron/booking-reminders': typeof ApiPublicCronBookingRemindersRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
@@ -372,11 +347,9 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/platform': typeof PlatformRoute
   '/portal': typeof PortalRoute
-  '/portal.webmanifest': typeof PortalDotwebmanifestRoute
   '/pricing': typeof PricingRoute
   '/proof': typeof ProofRoute
   '/register': typeof RegisterRoute
-  '/site.webmanifest': typeof SiteDotwebmanifestRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -397,7 +370,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/invites': typeof AuthenticatedAdminInvitesRoute
   '/_authenticated/admin/sales': typeof AuthenticatedAdminSalesRoute
   '/_authenticated/statement/$month': typeof AuthenticatedStatementMonthRoute
-  '/app-icon/$businessId/$variant': typeof AppIconBusinessIdVariantRoute
   '/_authenticated/admin/clients/$businessId': typeof AuthenticatedAdminClientsBusinessIdRoute
   '/api/public/cron/booking-reminders': typeof ApiPublicCronBookingRemindersRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
@@ -417,11 +389,9 @@ export interface FileRouteTypes {
     | '/faq'
     | '/platform'
     | '/portal'
-    | '/portal.webmanifest'
     | '/pricing'
     | '/proof'
     | '/register'
-    | '/site.webmanifest'
     | '/sitemap.xml'
     | '/specialists'
     | '/admin'
@@ -442,7 +412,6 @@ export interface FileRouteTypes {
     | '/admin/invites'
     | '/admin/sales'
     | '/statement/$month'
-    | '/app-icon/$businessId/$variant'
     | '/admin/clients/$businessId'
     | '/api/public/cron/booking-reminders'
     | '/api/public/cron/expire-businesses'
@@ -460,11 +429,9 @@ export interface FileRouteTypes {
     | '/faq'
     | '/platform'
     | '/portal'
-    | '/portal.webmanifest'
     | '/pricing'
     | '/proof'
     | '/register'
-    | '/site.webmanifest'
     | '/sitemap.xml'
     | '/specialists'
     | '/admin'
@@ -485,7 +452,6 @@ export interface FileRouteTypes {
     | '/admin/invites'
     | '/admin/sales'
     | '/statement/$month'
-    | '/app-icon/$businessId/$variant'
     | '/admin/clients/$businessId'
     | '/api/public/cron/booking-reminders'
     | '/api/public/cron/expire-businesses'
@@ -504,11 +470,9 @@ export interface FileRouteTypes {
     | '/faq'
     | '/platform'
     | '/portal'
-    | '/portal.webmanifest'
     | '/pricing'
     | '/proof'
     | '/register'
-    | '/site.webmanifest'
     | '/sitemap.xml'
     | '/specialists'
     | '/_authenticated/admin'
@@ -529,7 +493,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/invites'
     | '/_authenticated/admin/sales'
     | '/_authenticated/statement/$month'
-    | '/app-icon/$businessId/$variant'
     | '/_authenticated/admin/clients/$businessId'
     | '/api/public/cron/booking-reminders'
     | '/api/public/cron/expire-businesses'
@@ -549,14 +512,11 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   PlatformRoute: typeof PlatformRoute
   PortalRoute: typeof PortalRoute
-  PortalDotwebmanifestRoute: typeof PortalDotwebmanifestRoute
   PricingRoute: typeof PricingRoute
   ProofRoute: typeof ProofRoute
   RegisterRoute: typeof RegisterRoute
-  SiteDotwebmanifestRoute: typeof SiteDotwebmanifestRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SpecialistsRoute: typeof SpecialistsRoute
-  AppIconBusinessIdVariantRoute: typeof AppIconBusinessIdVariantRoute
   ApiPublicCronBookingRemindersRoute: typeof ApiPublicCronBookingRemindersRoute
   ApiPublicCronExpireBusinessesRoute: typeof ApiPublicCronExpireBusinessesRoute
   ApiPublicCronMonthlyStatementsRoute: typeof ApiPublicCronMonthlyStatementsRoute
@@ -623,13 +583,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortalRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/portal.webmanifest': {
-      id: '/portal.webmanifest'
-      path: '/portal.webmanifest'
-      fullPath: '/portal.webmanifest'
-      preLoaderRoute: typeof PortalDotwebmanifestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/pricing': {
       id: '/pricing'
       path: '/pricing'
@@ -649,13 +602,6 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/site.webmanifest': {
-      id: '/site.webmanifest'
-      path: '/site.webmanifest'
-      fullPath: '/site.webmanifest'
-      preLoaderRoute: typeof SiteDotwebmanifestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -798,13 +744,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStatementMonthRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/app-icon/$businessId/$variant': {
-      id: '/app-icon/$businessId/$variant'
-      path: '/app-icon/$businessId/$variant'
-      fullPath: '/app-icon/$businessId/$variant'
-      preLoaderRoute: typeof AppIconBusinessIdVariantRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/admin/clients/': {
       id: '/_authenticated/admin/clients/'
       path: '/clients'
@@ -932,14 +871,11 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   PlatformRoute: PlatformRoute,
   PortalRoute: PortalRoute,
-  PortalDotwebmanifestRoute: PortalDotwebmanifestRoute,
   PricingRoute: PricingRoute,
   ProofRoute: ProofRoute,
   RegisterRoute: RegisterRoute,
-  SiteDotwebmanifestRoute: SiteDotwebmanifestRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SpecialistsRoute: SpecialistsRoute,
-  AppIconBusinessIdVariantRoute: AppIconBusinessIdVariantRoute,
   ApiPublicCronBookingRemindersRoute: ApiPublicCronBookingRemindersRoute,
   ApiPublicCronExpireBusinessesRoute: ApiPublicCronExpireBusinessesRoute,
   ApiPublicCronMonthlyStatementsRoute: ApiPublicCronMonthlyStatementsRoute,
