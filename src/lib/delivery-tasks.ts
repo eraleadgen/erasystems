@@ -211,10 +211,9 @@ export const DELIVERY_PHASES: DeliveryPhase[] = [
         requires: { kind: "feature", feature: "specialist_portal" },
       },
       {
-        key: "downloadable_app",
-        label: "Downloadable apps built",
-        detail:
-          "Branded customer app and business operations app configured, icons and store listing prepared.",
+        key: "white_label_branding",
+        label: "White-label branding applied",
+        detail: "Client name, logo and colours applied across the platform surfaces they use.",
         owner: "era",
         day: 5,
         requires: { kind: "addon", addon: "white_label_branding" },

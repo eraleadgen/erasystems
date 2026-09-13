@@ -51,7 +51,7 @@ export const ALL_FEATURES = Object.keys(FEATURE_LABELS) as PlatformFeature[];
 
 export const ADDON_LABELS: Record<AddonKind, string> = {
   ad_management: "Ad Management",
-  white_label_branding: "Downloadable Apps",
+  white_label_branding: "White-Label Branding",
 };
 
 export const ALL_ADDONS = Object.keys(ADDON_LABELS) as AddonKind[];
