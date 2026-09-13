@@ -10,7 +10,6 @@ import {
 } from "@/lib/tenant-site";
 import { TenantBookingForm } from "@/components/tenant/booking-form";
 import { TenantChatWidget } from "@/components/tenant/chat-widget";
-import { InstallApp } from "@/components/pwa/install-app";
 
 /**
  * The generic public website every tenant gets.
@@ -85,10 +84,6 @@ export function TenantSite({
           </nav>
         </div>
       </header>
-
-      <div className="mx-auto max-w-5xl px-6 pt-4">
-        <InstallApp kind="customer" />
-      </div>
 
 
       <section className="border-b border-border">

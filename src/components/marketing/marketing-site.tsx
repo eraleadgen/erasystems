@@ -20,7 +20,7 @@ const summary = [
   {
     to: "/addons" as const,
     label: "Add-ons",
-    title: "Ad Management & Downloadable Apps",
+    title: "Ad Management & White-Label Branding",
     body: "Available on any tier, quoted per business, never bundled into a plan.",
   },
   {

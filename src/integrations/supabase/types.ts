@@ -1254,28 +1254,6 @@ export type Database = {
         Args: { _business_id: string }
         Returns: boolean
       }
-      app_identity: {
-        Args: { _business_id: string }
-        Returns: {
-          brand_accent: string
-          brand_primary: string
-          business_id: string
-          logo_url: string
-          name: string
-          slug: string
-        }[]
-      }
-      app_identity_for_host: {
-        Args: { _hostname: string }
-        Returns: {
-          brand_accent: string
-          brand_primary: string
-          business_id: string
-          logo_url: string
-          name: string
-          slug: string
-        }[]
-      }
       claim_customer_account: { Args: { _token_hash: string }; Returns: string }
       consume_invite: {
         Args: { _token_hash: string }

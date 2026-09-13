@@ -7,15 +7,9 @@ import { getAccountRouting, getMyBusiness, type MyBusiness } from "@/lib/busines
 import { createCheckoutSession, getMyTerms, verifyMyPayment } from "@/lib/payments.functions";
 import { ADDON_LABELS, formatMoney, type PlanTier } from "@/lib/entitlements";
 import { getMyPlanSelection, selectMyPlan } from "@/lib/plan-selection.functions";
-import {
-  APP_ADDON_BLURB,
-  APP_ADDON_NAME,
-  PLAN_PRICING,
-  SELECTABLE_TIERS,
-} from "@/lib/pricing";
+import { PLAN_PRICING, SELECTABLE_TIERS } from "@/lib/pricing";
 import { intervalLabel } from "@/lib/payments";
 import { AppShell } from "@/components/app/app-shell";
-import { AppDownloads } from "@/components/pwa/app-downloads";
 import { StatusBanner } from "@/components/app/status-banner";
 import { StatTile, CopyRow } from "@/components/app/stat-tile";
 import { SetupProgress, type StepState } from "@/components/app/setup-progress";
@@ -228,11 +222,6 @@ function Dashboard() {
           : {})}
       />
 
-      <AppDownloads
-        businessId={data.id}
-        siteUrl={data.primaryDomain ? `https://${data.primaryDomain}` : null}
-      />
-
       <SetupProgress steps={steps} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -387,15 +376,6 @@ function PlanPicker({ canPay }: { canPay: boolean }) {
             </button>
           );
         })}
-      </div>
-
-      <div className="era-hairline mt-5 border-t pt-4">
-        <p className="text-sm font-medium text-foreground">{APP_ADDON_NAME}</p>
-        <p className="mt-1 text-xs text-muted-foreground">{APP_ADDON_BLURB}</p>
-        <p className="mt-3 text-xs text-muted-foreground">
-          Available on any plan, quoted per business on a call with your ERA representative, so it
-          isn&apos;t bought here.
-        </p>
       </div>
 
 

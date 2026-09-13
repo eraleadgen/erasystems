@@ -25,7 +25,7 @@ export const Route = createFileRoute("/_authenticated/admin/addons")({
       {
         name: "description",
         content:
-          "Platform staff activate Ad Management and Downloadable Apps per client and set the per-client amount.",
+          "Platform staff activate Ad Management and White-Label Branding per client and set the per-client amount.",
       },
       { property: "og:title", content: "Add-on management | ERA Systems" },
       {

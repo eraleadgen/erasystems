@@ -136,7 +136,7 @@ export const template = {
     slug: "vds",
     planTier: "Enterprise",
     amount: "$4,000",
-    addons: "Downloadable Apps",
+    addons: "White-Label Branding",
     ownerEmail: "owner@example.com",
     ownerName: "Owner",
     timezone: "America/New_York",
