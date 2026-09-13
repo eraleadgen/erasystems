@@ -1,19 +1,19 @@
 # Roadmap
 
-## In progress: tenant AI chat widget (all tiers)
-- [x] Tenant-scoped chat server route grounded in live catalog/hours
-- [x] Quote + booking via existing request_tenant_booking (no second pricing path)
-- [x] Rate limits + per-business daily spend guard
-- [x] Daily automatic reset at fixed UTC time + email notice to owner and support@ when cap fires
-- [x] System prompt: refuse competitors / other pricing / owner-personal topics, redirect to services
-- [x] Branded bubble in shared tenant site template (+ VDS variant)
-- [x] Acceptance test with throwaway client, then delete
+## Done
+- Tenant isolation, invites, onboarding, payments, delivery workspace
+- Generic tenant website + booking, AI chat widget (all tiers)
+- Growth customer + specialist portals
+- Enterprise analytics, monthly statements, partner network, AI-agent delivery tracks
+- Customer emails: booking confirmation, reminder, review request, owner welcome (scheduled + proven)
+- Invite link also emails the prospect a welcome + register link
+- Client sites hidden until marked Live
 
-## Next: monthly statement document (Enterprise)
-- [x] Monthly statement (Enterprise): built, verified, pull-only
+## Dropped (Sep 2026)
+- Downloadable white-label apps — removed entirely, on hold until further notice
 
-## Installable apps + invite flow (Sep 2026)
-- [x] Real PNG home-screen icons (logo from private storage, monogram fallback)
-- [x] Two clearly separated app downloads: business admin app + customer app
-- [x] ERA's own dashboard: hide client-facing customer portal surfaces
-- [x] Generate invite link also emails the prospect a welcome + register link
+## Remaining before signing clients
+- [ ] VDS migration onto the live domain
+- [ ] Publish the current build (lovable.app redirect + latest changes are not live yet)
+- [ ] Switch Stripe from test key to live for real charges
+- [ ] Clear remaining database security linter warnings
