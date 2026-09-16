@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 
 import logo from "@/assets/vds-logo.png.asset.json";
+import heroPhoto from "@/assets/vds-hero-2.jpg.asset.json";
+import { GoldParticles } from "@/components/vds/gold-particles";
 import type { ResolvedTenant } from "@/lib/tenant.functions";
 import type { TenantService } from "@/components/tenant-home";
 import { requestTenantBooking } from "@/lib/tenant-booking.functions";
