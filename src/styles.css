@@ -872,6 +872,42 @@
   pointer-events: none;
 }
 
+.vds-site .vds-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.vds-site .vds-particle {
+  position: absolute;
+  border-radius: 9999px;
+  background: var(--primary);
+  box-shadow: 0 0 6px color-mix(in oklab, var(--primary) 80%, transparent);
+  animation-name: vdsParticleDrift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes vdsParticleDrift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.8);
+  }
+  50% {
+    transform: translate3d(var(--vds-drift, 20px), -36px, 0) scale(1.15);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(0.8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vds-site .vds-particle {
+    animation: none;
+  }
+}
+
 .vds-site .vds-band {
   background-image: linear-gradient(
     180deg,
