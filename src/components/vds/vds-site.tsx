@@ -328,8 +328,12 @@ function QuoteAndBook({
   services: TenantService[];
 }) {
   const submit = useServerFn(requestTenantBooking);
+  const [classification, setClassification] = useState<string>("sedan");
+  const [condition, setCondition] = useState<string>("light");
   const [selected, setSelected] = useState<string[]>([]);
-  const [condition, setCondition] = useState<ConditionId>("light");
+  const [addOns, setAddOns] = useState<string[]>([]);
+  const [consultations, setConsultations] = useState<string[]>([]);
+  const [paintProtection, setPaintProtection] = useState(false);
   const [form, setForm] = useState({
     vehicle: "",
     customerName: "",
@@ -343,40 +347,65 @@ function QuoteAndBook({
   const [state, setState] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState<string | null>(null);
 
-  const multiplier =
-    VEHICLE_CONDITIONS.find((c) => c.id === condition)?.multiplier ?? 1;
+  const mainServices = VDS_CONFIG.services.filter(
+    (s) => s.category === "detail" && !s.requires_consultation,
+  );
+  const addOnServices = VDS_CONFIG.services.filter((s) => s.category === "addon");
+  const consultServices = VDS_CONFIG.services.filter((s) => s.requires_consultation);
 
-  const quote = useMemo(() => {
-    const chosen = services.filter((s) => selected.includes(s.id));
-    const cents = chosen.reduce((sum, s) => sum + s.base_price_cents, 0);
-    const minutes = chosen.reduce((sum, s) => sum + s.duration_minutes, 0);
-    return { cents: Math.round(cents * multiplier), minutes, chosen };
-  }, [services, selected, multiplier]);
+  const quote = useMemo(
+    () =>
+      computeQuote({
+        classification,
+        condition,
+        selected,
+        addOns,
+        consultations,
+        paintProtection: paintProtection ? "paint_protection" : "none",
+      }),
+    [classification, condition, selected, addOns, consultations, paintProtection],
+  );
 
-  function toggle(id: string) {
-    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  /** Match a config service to the live catalog row so the server can reprice it. */
+  function catalogIdFor(key: string): string | null {
+    const label = VDS_CONFIG.services.find((s) => s.key === key)?.label?.toLowerCase();
+    if (!label) return null;
+    return services.find((s) => s.name.trim().toLowerCase() === label)?.id ?? null;
+  }
+
+  function toggle(list: string[], set: (v: string[]) => void, key: string) {
+    set(list.includes(key) ? list.filter((k) => k !== key) : [...list, key]);
   }
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
-    if (selected.length === 0) {
+    if (selected.length === 0 && addOns.length === 0 && consultations.length === 0) {
       setError("Choose at least one service.");
+      return;
+    }
+    const serviceIds = [...selected, ...addOns, ...consultations]
+      .map(catalogIdFor)
+      .filter((id): id is string => Boolean(id));
+    if (serviceIds.length === 0) {
+      setError("We could not price that combination online, please text us.");
       return;
     }
     setState("sending");
     try {
+      const classLabel =
+        VDS_CONFIG.vehicle_classifications.find((c) => c.key === classification)?.label ?? "";
       await submit({
         data: {
           businessId,
-          serviceIds: selected,
-          conditionMultiplier: multiplier,
+          serviceIds,
+          conditionMultiplier: quote.conditionMultiplier,
           customerName: form.customerName,
           customerPhone: form.customerPhone,
           customerEmail: form.customerEmail,
-          vehicle: form.vehicle,
+          vehicle: `${form.vehicle} (${classLabel})`.trim(),
           address: form.address,
-          notes: form.notes,
+          notes: [form.notes, quote.summary].filter(Boolean).join(" — ").slice(0, 1000),
           startsAt: new Date(`${form.date}T${form.time}:00`).toISOString(),
         },
       });
@@ -401,103 +430,112 @@ function QuoteAndBook({
     );
   }
 
-  const detailing = services.filter((s) => s.base_price_cents >= 10000);
-  const addons = services.filter((s) => s.base_price_cents > 0 && s.base_price_cents < 10000);
-  const consults = services.filter((s) => s.base_price_cents === 0);
-
-  const group = (title: string, list: TenantService[]) =>
-    list.length > 0 && (
-      <div className="mt-6">
-        <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-          {title}
-        </p>
-        <div className="mt-3 space-y-3">
-          {list.map((service) => {
-            const on = selected.includes(service.id);
-            return (
-              <button
-                key={service.id}
-                type="button"
-                onClick={() => toggle(service.id)}
-                aria-pressed={on}
-                className={`flex w-full items-center justify-between gap-4 border px-4 py-4 text-left transition-colors ${
-                  on ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
-                }`}
-              >
-                <span className="flex items-center gap-3">
-                  <span
-                    className={`flex h-5 w-5 items-center justify-center border text-[11px] ${
-                      on
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-muted-foreground"
-                    }`}
-                  >
-                    {on ? "✓" : ""}
-                  </span>
-                  <span className="text-sm">{service.name}</span>
-                </span>
-                <span className="shrink-0 font-bold text-primary">
-                  {service.base_price_cents === 0 ? "Free" : money(service.base_price_cents)}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
-
   const field =
     "mt-2 w-full border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none";
   const label = "text-[11px] uppercase tracking-[0.24em] text-muted-foreground";
+
+  const pickRow = (
+    key: string,
+    name: string,
+    note: string | null,
+    price: number | null,
+    on: boolean,
+    onToggle: () => void,
+  ) => (
+    <button
+      key={key}
+      type="button"
+      onClick={onToggle}
+      aria-pressed={on}
+      className={`flex w-full items-center justify-between gap-4 border px-4 py-4 text-left transition-colors ${
+        on ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
+      }`}
+    >
+      <span className="flex items-center gap-3">
+        <span
+          className={`flex h-5 w-5 shrink-0 items-center justify-center border text-[11px] ${
+            on ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground"
+          }`}
+        >
+          {on ? "\u2713" : ""}
+        </span>
+        <span>
+          <span className="block text-sm">{name}</span>
+          {note && <span className="block text-xs text-muted-foreground">{note}</span>}
+        </span>
+      </span>
+      <span className="shrink-0 font-bold text-primary">
+        {price === null ? "Consultation" : `$${price}`}
+      </span>
+    </button>
+  );
 
   return (
     <section id="book" className="vds-band border-t border-border px-5 py-20 sm:px-8">
       <div className="mx-auto max-w-3xl">
         <div className="text-center">
-          <Kicker>Metro Atlanta · Mobile detailing</Kicker>
+          <Kicker>Metro Atlanta \u00b7 Mobile detailing</Kicker>
           <h2 className="mt-4 text-4xl font-extrabold tracking-tight text-primary sm:text-5xl">
             QUOTE &amp; BOOK
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
             Build your custom quote and schedule in one place. Pricing adjusts to your vehicle
-            condition and add-ons.
+            class, condition and add-ons.
           </p>
         </div>
 
         <form onSubmit={onSubmit} className="mt-12 space-y-10">
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-primary">
-              1 · Your vehicle
+              1 \u00b7 Your vehicle
             </p>
-            <label className="mt-4 block">
-              <span className={label}>Year, make and model</span>
-              <input
-                className={field}
-                placeholder="2027 Cadillac Escalade"
-                value={form.vehicle}
-                onChange={(e) => setForm({ ...form, vehicle: e.target.value })}
-              />
-            </label>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <label className="block">
+                <span className={label}>Year, make and model</span>
+                <input
+                  className={field}
+                  placeholder="2027 Cadillac Escalade"
+                  value={form.vehicle}
+                  onChange={(e) => setForm({ ...form, vehicle: e.target.value })}
+                />
+              </label>
+              <label className="block">
+                <span className={label}>Vehicle class</span>
+                <select
+                  className={field}
+                  value={classification}
+                  onChange={(e) => setClassification(e.target.value)}
+                >
+                  {VDS_CONFIG.vehicle_classifications.map((c) => (
+                    <option key={c.key} value={c.key}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
           </div>
 
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-primary">
-              2 · Vehicle condition
+              2 \u00b7 Vehicle condition
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              {VEHICLE_CONDITIONS.map((c) => (
+              {VDS_CONFIG.pricing_rules.condition_multipliers.map((c) => (
                 <button
-                  key={c.id}
+                  key={c.key}
                   type="button"
-                  onClick={() => setCondition(c.id)}
+                  onClick={() => setCondition(c.key)}
                   className={`border px-4 py-4 text-left transition-colors ${
-                    condition === c.id
+                    condition === c.key
                       ? "border-primary bg-primary/10"
                       : "border-border hover:border-primary/50"
                   }`}
                 >
                   <span className="block text-sm font-semibold">{c.label}</span>
-                  <span className="mt-1 block text-xs text-muted-foreground">{c.note}</span>
+                  <span className="mt-1 block text-xs text-muted-foreground">
+                    {c.multiplier === 1 ? "Base rate" : `+${Math.round((c.multiplier - 1) * 100)}%`}
+                  </span>
                 </button>
               ))}
             </div>
@@ -505,16 +543,98 @@ function QuoteAndBook({
 
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-primary">
-              3 · Choose your services
+              3 \u00b7 Choose your services
             </p>
-            {group("Detailing services", detailing)}
-            {group("Add-on services", addons)}
-            {group("Consultations", consults)}
+
+            <div className="mt-6">
+              <p className="font-mono-tech text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                Detailing services
+              </p>
+              <div className="mt-3 space-y-3">
+                {mainServices.map((svc) => {
+                  const tier = lookupTier(
+                    svc,
+                    classification,
+                    resolvePricingGroup(VDS_CONFIG, classification),
+                  );
+                  return pickRow(
+                    svc.key,
+                    svc.label,
+                    svc.description,
+                    tier?.price ?? 0,
+                    selected.includes(svc.key),
+                    () => toggle(selected, setSelected, svc.key),
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <p className="font-mono-tech text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                Add-on services
+              </p>
+              <div className="mt-3 space-y-3">
+                {addOnServices.map((svc) => {
+                  const tier = lookupTier(
+                    svc,
+                    classification,
+                    resolvePricingGroup(VDS_CONFIG, classification),
+                  );
+                  return pickRow(
+                    svc.key,
+                    svc.label,
+                    svc.description,
+                    tier?.price ?? 0,
+                    addOns.includes(svc.key),
+                    () => toggle(addOns, setAddOns, svc.key),
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <p className="font-mono-tech text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                Coatings &amp; correction (free consultation)
+              </p>
+              <div className="mt-3 space-y-3">
+                {consultServices.map((svc) =>
+                  pickRow(
+                    svc.key,
+                    svc.label,
+                    svc.description,
+                    null,
+                    consultations.includes(svc.key),
+                    () => toggle(consultations, setConsultations, svc.key),
+                  ),
+                )}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setPaintProtection((v) => !v)}
+              aria-pressed={paintProtection}
+              className={`mt-6 flex w-full items-center justify-between gap-4 border px-4 py-4 text-left transition-colors ${
+                paintProtection
+                  ? "border-primary bg-primary/10"
+                  : "border-border hover:border-primary/50"
+              }`}
+            >
+              <span>
+                <span className="block text-sm font-semibold">
+                  Adding PPF or a ceramic coating
+                </span>
+                <span className="mt-1 block text-xs text-muted-foreground">
+                  20% off the detailing work when paired with paint protection
+                </span>
+              </span>
+              <span className="shrink-0 font-bold text-primary">-20%</span>
+            </button>
           </div>
 
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-primary">
-              4 · Schedule
+              4 \u00b7 Schedule
             </p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <label className="block">
@@ -538,11 +658,15 @@ function QuoteAndBook({
                 />
               </label>
             </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              {VDS_CONFIG.scheduling_rules.min_notice_hours} hours notice required \u00b7 free
+              cancellation up to {VDS_CONFIG.scheduling_rules.cancellation_hours} hours before.
+            </p>
           </div>
 
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-primary">
-              5 · Your details
+              5 \u00b7 Your details
             </p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <label className="block">
@@ -600,23 +724,42 @@ function QuoteAndBook({
 
           <div className="vds-card p-6">
             <p className="text-[11px] uppercase tracking-[0.24em] text-primary">
-              ✦ Your custom quote
+              \u2726 Your custom quote
             </p>
-            {quote.chosen.length === 0 ? (
+            {quote.lineItems.length === 0 ? (
               <p className="mt-3 text-sm text-muted-foreground">
                 Choose your services above to see pricing.
               </p>
             ) : (
               <ul className="mt-4 space-y-2 text-sm">
-                {quote.chosen.map((s) => (
-                  <li key={s.id} className="flex justify-between">
-                    <span>{s.name}</span>
+                {quote.lineItems.map((item) => (
+                  <li key={item.key} className="flex justify-between gap-4">
+                    <span>
+                      {item.label}
+                      {item.isAddOn && (
+                        <span className="ml-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                          add-on
+                        </span>
+                      )}
+                    </span>
                     <span className="text-primary">
-                      {s.base_price_cents === 0 ? "Quoted on site" : money(s.base_price_cents)}
+                      {item.consultation ? "Free consultation" : `$${item.price}`}
                     </span>
                   </li>
                 ))}
               </ul>
+            )}
+            {quote.conditionMultiplier !== 1 && quote.basePrice > 0 && (
+              <p className="mt-4 flex justify-between text-sm text-muted-foreground">
+                <span>{quote.conditionEntry?.label} adjustment</span>
+                <span>x{quote.conditionMultiplier}</span>
+              </p>
+            )}
+            {quote.paintProtectionDiscount > 0 && (
+              <p className="mt-2 flex justify-between text-sm text-primary">
+                <span>Paint protection discount</span>
+                <span>-${quote.paintProtectionDiscount}</span>
+              </p>
             )}
             <div className="mt-5 flex items-end justify-between border-t border-border pt-5">
               <div>
@@ -624,10 +767,10 @@ function QuoteAndBook({
                   Custom quote
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Est. {Math.floor(quote.minutes / 60)}h {quote.minutes % 60}m
+                  Est. {formatDuration(quote.totalMins)}
                 </p>
               </div>
-              <p className="text-4xl font-extrabold text-primary">{money(quote.cents)}</p>
+              <p className="text-4xl font-extrabold text-primary">${quote.total}</p>
             </div>
             {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
             <button
@@ -635,10 +778,11 @@ function QuoteAndBook({
               disabled={state === "sending"}
               className="vds-btn-primary mt-6 w-full justify-center disabled:opacity-60"
             >
-              {state === "sending" ? "Sending..." : "Confirm booking →"}
+              {state === "sending" ? "Sending..." : "Confirm booking \u2192"}
             </button>
             <p className="mt-4 text-[11px] leading-relaxed text-muted-foreground">
-              Custom quote based on size, condition and add-ons. Final amount confirmed before
+              Custom quote based on vehicle class, condition and add-ons. Coatings and paint
+              correction are quoted after a free consultation. Final amount confirmed before
               service.
             </p>
           </div>
