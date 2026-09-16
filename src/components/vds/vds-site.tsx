@@ -462,7 +462,7 @@ function QuoteAndBook({
             on ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground"
           }`}
         >
-          {on ? "\u2713" : ""}
+          {on ? "✓" : ""}
         </span>
         <span>
           <span className="block text-sm">{name}</span>
@@ -479,7 +479,7 @@ function QuoteAndBook({
     <section id="book" className="vds-band border-t border-border px-5 py-20 sm:px-8">
       <div className="mx-auto max-w-3xl">
         <div className="text-center">
-          <Kicker>Metro Atlanta \u00b7 Mobile detailing</Kicker>
+          <Kicker>Metro Atlanta · Mobile detailing</Kicker>
           <h2 className="mt-4 text-4xl font-extrabold tracking-tight text-primary sm:text-5xl">
             QUOTE &amp; BOOK
           </h2>
@@ -492,7 +492,7 @@ function QuoteAndBook({
         <form onSubmit={onSubmit} className="mt-12 space-y-10">
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-primary">
-              1 \u00b7 Your vehicle
+              1 · Your vehicle
             </p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <label className="block">
@@ -523,7 +523,7 @@ function QuoteAndBook({
 
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-primary">
-              2 \u00b7 Vehicle condition
+              2 · Vehicle condition
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               {VDS_CONFIG.pricing_rules.condition_multipliers.map((c) => (
@@ -548,7 +548,7 @@ function QuoteAndBook({
 
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-primary">
-              3 \u00b7 Choose your services
+              3 · Choose your services
             </p>
 
             <div className="mt-6">
@@ -639,7 +639,7 @@ function QuoteAndBook({
 
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-primary">
-              4 \u00b7 Schedule
+              4 · Schedule
             </p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <label className="block">
@@ -664,14 +664,14 @@ function QuoteAndBook({
               </label>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              {VDS_CONFIG.scheduling_rules.min_notice_hours} hours notice required \u00b7 free
+              {VDS_CONFIG.scheduling_rules.min_notice_hours} hours notice required · free
               cancellation up to {VDS_CONFIG.scheduling_rules.cancellation_hours} hours before.
             </p>
           </div>
 
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-primary">
-              5 \u00b7 Your details
+              5 · Your details
             </p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <label className="block">
@@ -729,7 +729,7 @@ function QuoteAndBook({
 
           <div className="vds-card p-6">
             <p className="text-[11px] uppercase tracking-[0.24em] text-primary">
-              \u2726 Your custom quote
+              ✦ Your custom quote
             </p>
             {quote.lineItems.length === 0 ? (
               <p className="mt-3 text-sm text-muted-foreground">
@@ -783,7 +783,7 @@ function QuoteAndBook({
               disabled={state === "sending"}
               className="vds-btn-primary mt-6 w-full justify-center disabled:opacity-60"
             >
-              {state === "sending" ? "Sending..." : "Confirm booking \u2192"}
+              {state === "sending" ? "Sending..." : "Confirm booking →"}
             </button>
             <p className="mt-4 text-[11px] leading-relaxed text-muted-foreground">
               Custom quote based on vehicle class, condition and add-ons. Coatings and paint
