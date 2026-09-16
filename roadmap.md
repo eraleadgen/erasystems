@@ -14,6 +14,8 @@
 
 ## Remaining before signing clients
 - [ ] VDS migration onto the live domain
+- [ ] VDS Base44 rebuild parity: port design tokens (gold/obsidian), VDS config, pricing engine
+      (user is sending the Base44 source in pieces: tailwind config + tokens received)
 - [ ] Publish the current build (lovable.app redirect + latest changes are not live yet)
 - [ ] Switch Stripe from test key to live for real charges
 - [ ] Clear remaining database security linter warnings
