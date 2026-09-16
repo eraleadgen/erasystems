@@ -15,9 +15,14 @@ import {
   VDS_PILLARS,
   VDS_REVIEWS,
   VDS_STATS,
-  VEHICLE_CONDITIONS,
-  type ConditionId,
 } from "@/lib/vds-content";
+import {
+  VDS_CONFIG,
+  computeQuote,
+  formatDuration,
+  lookupTier,
+  resolvePricingGroup,
+} from "@/lib/vds-pricing";
 
 const NAV = [
   { href: "#services", label: "Services" },
