@@ -94,7 +94,22 @@ function Header() {
 function Hero() {
   return (
     <section id="top" className="vds-hero relative overflow-hidden">
-      <div className="relative mx-auto max-w-6xl px-5 py-20 text-center sm:px-8 sm:py-28">
+      <img
+        src={heroPhoto.url}
+        alt="Freshly detailed vehicle by VDS Mobile"
+        className="absolute inset-0 h-full w-full object-cover"
+        loading="eager"
+      />
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40"
+        aria-hidden
+      />
+      <div
+        className="absolute inset-0 bg-gradient-to-r from-background/85 to-transparent"
+        aria-hidden
+      />
+      <GoldParticles />
+      <div className="relative z-10 mx-auto max-w-6xl px-5 py-20 text-center sm:px-8 sm:py-28">
         <Kicker>Valet Detailing Service</Kicker>
         <p className="mt-3 text-[11px] uppercase tracking-[0.34em] text-muted-foreground">
           Metro Atlanta · Mobile detailing
