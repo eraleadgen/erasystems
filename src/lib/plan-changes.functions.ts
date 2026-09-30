@@ -3,7 +3,8 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { AI_AGENT_TRACKS, type AiAgentTrack } from "@/lib/ai-agents";
-import { PLAN_PRICING, type PlanTier } from "@/lib/pricing";
+import { PLAN_PRICING } from "@/lib/pricing";
+import type { PlanTier } from "@/lib/entitlements";
 
 const TIERS = ["basic", "growth", "enterprise"] as const;
 const TIER_RANK: Record<PlanTier, number> = { basic: 0, growth: 1, enterprise: 2 };
