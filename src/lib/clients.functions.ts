@@ -411,3 +411,35 @@ export const getClientActivity = createServerFn({ method: "GET" })
       })),
     };
   });
+
+/**
+ * Staff switch: suspend or reactivate a paid client account. Only moves between
+ * active and suspended, never skips payment (pending_payment/expired untouched).
+ */
+export const setClientAccountActive = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ businessId: z.string().uuid(), active: z.boolean() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isStaff } = await context.supabase.rpc("is_platform_staff");
+    if (!isStaff) throw new Error("Only ERA staff can change account status.");
+    const { data: biz, error: readErr } = await context.supabase
+      .from("businesses")
+      .select("lifecycle")
+      .eq("id", data.businessId)
+      .single();
+    if (readErr || !biz) throw new Error("Client not found.");
+    if (biz.lifecycle !== "active" && biz.lifecycle !== "suspended") {
+      throw new Error("Only paid accounts can be switched on or off.");
+    }
+    const { error } = await context.supabase
+      .from("businesses")
+      .update({
+        lifecycle: data.active ? "active" : "suspended",
+        is_active: data.active,
+      })
+      .eq("id", data.businessId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
