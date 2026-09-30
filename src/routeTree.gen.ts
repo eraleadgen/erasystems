@@ -20,6 +20,7 @@ import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ProofRouteImport } from './routes/proof'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SpecialistsRouteImport } from './routes/specialists'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -101,6 +102,11 @@ const ProofRoute = ProofRouteImport.update({
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -268,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/proof': typeof ProofRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -308,6 +315,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/proof': typeof ProofRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -350,6 +358,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/proof': typeof ProofRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -392,6 +401,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/proof'
     | '/register'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/specialists'
     | '/admin'
@@ -432,6 +442,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/proof'
     | '/register'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/specialists'
     | '/admin'
@@ -473,6 +484,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/proof'
     | '/register'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/specialists'
     | '/_authenticated/admin'
@@ -515,6 +527,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   ProofRoute: typeof ProofRoute
   RegisterRoute: typeof RegisterRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SpecialistsRoute: typeof SpecialistsRoute
   ApiPublicCronBookingRemindersRoute: typeof ApiPublicCronBookingRemindersRoute
@@ -602,6 +615,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -874,6 +894,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   ProofRoute: ProofRoute,
   RegisterRoute: RegisterRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SpecialistsRoute: SpecialistsRoute,
   ApiPublicCronBookingRemindersRoute: ApiPublicCronBookingRemindersRoute,
