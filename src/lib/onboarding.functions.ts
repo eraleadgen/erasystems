@@ -368,6 +368,23 @@ export const completeOnboarding = createServerFn({ method: "POST" })
         .eq("user_id", context.userId);
       if (stampError) throw new Error(stampError.message);
 
+      const { sendStaffAlert } = await import("./staff-alerts.server");
+      await sendStaffAlert({
+        title: "New client finished setup",
+        businessId,
+        businessName: payload.basics.displayName,
+        summary: "A new client completed the onboarding form. Their account is waiting on payment.",
+        details: [
+          { label: "Legal name", value: payload.basics.legalName },
+          ...(payload.basics.ein ? [{ label: "EIN", value: payload.basics.ein }] : []),
+          { label: "Plan", value: String(originInvite?.plan_tier ?? "basic") },
+          ...(payload.basics.supportEmail ? [{ label: "Email", value: payload.basics.supportEmail }] : []),
+          ...(payload.basics.supportPhone ? [{ label: "Phone", value: payload.basics.supportPhone }] : []),
+        ],
+        idempotencyKey: `onboarding-complete-${businessId}`,
+        replyTo: payload.basics.supportEmail || undefined,
+      });
+
       return { businessId };
     } catch (error) {
       await release();

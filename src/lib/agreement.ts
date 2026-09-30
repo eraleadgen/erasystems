@@ -12,7 +12,7 @@ import {
   type PlatformFeature,
 } from "./entitlements";
 
-export const AGREEMENT_VERSION = "2026-09-30b";
+export const AGREEMENT_VERSION = "2026-09-30c";
 
 const TIER_FEATURES: Record<PlanTier, PlatformFeature[]> = {
   basic: ["website", "ai_chat_widget", "core_engines", "payments", "admin_dashboard", "self_serve_setup", "email_automations"],
@@ -102,7 +102,8 @@ export function buildAgreement(input: AgreementInput): AgreementBlock[] {
   p("This Agreement is month-to-month (or per the billing period stated above). It begins on the Effective Date and renews automatically for successive billing periods until cancelled by either party under Section 4 or terminated under Section 12.");
 
   h("4. Cancellation and Refunds");
-  li("Client may cancel at any time by written notice to support@eraleadgen.com or through any cancellation method ERA provides. No long-term commitment or cancellation penalty applies.");
+  li("Client may cancel at any time from the Billing page of the client portal, by written notice to support@eraleadgen.com, or through any other cancellation method ERA provides. No long-term commitment or cancellation penalty applies.");
+  li("Client may upgrade or downgrade its plan from the Billing page of the client portal or by written notice. Plan changes take effect at the end of the then-current billing period, and the fees for the new plan apply from that date as confirmed by ERA in writing.");
   li("When Client cancels, no further recurring fees will be charged. Client keeps full access to the Services until the end of the billing period already paid for, after which access ends.");
   li("Fees already paid are not refunded or prorated, including for partial periods, unused features, or periods of non-use. The setup fee is non-refundable in all cases.");
   li("After access ends, ERA will make Client's business data available for export on request for thirty (30) days, then may permanently delete it, except as required by law or retained in routine backups that expire on their normal schedule.");

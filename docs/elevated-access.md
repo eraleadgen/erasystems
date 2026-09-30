@@ -322,3 +322,11 @@ No elevated access. Two guarded database functions instead:
   no caller-supplied path is ever passed to storage.
 - No table is written and nothing but the image bytes is returned. If the object is
   missing or unreadable, the route falls back to a generated monogram.
+
+### Plan change application cron (2026-09-30)
+
+`src/routes/api/public/cron/apply-plan-changes.ts` — `POST`, authenticated by the cron
+secret before any elevated import. Reads due `plan_change_requests` rows and updates
+`businesses` scoped by the `business_id` on each row (tier change, or suspension for a
+cancellation). `src/lib/onboarding.functions.ts` and `src/lib/plan-changes.functions.ts`
+send staff alerts only; no elevated reads are added there.
