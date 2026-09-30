@@ -42,7 +42,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   }),
   validateSearch: (
     search: Record<string, unknown>,
-  ): { session?: string; checkout?: string } => ({
+  ): { session?: string; checkout?: string; as?: string } => ({
+    ...(typeof search["as"] === "string" ? { as: search["as"] } : {}),
     ...(typeof search["session"] === "string" ? { session: search["session"] } : {}),
     ...(typeof search["checkout"] === "string" ? { checkout: search["checkout"] } : {}),
   }),
@@ -139,14 +140,15 @@ function Dashboard() {
     retry: false,
   });
 
+  const { as: viewAs } = useSearch({ from: "/_authenticated/dashboard" });
   const fetchBusiness = useServerFn(getMyBusiness);
   const { data, isPending, error } = useQuery({
-    queryKey: ["my-business"],
-    queryFn: () => fetchBusiness(),
+    queryKey: ["my-business", viewAs ?? null],
+    queryFn: () => fetchBusiness({ data: viewAs ? { asBusinessId: viewAs } : {} }),
     retry: false,
   });
 
-  if (routing.data?.isStaff) {
+  if (routing.data?.isStaff && !viewAs) {
     return <Navigate to="/admin/clients" replace />;
   }
 
@@ -205,6 +207,21 @@ function Dashboard() {
 
   return (
     <Shell title={data.name} status={{ label: copy.label, tone: TONE[data.lifecycle] }} role={data.role}>
+      {viewAs ? (
+        <div className="era-card flex flex-wrap items-center justify-between gap-3 p-4">
+          <p className="text-sm text-muted-foreground">
+            You&apos;re viewing <span className="font-medium text-foreground">{data.name}</span>&apos;s
+            portal as ERA staff.
+          </p>
+          <Link
+            to="/admin/clients/$businessId"
+            params={{ businessId: data.id }}
+            className="rounded-md border border-border px-3 py-1.5 text-xs font-medium"
+          >
+            Back to agency console
+          </Link>
+        </div>
+      ) : null}
       <StatusBanner
         tone={TONE[data.lifecycle]}
         label={copy.label}

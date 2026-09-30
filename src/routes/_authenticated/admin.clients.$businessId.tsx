@@ -181,6 +181,13 @@ function ClientProfilePage() {
               <Row label="Account created" value={new Date(profile.createdAt).toLocaleDateString()} />
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
+              <Link
+                to="/dashboard"
+                search={{ as: profile.id }}
+                className="inline-flex rounded-md border border-border bg-secondary px-3 py-2 text-xs font-medium text-secondary-foreground"
+              >
+                Open client portal
+              </Link>
               {/* A client with their own live address is best previewed there:
                   the internal ?tenant= preview is a build-time view and, for
                   ERA's own record, renders a stub instead of the real site. */}

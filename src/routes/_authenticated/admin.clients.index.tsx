@@ -101,6 +101,15 @@ function ClientsAdmin() {
                     {LIFECYCLE_LABEL[b.lifecycle] ?? b.lifecycle}
                   </span>
                 </Link>
+                <div className="flex justify-end px-5 pb-4 -mt-2">
+                  <Link
+                    to="/dashboard"
+                    search={{ as: b.id }}
+                    className="rounded-md border border-border bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground"
+                  >
+                    Open client portal
+                  </Link>
+                </div>
               </li>
             ))}
           </ul>

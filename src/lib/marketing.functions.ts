@@ -126,6 +126,17 @@ export const submitDiscoveryRequest = createServerFn({ method: "POST" })
       console.error("discovery notification failed", notifyError);
     }
 
+    // Acknowledge the prospect. A failed confirmation never fails the request.
+    try {
+      const { sendTemplateEmail } = await import("./email-templates/send-email");
+      await sendTemplateEmail("discovery-confirmation", data.email, {
+        templateData: { fullName: data.fullName, businessName: data.businessName },
+        idempotencyKey: `discovery-confirm-${data.email.toLowerCase()}-${Date.now()}`,
+      });
+    } catch (confirmError) {
+      console.error("discovery confirmation failed", confirmError);
+    }
+
     return { ok: true as const, scheduledStart };
   });
 
