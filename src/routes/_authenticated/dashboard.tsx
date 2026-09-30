@@ -559,6 +559,7 @@ function CheckoutPanel({ canPay, businessName }: { canPay: boolean; businessName
             >
               {checkout.isPending ? "Opening secure checkout…" : "Pay and go live"}
             </button>
+            </>
           ) : (
             <p className="mt-4 text-xs text-muted-foreground">
               Only the business owner can complete payment.

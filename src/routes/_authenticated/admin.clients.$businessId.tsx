@@ -227,6 +227,7 @@ function ClientProfilePage() {
                   <Row label="Signed by" value={profile.membership.fullName} />
                   <Row label="Invite email" value={profile.membership.email} />
                   <AccountActiveRow businessId={profile.id} lifecycle={profile.lifecycle} />
+                  <AgreementRow profile={profile} />
                   <PasswordResetRow email={profile.membership.email} />
                   <Row
                     label="Subscription"
