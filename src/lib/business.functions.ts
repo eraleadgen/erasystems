@@ -27,14 +27,28 @@ export type MyBusiness = {
  */
 export const getMyBusiness = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<MyBusiness | null> => {
-    const { data: membership } = await context.supabase
-      .from("business_members")
-      .select("business_id, role")
-      .eq("user_id", context.userId)
-      .order("created_at", { ascending: true })
-      .limit(1)
-      .maybeSingle();
+  .inputValidator((raw: unknown) => {
+    const as = (raw as { asBusinessId?: unknown } | undefined)?.asBusinessId;
+    return typeof as === "string" && /^[0-9a-f-]{36}$/i.test(as) ? { asBusinessId: as } : {};
+  })
+  .handler(async ({ context, data: input }): Promise<MyBusiness | null> => {
+    // Staff "view as client": only platform staff may open another business's
+    // portal; reads still go through the caller's RLS-scoped client.
+    let membership: { business_id: string; role: string } | null = null;
+    if ("asBusinessId" in input && input.asBusinessId) {
+      const { data: isStaff } = await context.supabase.rpc("is_platform_staff");
+      if (!isStaff) throw new Error("Not authorized");
+      membership = { business_id: input.asBusinessId, role: "staff view" };
+    } else {
+      const { data: m } = await context.supabase
+        .from("business_members")
+        .select("business_id, role")
+        .eq("user_id", context.userId)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      membership = m;
+    }
 
     if (!membership) return null;
 
