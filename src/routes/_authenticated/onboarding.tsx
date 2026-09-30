@@ -248,6 +248,16 @@ function OnboardingWizard() {
                   onChange={(e) => setBasics({ ...basics, displayName: e.target.value })}
                 />
               </Labelled>
+              <Labelled text="Business EIN (optional)">
+                <input
+                  className={field}
+                  inputMode="numeric"
+                  placeholder="XX-XXXXXXX"
+                  maxLength={10}
+                  value={basics.ein ?? ""}
+                  onChange={(e) => setBasics({ ...basics, ein: e.target.value })}
+                />
+              </Labelled>
               <Labelled text="Address line 1">
                 <input
                   className={field}
