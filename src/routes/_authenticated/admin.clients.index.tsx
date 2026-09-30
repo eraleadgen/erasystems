@@ -97,8 +97,18 @@ function ClientsAdmin() {
                       {b.openTasks > 0 ? ` · ${b.openTasks} steps open` : " · checklist clear"}
                     </p>
                   </div>
+                  <span className="flex shrink-0 items-center gap-2">
+                  <Link
+                    to="/dashboard"
+                    search={{ as: b.id }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="rounded-md border border-border bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground"
+                  >
+                    Portal
+                  </Link>
                   <span className="shrink-0 rounded-full border border-border/70 px-3 py-1 text-xs text-muted-foreground">
                     {LIFECYCLE_LABEL[b.lifecycle] ?? b.lifecycle}
+                  </span>
                   </span>
                 </Link>
               </li>

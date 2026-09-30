@@ -10,6 +10,7 @@ import { template as appointmentReminderTemplate } from './appointment-reminder'
 import { template as reviewRequestTemplate } from './review-request'
 import { template as ownerWelcomeTemplate } from './owner-welcome'
 import { template as inviteWelcomeTemplate } from './invite-welcome'
+import { template as discoveryConfirmationTemplate } from './discovery-confirmation'
 
 
 export interface TemplateEntry {
@@ -40,5 +41,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'review-request': reviewRequestTemplate,
   'owner-welcome': ownerWelcomeTemplate,
   'invite-welcome': inviteWelcomeTemplate,
+  'discovery-confirmation': discoveryConfirmationTemplate,
 }
 
