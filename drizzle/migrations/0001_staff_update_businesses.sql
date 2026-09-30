@@ -1,0 +1,1 @@
+CREATE POLICY "platform staff update businesses" ON public.businesses FOR UPDATE TO authenticated USING (public.is_platform_staff()) WITH CHECK (public.is_platform_staff());
