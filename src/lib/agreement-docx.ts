@@ -21,10 +21,10 @@ function cell(text: string, width: number, bold = false, fill?: string) {
 
 function signatureBlock(party: string, name: string) {
   const line = (label: string) =>
-    new Paragraph({ spacing: { before: 280 }, children: [new TextRun(`${label}: ______________________________________`)] });
+    new Paragraph({ keepNext: true, keepLines: true, spacing: { before: 280 }, children: [new TextRun(`${label}: ______________________________________`)] });
   return [
-    new Paragraph({ spacing: { before: 360 }, children: [new TextRun({ text: party, bold: true })] }),
-    new Paragraph({ children: [new TextRun(name)] }),
+    new Paragraph({ keepNext: true, spacing: { before: 360 }, children: [new TextRun({ text: party, bold: true })] }),
+    new Paragraph({ keepNext: true, children: [new TextRun(name)] }),
     line("Signature"), line("Printed name"), line("Title"), line("Date"),
   ];
 }
