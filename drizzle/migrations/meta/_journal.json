@@ -22,6 +22,13 @@
       "when": 1790734967258,
       "tag": "0002_agreement_acceptances",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790736133556,
+      "tag": "0003_plan_changes_and_ai_choice",
+      "breakpoints": true
     }
   ]
 }

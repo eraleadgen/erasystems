@@ -1023,6 +1023,56 @@ export type Database = {
           },
         ]
       }
+      plan_change_requests: {
+        Row: {
+          applied_at: string | null
+          business_id: string
+          created_at: string
+          effective_at: string
+          from_tier: Database["public"]["Enums"]["plan_tier"]
+          id: string
+          kind: string
+          requested_by: string
+          status: string
+          to_tier: Database["public"]["Enums"]["plan_tier"] | null
+          updated_at: string
+        }
+        Insert: {
+          applied_at?: string | null
+          business_id: string
+          created_at?: string
+          effective_at: string
+          from_tier: Database["public"]["Enums"]["plan_tier"]
+          id?: string
+          kind: string
+          requested_by: string
+          status?: string
+          to_tier?: Database["public"]["Enums"]["plan_tier"] | null
+          updated_at?: string
+        }
+        Update: {
+          applied_at?: string | null
+          business_id?: string
+          created_at?: string
+          effective_at?: string
+          from_tier?: Database["public"]["Enums"]["plan_tier"]
+          id?: string
+          kind?: string
+          requested_by?: string
+          status?: string
+          to_tier?: Database["public"]["Enums"]["plan_tier"] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_change_requests_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plan_tier_features: {
         Row: {
           feature: Database["public"]["Enums"]["platform_feature"]
@@ -1355,6 +1405,14 @@ export type Database = {
               total_cents: number
             }[]
           }
+      set_ai_agent_choice: {
+        Args: {
+          _business_id: string
+          _enabled: boolean
+          _track: Database["public"]["Enums"]["ai_agent_track"]
+        }
+        Returns: boolean
+      }
       tenant_chat_consume: {
         Args: {
           _business_daily_cap?: number
