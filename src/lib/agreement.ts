@@ -12,7 +12,7 @@ import {
   type PlatformFeature,
 } from "./entitlements";
 
-export const AGREEMENT_VERSION = "2026-09-30b";
+export const AGREEMENT_VERSION = "2026-09-30c";
 
 const TIER_FEATURES: Record<PlanTier, PlatformFeature[]> = {
   basic: ["website", "ai_chat_widget", "core_engines", "payments", "admin_dashboard", "self_serve_setup", "email_automations"],
