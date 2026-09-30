@@ -11,6 +11,7 @@ import {
   getClientProfile,
   removeClientDomain,
   saveClientProvisioning,
+  setClientAccountActive,
   setClientDomainVerified,
   setPrimaryClientDomain,
   type ClientProfile,
@@ -225,6 +226,7 @@ function ClientProfilePage() {
                 <>
                   <Row label="Signed by" value={profile.membership.fullName} />
                   <Row label="Invite email" value={profile.membership.email} />
+                  <AccountActiveRow businessId={profile.id} lifecycle={profile.lifecycle} />
                   <PasswordResetRow email={profile.membership.email} />
                   <Row
                     label="Subscription"
@@ -898,6 +900,46 @@ function PasswordResetRow({ email }: { email: string }) {
           className="rounded-md border border-border px-3 py-1 text-xs font-medium hover:bg-muted disabled:opacity-60"
         >
           {state === "sending" ? "Sending…" : "Send reset email"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function AccountActiveRow({ businessId, lifecycle }: { businessId: string; lifecycle: string }) {
+  const setActive = useServerFn(setClientAccountActive);
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: (active: boolean) => setActive({ data: { businessId, active } }),
+    onSuccess: () => void queryClient.invalidateQueries(),
+  });
+  const switchable = lifecycle === "active" || lifecycle === "suspended";
+  const on = lifecycle === "active";
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+      <span className="text-muted-foreground">Account active</span>
+      <div className="flex items-center gap-3">
+        {mutation.isError ? (
+          <span className="text-xs text-destructive">{(mutation.error as Error).message}</span>
+        ) : null}
+        {!switchable ? (
+          <span className="text-xs text-muted-foreground">Available once the client has paid</span>
+        ) : null}
+        <button
+          type="button"
+          role="switch"
+          aria-checked={on}
+          aria-label="Account active"
+          disabled={!switchable || mutation.isPending}
+          onClick={() => {
+            if (on && !window.confirm("Deactivate this client? Their website and portal go offline.")) return;
+            mutation.mutate(!on);
+          }}
+          className={`relative h-6 w-11 rounded-full border border-border transition disabled:opacity-50 ${on ? "bg-primary" : "bg-muted"}`}
+        >
+          <span
+            className={`absolute top-0.5 size-4.5 rounded-full bg-background shadow transition-all ${on ? "left-[1.4rem]" : "left-0.5"}`}
+          />
         </button>
       </div>
     </div>
