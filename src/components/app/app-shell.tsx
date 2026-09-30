@@ -125,17 +125,21 @@ export function AppShell({
             >
               <span className="era-burger" />
             </button>
-            <img src={logoAsset.url} alt="" className="h-7 w-auto lg:hidden" />
+            <img src={logoAsset.url} alt="" className="hidden h-7 w-auto sm:block lg:hidden" />
             <div className="min-w-0 flex-1">
-              <h1 className="truncate text-base font-semibold tracking-tight text-foreground">
+              <h1 className="text-sm font-semibold leading-snug tracking-tight text-foreground [overflow-wrap:anywhere] sm:truncate sm:text-base">
                 {title}
               </h1>
             </div>
             {role && <span className="era-chip hidden sm:inline-flex">{role}</span>}
             {status && (
-              <span className={`era-status era-status--${status.tone}`}>
+              <span
+                className={`era-status era-status--${status.tone} shrink-0`}
+                title={status.label}
+                aria-label={status.label}
+              >
                 <i />
-                {status.label}
+                <span className="hidden sm:inline">{status.label}</span>
               </span>
             )}
           </header>

@@ -529,6 +529,11 @@ function OnboardingWizard() {
                 value={integrations.desiredDomain}
                 onChange={(e) => setIntegrations({ ...integrations, desiredDomain: e.target.value })}
               />
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Your preferred domain isn&apos;t guaranteed. It depends on availability at
+                registration time, and your ERA representative will confirm the final address with
+                you.
+              </p>
             </Labelled>
             <Labelled text="Business email address">
               <input
