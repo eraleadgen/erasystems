@@ -14,7 +14,7 @@ function cell(text: string, width: number, bold = false, fill?: string) {
     borders,
     width: { size: width, type: WidthType.DXA },
     margins: { top: 80, bottom: 80, left: 120, right: 120 },
-    shading: fill ? { fill, type: ShadingType.CLEAR, color: "auto" } : undefined,
+    ...(fill ? { shading: { fill, type: ShadingType.CLEAR, color: "auto" } } : {}),
     children: [new Paragraph({ children: [new TextRun({ text, bold })] })],
   });
 }
