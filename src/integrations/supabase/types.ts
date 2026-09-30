@@ -61,6 +61,41 @@ export type Database = {
           },
         ]
       }
+      agreement_acceptances: {
+        Row: {
+          accepted_at: string
+          agreement_version: string
+          business_id: string
+          id: string
+          terms_snapshot: Json
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string
+          agreement_version: string
+          business_id: string
+          id?: string
+          terms_snapshot: Json
+          user_id?: string
+        }
+        Update: {
+          accepted_at?: string
+          agreement_version?: string
+          business_id?: string
+          id?: string
+          terms_snapshot?: Json
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agreement_acceptances_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           business_id: string

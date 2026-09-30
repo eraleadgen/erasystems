@@ -15,6 +15,13 @@
       "when": 1790733710145,
       "tag": "0001_staff_update_businesses",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790734967258,
+      "tag": "0002_agreement_acceptances",
+      "breakpoints": true
     }
   ]
 }
