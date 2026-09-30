@@ -111,7 +111,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       business_id: business.id,
       user_id: context.userId,
       agreement_version: AGREEMENT_VERSION,
-      terms_snapshot: terms as never,
+      terms_snapshot: { ...terms, incorporatedDocuments: ["ERA Terms of Service", "ERA Privacy Policy"] } as never,
     });
     if (acceptError) throw new Error(GENERIC_CHECKOUT_ERROR);
 

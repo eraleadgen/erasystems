@@ -1,3 +1,4 @@
+import { PLAN_PRICING } from "@/lib/pricing";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -56,8 +57,8 @@ function InvitesAdmin() {
   const [fullName, setFullName] = useState("");
   const [notes, setNotes] = useState("");
   const [planTier, setPlanTier] = useState<PlanTier>("basic");
-  const [subscriptionPrice, setSubscriptionPrice] = useState("0");
-  const [setupFee, setSetupFee] = useState("0");
+  const [subscriptionPrice, setSubscriptionPrice] = useState(String(PLAN_PRICING.basic.monthlyCents / 100));
+  const [setupFee, setSetupFee] = useState(String(PLAN_PRICING.basic.setupFeeCents / 100));
   const [billingInterval, setBillingInterval] = useState<BillingInterval>("monthly");
   const [addonPrices, setAddonPrices] = useState<Record<AddonKind, string>>({
     ad_management: "",
@@ -119,8 +120,8 @@ function InvitesAdmin() {
       setEmail("");
       setFullName("");
       setNotes("");
-      setSubscriptionPrice("0");
-      setSetupFee("0");
+      setSubscriptionPrice(String(PLAN_PRICING[planTier].monthlyCents / 100));
+      setSetupFee(String(PLAN_PRICING[planTier].setupFeeCents / 100));
       setAddonPrices({ ad_management: "", white_label_branding: "" });
       void queryClient.invalidateQueries({ queryKey: ["invites"] });
     },
@@ -198,7 +199,12 @@ function InvitesAdmin() {
           <select
             id="planTier"
             value={planTier}
-            onChange={(event) => setPlanTier(event.target.value as PlanTier)}
+            onChange={(event) => {
+              const tier = event.target.value as PlanTier;
+              setPlanTier(tier);
+              setSubscriptionPrice(String(PLAN_PRICING[tier].monthlyCents / 100));
+              setSetupFee(String(PLAN_PRICING[tier].setupFeeCents / 100));
+            }}
             className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
           >
             <option value="basic">Basic</option>
@@ -225,12 +231,13 @@ function InvitesAdmin() {
         </div>
         <div>
           <label className="block text-xs font-medium text-muted-foreground" htmlFor="subPrice">
-            Subscription price (USD)
+            Recurring payment (USD, per billing interval)
           </label>
           <input
             id="subPrice"
             type="number"
-            min="0"
+            min="0.01"
+            required
             step="0.01"
             value={subscriptionPrice}
             onChange={(event) => setSubscriptionPrice(event.target.value)}
@@ -244,6 +251,7 @@ function InvitesAdmin() {
           <input
             id="setupFee"
             type="number"
+            required
             min="0"
             step="0.01"
             value={setupFee}
