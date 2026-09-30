@@ -43,6 +43,7 @@ import { Route as AuthenticatedAdminSalesRouteImport } from './routes/_authentic
 import { Route as AuthenticatedStatementMonthRouteImport } from './routes/_authenticated/statement.$month'
 import { Route as AuthenticatedAdminClientsIndexRouteImport } from './routes/_authenticated/admin.clients.index'
 import { Route as AuthenticatedAdminClientsBusinessIdRouteImport } from './routes/_authenticated/admin.clients.$businessId'
+import { Route as ApiPublicCronApplyPlanChangesRouteImport } from './routes/api/public/cron/apply-plan-changes'
 import { Route as ApiPublicCronBookingRemindersRouteImport } from './routes/api/public/cron/booking-reminders'
 import { Route as ApiPublicCronExpireBusinessesRouteImport } from './routes/api/public/cron/expire-businesses'
 import { Route as ApiPublicCronMonthlyStatementsRouteImport } from './routes/api/public/cron/monthly-statements'
@@ -227,6 +228,12 @@ const AuthenticatedAdminClientsBusinessIdRoute =
     path: '/clients/$businessId',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const ApiPublicCronApplyPlanChangesRoute =
+  ApiPublicCronApplyPlanChangesRouteImport.update({
+    id: '/api/public/cron/apply-plan-changes',
+    path: '/api/public/cron/apply-plan-changes',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronBookingRemindersRoute =
   ApiPublicCronBookingRemindersRouteImport.update({
     id: '/api/public/cron/booking-reminders',
@@ -296,6 +303,7 @@ export interface FileRoutesByFullPath {
   '/admin/sales': typeof AuthenticatedAdminSalesRoute
   '/statement/$month': typeof AuthenticatedStatementMonthRoute
   '/admin/clients/$businessId': typeof AuthenticatedAdminClientsBusinessIdRoute
+  '/api/public/cron/apply-plan-changes': typeof ApiPublicCronApplyPlanChangesRoute
   '/api/public/cron/booking-reminders': typeof ApiPublicCronBookingRemindersRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/cron/monthly-statements': typeof ApiPublicCronMonthlyStatementsRoute
@@ -337,6 +345,7 @@ export interface FileRoutesByTo {
   '/admin/sales': typeof AuthenticatedAdminSalesRoute
   '/statement/$month': typeof AuthenticatedStatementMonthRoute
   '/admin/clients/$businessId': typeof AuthenticatedAdminClientsBusinessIdRoute
+  '/api/public/cron/apply-plan-changes': typeof ApiPublicCronApplyPlanChangesRoute
   '/api/public/cron/booking-reminders': typeof ApiPublicCronBookingRemindersRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/cron/monthly-statements': typeof ApiPublicCronMonthlyStatementsRoute
@@ -380,6 +389,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/sales': typeof AuthenticatedAdminSalesRoute
   '/_authenticated/statement/$month': typeof AuthenticatedStatementMonthRoute
   '/_authenticated/admin/clients/$businessId': typeof AuthenticatedAdminClientsBusinessIdRoute
+  '/api/public/cron/apply-plan-changes': typeof ApiPublicCronApplyPlanChangesRoute
   '/api/public/cron/booking-reminders': typeof ApiPublicCronBookingRemindersRoute
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/cron/monthly-statements': typeof ApiPublicCronMonthlyStatementsRoute
@@ -423,6 +433,7 @@ export interface FileRouteTypes {
     | '/admin/sales'
     | '/statement/$month'
     | '/admin/clients/$businessId'
+    | '/api/public/cron/apply-plan-changes'
     | '/api/public/cron/booking-reminders'
     | '/api/public/cron/expire-businesses'
     | '/api/public/cron/monthly-statements'
@@ -464,6 +475,7 @@ export interface FileRouteTypes {
     | '/admin/sales'
     | '/statement/$month'
     | '/admin/clients/$businessId'
+    | '/api/public/cron/apply-plan-changes'
     | '/api/public/cron/booking-reminders'
     | '/api/public/cron/expire-businesses'
     | '/api/public/cron/monthly-statements'
@@ -506,6 +518,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/sales'
     | '/_authenticated/statement/$month'
     | '/_authenticated/admin/clients/$businessId'
+    | '/api/public/cron/apply-plan-changes'
     | '/api/public/cron/booking-reminders'
     | '/api/public/cron/expire-businesses'
     | '/api/public/cron/monthly-statements'
@@ -530,6 +543,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SpecialistsRoute: typeof SpecialistsRoute
+  ApiPublicCronApplyPlanChangesRoute: typeof ApiPublicCronApplyPlanChangesRoute
   ApiPublicCronBookingRemindersRoute: typeof ApiPublicCronBookingRemindersRoute
   ApiPublicCronExpireBusinessesRoute: typeof ApiPublicCronExpireBusinessesRoute
   ApiPublicCronMonthlyStatementsRoute: typeof ApiPublicCronMonthlyStatementsRoute
@@ -778,6 +792,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminClientsBusinessIdRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/api/public/cron/apply-plan-changes': {
+      id: '/api/public/cron/apply-plan-changes'
+      path: '/api/public/cron/apply-plan-changes'
+      fullPath: '/api/public/cron/apply-plan-changes'
+      preLoaderRoute: typeof ApiPublicCronApplyPlanChangesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/booking-reminders': {
       id: '/api/public/cron/booking-reminders'
       path: '/api/public/cron/booking-reminders'
@@ -897,6 +918,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SpecialistsRoute: SpecialistsRoute,
+  ApiPublicCronApplyPlanChangesRoute: ApiPublicCronApplyPlanChangesRoute,
   ApiPublicCronBookingRemindersRoute: ApiPublicCronBookingRemindersRoute,
   ApiPublicCronExpireBusinessesRoute: ApiPublicCronExpireBusinessesRoute,
   ApiPublicCronMonthlyStatementsRoute: ApiPublicCronMonthlyStatementsRoute,
