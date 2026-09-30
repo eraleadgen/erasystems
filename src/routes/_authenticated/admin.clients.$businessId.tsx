@@ -30,6 +30,7 @@ import {
 import { StatusLight, statusFor } from "@/components/app/launch-status";
 import { DeliveryWorkspace } from "@/components/app/delivery-workspace";
 import { AiAgentDeliveryEditor } from "@/components/app/ai-agent-delivery";
+import { downloadAgreementDocx } from "@/lib/agreement-docx";
 
 export const Route = createFileRoute("/_authenticated/admin/clients/$businessId")({
   head: () => ({
@@ -227,6 +228,7 @@ function ClientProfilePage() {
                   <Row label="Signed by" value={profile.membership.fullName} />
                   <Row label="Invite email" value={profile.membership.email} />
                   <AccountActiveRow businessId={profile.id} lifecycle={profile.lifecycle} />
+                  <AgreementRow profile={profile} />
                   <PasswordResetRow email={profile.membership.email} />
                   <Row
                     label="Subscription"
@@ -940,6 +942,62 @@ function AccountActiveRow({ businessId, lifecycle }: { businessId: string; lifec
           <span
             className={`absolute top-0.5 size-4.5 rounded-full bg-background shadow transition-all ${on ? "left-[1.4rem]" : "left-0.5"}`}
           />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function AgreementRow({ profile }: { profile: ClientProfile }) {
+  const fetchAddons = useServerFn(getBusinessAddons);
+  const [busy, setBusy] = useState(false);
+  const accepted = useQuery({
+    queryKey: ["agreement-acceptance", profile.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("agreement_acceptances")
+        .select("agreement_version, accepted_at")
+        .eq("business_id", profile.id)
+        .order("accepted_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+  });
+  const m = profile.membership;
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+      <span className="text-muted-foreground">Purchase agreement</span>
+      <div className="flex items-center gap-3">
+        <span className="text-xs text-muted-foreground">
+          {accepted.data
+            ? `Accepted ${new Date(accepted.data.accepted_at).toLocaleDateString()} (v${accepted.data.agreement_version})`
+            : "Not accepted yet"}
+        </span>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={async () => {
+            setBusy(true);
+            try {
+              const addons = await fetchAddons({ data: { businessId: profile.id } });
+              await downloadAgreementDocx({
+                clientName: profile.name,
+                planTier: profile.planTier,
+                subscriptionPriceCents: m?.subscriptionPriceCents ?? null,
+                setupFeeCents: m?.setupFeeCents ?? null,
+                billingInterval: m?.billingInterval ?? null,
+                addons: addons
+                  .filter((a) => a.isActive)
+                  .map((a) => ({ addon: a.addon, priceCents: a.priceCents, billingInterval: a.billingInterval })),
+              });
+            } finally {
+              setBusy(false);
+            }
+          }}
+          className="rounded-md border border-border px-3 py-1 text-xs font-medium hover:bg-muted disabled:opacity-60"
+        >
+          {busy ? "Preparing…" : "Download agreement"}
         </button>
       </div>
     </div>

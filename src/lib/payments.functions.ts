@@ -63,7 +63,14 @@ export const getMyPayments = createServerFn({ method: "GET" })
  */
 export const createCheckoutSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ url: string }> => {
+  .inputValidator((input: unknown) =>
+    z.object({ agreementVersion: z.string().min(1).max(40) }).parse(input),
+  )
+  .handler(async ({ data, context }): Promise<{ url: string }> => {
+    const { AGREEMENT_VERSION } = await import("./agreement");
+    if (data.agreementVersion !== AGREEMENT_VERSION) {
+      throw new Error("The agreement was updated. Refresh the page and accept the current version.");
+    }
     const { data: membership } = await context.supabase
       .from("business_members")
       .select("business_id, role")
@@ -98,6 +105,15 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         "No pricing has been set for your account yet. Your ERA Systems representative will finalise it.",
       );
     }
+
+    // Record acceptance of the exact terms shown, as the signed-in manager (RLS-checked).
+    const { error: acceptError } = await context.supabase.from("agreement_acceptances").insert({
+      business_id: business.id,
+      user_id: context.userId,
+      agreement_version: AGREEMENT_VERSION,
+      terms_snapshot: terms as never,
+    });
+    if (acceptError) throw new Error(GENERIC_CHECKOUT_ERROR);
 
     const origin = new URL(getRequest().url).origin;
     const { createStripeCheckoutSession } = await import("./payments.server");

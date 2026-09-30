@@ -17,3 +17,5 @@ verified webhooks, and platform-staff work; explicit `business_id` scoping on ev
 query; tenant id from server context or a verified payload, never client input;
 caller authorized first through the RLS-scoped client; and a new row added to the
 register in the same change.
+
+- Purchase agreement text lives only in src/lib/agreement.ts (versioned); checkout, admin download and template all render from it, and checkout records acceptance in agreement_acceptances. Why: one source keeps signed terms consistent.
