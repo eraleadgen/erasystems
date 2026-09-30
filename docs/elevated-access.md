@@ -330,3 +330,5 @@ secret before any elevated import. Reads due `plan_change_requests` rows and upd
 `businesses` scoped by the `business_id` on each row (tier change, or suspension for a
 cancellation). `src/lib/onboarding.functions.ts` and `src/lib/plan-changes.functions.ts`
 send staff alerts only; no elevated reads are added there.
+
+- `updateClientBilling` (src/lib/clients.functions.ts): NOT elevated — staff-only update of the client's origin invite terms and plan_tier through the caller's RLS client after an is_platform_staff check.
