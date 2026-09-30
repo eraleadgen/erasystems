@@ -131,7 +131,7 @@ function PlanPanel({ businessId }: { businessId: string }) {
               </label>
               <button
                 type="button"
-                className="era-button-primary rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
+                className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
                 disabled={!choice || busy}
                 onClick={() => choice && change.mutate({ kind: "change", toTier: choice })}
               >
