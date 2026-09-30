@@ -18,6 +18,7 @@ import { formatMoney } from "@/lib/entitlements";
 import { RANGES, RANGE_LABELS, type AnalyticsRange } from "@/lib/analytics";
 import {
   getAnalyticsReport,
+  getMonthlyStatement,
   getStatementEmailSettings,
   listStatementMonths,
   sendStatementEmailNow,
@@ -298,6 +299,21 @@ function StatementsCard() {
   const queryClient = useQueryClient();
   const [notice, setNotice] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const fetchStatement = useServerFn(getMonthlyStatement);
+  const [downloading, setDownloading] = useState<string | null>(null);
+  const download = async (key: string) => {
+    setDownloading(key);
+    try {
+      const st = await fetchStatement({ data: { month: key } });
+      if (!st) throw new Error("This statement isn't available.");
+      const { downloadStatementPdf } = await import("@/lib/statement-pdf");
+      await downloadStatementPdf(st, key);
+    } catch (e) {
+      setNotice(e instanceof Error ? e.message : "Couldn't create the PDF.");
+    } finally {
+      setDownloading(null);
+    }
+  };
 
   const months = useQuery({
     queryKey: ["statement-months"],
@@ -325,7 +341,7 @@ function StatementsCard() {
         Monthly statements
       </h2>
       <p className="mt-1 text-xs text-muted-foreground">
-        A printable one-page summary for a calendar month, built from these exact figures.
+        A downloadable PDF summary for a calendar month, built from these exact figures.
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
         {months.isLoading ? (
@@ -334,15 +350,15 @@ function StatementsCard() {
           <p className="text-sm text-muted-foreground">No months to report on yet.</p>
         ) : (
           (months.data ?? []).map((m) => (
-            <a
+            <button
+              type="button"
               key={m.key}
-              href={`/statement/${m.key}`}
-              target="_blank"
-              rel="noreferrer"
-              className="era-ghost-button text-muted-foreground hover:text-foreground"
+              onClick={() => void download(m.key)}
+              disabled={downloading !== null}
+              className="era-ghost-button text-muted-foreground hover:text-foreground disabled:opacity-60"
             >
-              {m.label}
-            </a>
+              {downloading === m.key ? "Preparing PDF…" : `${m.label} (PDF)`}
+            </button>
           ))
         )}
       </div>
