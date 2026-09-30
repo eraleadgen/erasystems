@@ -12,7 +12,7 @@ import {
   type PlatformFeature,
 } from "./entitlements";
 
-export const AGREEMENT_VERSION = "2026-09-30c";
+export const AGREEMENT_VERSION = "2026-09-30d";
 
 const TIER_FEATURES: Record<PlanTier, PlatformFeature[]> = {
   basic: ["website", "ai_chat_widget", "core_engines", "payments", "admin_dashboard", "self_serve_setup", "email_automations"],
@@ -145,6 +145,8 @@ export function buildAgreement(input: AgreementInput): AgreementBlock[] {
 
   h("11. Third-Party Services");
   p("The Services rely on third-party providers. As of the date of this Agreement, these include Lovable (application hosting, database and development platform), Twilio (SMS and telephony), the OpenAI API (AI chat and language models), Google Workspace (email, calendar and business productivity), Retell (AI voice agents, where included), Squarespace (domain registration and DNS), and Stripe (payment processing), as well as email delivery and mapping services. Their services are governed by their own terms. ERA is not responsible for outages, errors, fee changes, policy changes, account holds or discontinuation by third parties, and ERA may substitute providers with comparable functionality.");
+
+  p("ERA's Terms of Service and Privacy Policy, as provided to Client at checkout, are incorporated into this Agreement by reference. If they conflict with this Agreement, this Agreement controls.");
 
   h("12. Suspension and Termination for Cause");
   p("ERA may suspend or terminate the Services immediately, without refund, if Client (a) fails to pay as described in Section 2, (b) materially breaches this Agreement and does not cure within ten (10) days after notice, (c) uses the Services unlawfully, fraudulently, or in a way that threatens the security, integrity or reputation of ERA, its providers, or other clients, or (d) becomes insolvent. Either party may terminate for the other's uncured material breach. Sections 2 (amounts owed), 4, 9, 10, 13, 14, 15, 16 and 18 survive termination.");

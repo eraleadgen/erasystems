@@ -13,6 +13,7 @@ import {
   saveClientProvisioning,
   setClientAccountActive,
   setClientDomainVerified,
+  updateClientBilling,
   setPrimaryClientDomain,
   type ClientProfile,
 } from "@/lib/clients.functions";
@@ -230,6 +231,7 @@ function ClientProfilePage() {
                   <AccountActiveRow businessId={profile.id} lifecycle={profile.lifecycle} />
                   <AgreementRow profile={profile} />
                   <PasswordResetRow email={profile.membership.email} />
+                  <BillingEditRow profile={profile} />
                   <Row
                     label="Subscription"
                     value={`${formatMoney(profile.membership.subscriptionPriceCents)} / ${profile.membership.billingInterval}`}
@@ -1000,6 +1002,98 @@ function AgreementRow({ profile }: { profile: ClientProfile }) {
           {busy ? "Preparing…" : "Download agreement"}
         </button>
       </div>
+    </div>
+  );
+}
+
+function BillingEditRow({ profile }: { profile: ClientProfile }) {
+  const save = useServerFn(updateClientBilling);
+  const queryClient = useQueryClient();
+  const m = profile.membership!;
+  const [open, setOpen] = useState(false);
+  const [tier, setTier] = useState(profile.planTier);
+  const [price, setPrice] = useState(String(m.subscriptionPriceCents / 100));
+  const [setup, setSetup] = useState(String(m.setupFeeCents / 100));
+  const [interval, setInterval] = useState(m.billingInterval);
+  const [msg, setMsg] = useState<string | null>(null);
+  const mutation = useMutation({
+    mutationFn: () =>
+      save({
+        data: {
+          businessId: profile.id,
+          planTier: tier as "basic" | "growth" | "enterprise",
+          subscriptionPriceCents: Math.round(Number(price || 0) * 100),
+          setupFeeCents: Math.round(Number(setup || 0) * 100),
+          billingInterval: interval as "monthly" | "quarterly" | "annual" | "one_time",
+        },
+      }),
+    onSuccess: () => {
+      setMsg("Billing updated.");
+      setOpen(false);
+      void queryClient.invalidateQueries();
+    },
+    onError: (e: Error) => setMsg(e.message),
+  });
+  const input = "mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm";
+  return (
+    <div className="py-2 text-sm">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-muted-foreground">Billing info</span>
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="rounded-md border border-border px-3 py-1 text-xs font-medium hover:bg-muted"
+        >
+          {open ? "Close" : "Update billing"}
+        </button>
+      </div>
+      {open && (
+        <form
+          className="mt-3 grid gap-3 sm:grid-cols-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setMsg(null);
+            mutation.mutate();
+          }}
+        >
+          <label className="text-xs text-muted-foreground">
+            Plan
+            <select value={tier} onChange={(e) => setTier(e.target.value as typeof tier)} className={input}>
+              <option value="basic">Basic</option>
+              <option value="growth">Growth</option>
+              <option value="enterprise">Enterprise</option>
+            </select>
+          </label>
+          <label className="text-xs text-muted-foreground">
+            Billing interval
+            <select value={interval} onChange={(e) => setInterval(e.target.value)} className={input}>
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="annual">Annual</option>
+              <option value="one_time">One-time</option>
+            </select>
+          </label>
+          <label className="text-xs text-muted-foreground">
+            Recurring payment (USD)
+            <input type="number" min="0" step="0.01" required value={price} onChange={(e) => setPrice(e.target.value)} className={input} />
+          </label>
+          <label className="text-xs text-muted-foreground">
+            Setup fee (USD)
+            <input type="number" min="0" step="0.01" required value={setup} onChange={(e) => setSetup(e.target.value)} className={input} />
+          </label>
+          <p className="text-xs text-muted-foreground sm:col-span-2">
+            Saves the client's plan and prices in ERA. Update the matching charge in Stripe yourself.
+          </p>
+          <button
+            type="submit"
+            disabled={mutation.isPending}
+            className="rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground disabled:opacity-60 sm:col-span-2"
+          >
+            {mutation.isPending ? "Saving…" : "Save billing"}
+          </button>
+        </form>
+      )}
+      {msg && <p className="mt-2 text-xs text-muted-foreground">{msg}</p>}
     </div>
   );
 }

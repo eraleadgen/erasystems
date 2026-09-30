@@ -443,3 +443,53 @@ export const setClientAccountActive = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/**
+ * Staff-only: update a client's plan and ongoing billing terms (after a plan change
+ * or cancellation). Terms live on the client's originating invite, which only
+ * platform staff can read/update under RLS; no elevated client is used.
+ */
+export const updateClientBilling = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        businessId: z.string().uuid(),
+        planTier: z.enum(["basic", "growth", "enterprise"]),
+        subscriptionPriceCents: z.number().int().min(0).max(100_000_00),
+        setupFeeCents: z.number().int().min(0).max(100_000_00),
+        billingInterval: z.enum(["monthly", "quarterly", "annual", "one_time"]),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isStaff } = await context.supabase.rpc("is_platform_staff");
+    if (!isStaff) throw new Error("Only ERA staff can update billing.");
+    const { data: biz, error: readErr } = await context.supabase
+      .from("businesses")
+      .select("id, plan_tier, origin_invite_id")
+      .eq("id", data.businessId)
+      .single();
+    if (readErr || !biz) throw new Error("Client not found.");
+    if (!biz.origin_invite_id) {
+      throw new Error("This client has no signed invite terms to update.");
+    }
+    const { error: invErr } = await context.supabase
+      .from("invites")
+      .update({
+        plan_tier: data.planTier,
+        subscription_price_cents: data.subscriptionPriceCents,
+        setup_fee_cents: data.setupFeeCents,
+        billing_interval: data.billingInterval,
+      })
+      .eq("id", biz.origin_invite_id);
+    if (invErr) throw new Error(invErr.message);
+    if (biz.plan_tier !== data.planTier) {
+      const { error } = await context.supabase
+        .from("businesses")
+        .update({ plan_tier: data.planTier })
+        .eq("id", data.businessId);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });

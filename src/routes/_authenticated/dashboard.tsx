@@ -11,6 +11,8 @@ import { PLAN_PRICING, SELECTABLE_TIERS } from "@/lib/pricing";
 import { intervalLabel } from "@/lib/payments";
 import { AppShell } from "@/components/app/app-shell";
 import { AGREEMENT_VERSION } from "@/lib/agreement";
+import termsPdf from "@/assets/era-terms-of-service.pdf.asset.json";
+import privacyPdf from "@/assets/era-privacy-policy.pdf.asset.json";
 import { downloadAgreementDocx } from "@/lib/agreement-docx";
 import { StatusBanner } from "@/components/app/status-banner";
 import { StatTile, CopyRow } from "@/components/app/stat-tile";
@@ -545,6 +547,14 @@ function CheckoutPanel({ canPay, businessName }: { canPay: boolean; businessName
                 >
                   ERA Client Services and Purchase Agreement
                 </button>
+                , the{" "}
+                <a href={termsPdf.url} target="_blank" rel="noreferrer" className="font-medium text-primary underline underline-offset-2">
+                  Terms of Service
+                </a>{" "}
+                and the{" "}
+                <a href={privacyPdf.url} target="_blank" rel="noreferrer" className="font-medium text-primary underline underline-offset-2">
+                  Privacy Policy
+                </a>
                 , including the non-refundable setup fee and month-to-month cancellation terms.
               </span>
             </label>
