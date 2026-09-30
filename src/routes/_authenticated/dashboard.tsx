@@ -10,6 +10,8 @@ import { getMyPlanSelection, selectMyPlan } from "@/lib/plan-selection.functions
 import { PLAN_PRICING, SELECTABLE_TIERS } from "@/lib/pricing";
 import { intervalLabel } from "@/lib/payments";
 import { AppShell } from "@/components/app/app-shell";
+import { AGREEMENT_VERSION } from "@/lib/agreement";
+import { downloadAgreementDocx } from "@/lib/agreement-docx";
 import { StatusBanner } from "@/components/app/status-banner";
 import { StatTile, CopyRow } from "@/components/app/stat-tile";
 import { SetupProgress, type StepState } from "@/components/app/setup-progress";
@@ -254,7 +256,7 @@ function Dashboard() {
       {(data.lifecycle === "pending_payment" || data.lifecycle === "expired") && (
         <>
           <PlanPicker canPay={data.role === "owner" || data.role === "admin"} />
-          <CheckoutPanel canPay={data.role === "owner" || data.role === "admin"} />
+          <CheckoutPanel canPay={data.role === "owner" || data.role === "admin"} businessName={data.name} />
         </>
       )}
 
@@ -408,7 +410,8 @@ function PlanPicker({ canPay }: { canPay: boolean }) {
   );
 }
 
-function CheckoutPanel({ canPay }: { canPay: boolean }) {
+function CheckoutPanel({ canPay, businessName }: { canPay: boolean; businessName: string }) {
+  const [agreed, setAgreed] = useState(false);
   const search = useSearch({ from: "/_authenticated/dashboard" });
   const fetchTerms = useServerFn(getMyTerms);
   const startCheckout = useServerFn(createCheckoutSession);
@@ -423,7 +426,7 @@ function CheckoutPanel({ canPay }: { canPay: boolean }) {
   });
 
   const checkout = useMutation({
-    mutationFn: () => startCheckout(),
+    mutationFn: () => startCheckout({ data: { agreementVersion: AGREEMENT_VERSION } }),
     onSuccess: ({ url }) => {
       window.location.href = url;
     },
@@ -516,13 +519,42 @@ function CheckoutPanel({ canPay }: { canPay: boolean }) {
             </span>
           </div>
           {canPay ? (
+            <>
+            <label className="mt-5 flex items-start gap-2.5 text-xs text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+                className="mt-0.5 size-4 shrink-0 accent-[var(--primary)]"
+              />
+              <span>
+                I have read and agree to the{" "}
+                <button
+                  type="button"
+                  onClick={() =>
+                    void downloadAgreementDocx({
+                      clientName: businessName,
+                      planTier: terms.planTier,
+                      subscriptionPriceCents: terms.subscriptionPriceCents,
+                      setupFeeCents: terms.setupFeeCents,
+                      billingInterval: terms.billingInterval,
+                      addons: terms.addons,
+                    })
+                  }
+                  className="font-medium text-primary underline underline-offset-2"
+                >
+                  ERA Client Services and Purchase Agreement
+                </button>
+                , including the non-refundable setup fee and month-to-month cancellation terms.
+              </span>
+            </label>
             <button
               type="button"
               onClick={() => {
                 setError(null);
                 checkout.mutate();
               }}
-              disabled={checkout.isPending}
+              disabled={checkout.isPending || !agreed}
               className="mt-5 w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60 sm:w-auto"
             >
               {checkout.isPending ? "Opening secure checkout…" : "Pay and go live"}
