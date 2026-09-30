@@ -45,6 +45,11 @@ const hourSchema = z.object({
 export const basicsSchema = z.object({
   legalName: z.string().min(1).max(160),
   displayName: z.string().min(1).max(160),
+  ein: z
+    .string()
+    .trim()
+    .regex(/^(\d{2}-?\d{7})?$/, "EIN must be 9 digits (XX-XXXXXXX)")
+    .default(""),
   addressLine1: z.string().max(200).default(""),
   addressLine2: z.string().max(200).default(""),
   city: z.string().max(120).default(""),
@@ -61,6 +66,7 @@ export const basicsSchema = z.object({
 export const draftBasicsSchema = basicsSchema.extend({
   legalName: z.string().max(160).default(""),
   displayName: z.string().max(160).default(""),
+  ein: z.string().max(20).default(""),
   timezone: z.string().max(64).default("America/New_York"),
   supportEmail: z.string().max(254).default(""),
 });
@@ -169,6 +175,7 @@ export function emptyBasics(email: string): Basics {
   return {
     legalName: "",
     displayName: "",
+    ein: "",
     addressLine1: "",
     addressLine2: "",
     city: "",

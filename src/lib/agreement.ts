@@ -12,7 +12,7 @@ import {
   type PlatformFeature,
 } from "./entitlements";
 
-export const AGREEMENT_VERSION = "2026-09-30";
+export const AGREEMENT_VERSION = "2026-09-30b";
 
 const TIER_FEATURES: Record<PlanTier, PlatformFeature[]> = {
   basic: ["website", "ai_chat_widget", "core_engines", "payments", "admin_dashboard", "self_serve_setup", "email_automations"],
@@ -108,7 +108,7 @@ export function buildAgreement(input: AgreementInput): AgreementBlock[] {
   li("After access ends, ERA will make Client's business data available for export on request for thirty (30) days, then may permanently delete it, except as required by law or retained in routine backups that expire on their normal schedule.");
 
   h("5. Setup, Delivery and Client Responsibilities");
-  p("ERA targets launching Client's system within approximately seven (7) business days after payment and receipt of everything ERA needs from Client. Timelines are good-faith estimates, not guarantees, and depend on Client's timely cooperation and on third parties (such as domain registrars, telecom carriers and messaging registries). Client agrees to:");
+  p("ERA requests seven (7) days after payment to complete Client's profile and system setup before it is fully live. The launch timeline begins once ERA has received everything it needs from Client. Timelines are good-faith estimates, not guarantees, and depend on Client's timely cooperation and on third parties (such as domain registrars, telecom carriers and messaging registries). Client agrees to:");
   li("Provide accurate, complete and lawful business information, service descriptions, prices, hours, logos, photos and other content (\"Client Content\"), and keep it up to date.");
   li("Review its website, catalog, prices, AI chat answers and automated messages before and after launch, and promptly report any errors. Client is responsible for the accuracy of prices and service information shown to its customers.");
   li("Hold all rights, licenses and permissions needed for Client Content, including images, trademarks and testimonials, and obtain all customer consents required by law.");
@@ -142,7 +142,7 @@ export function buildAgreement(input: AgreementInput): AgreementBlock[] {
   p("ERA and its licensors own the platform, software, templates, designs, workflows, and all improvements to them, including anything developed while providing the Services, excluding Client Content. During the term and while Client's account is in good standing, ERA grants Client a non-exclusive, non-transferable right to use the Services for Client's own business. Client may not resell, copy, reverse engineer or build a competing product from the Services. Feedback Client provides may be used by ERA without obligation.");
 
   h("11. Third-Party Services");
-  p("The Services rely on third-party providers such as hosting and database providers, payment processors, email and SMS carriers, domain registrars, mapping services and AI model providers. Their services are governed by their own terms. ERA is not responsible for outages, errors, fee changes, policy changes, account holds or discontinuation by third parties, and ERA may substitute providers with comparable functionality.");
+  p("The Services rely on third-party providers. As of the date of this Agreement, these include Lovable (application hosting, database and development platform), Twilio (SMS and telephony), the OpenAI API (AI chat and language models), Google Workspace (email, calendar and business productivity), Retell (AI voice agents, where included), Squarespace (domain registration and DNS), and Stripe (payment processing), as well as email delivery and mapping services. Their services are governed by their own terms. ERA is not responsible for outages, errors, fee changes, policy changes, account holds or discontinuation by third parties, and ERA may substitute providers with comparable functionality.");
 
   h("12. Suspension and Termination for Cause");
   p("ERA may suspend or terminate the Services immediately, without refund, if Client (a) fails to pay as described in Section 2, (b) materially breaches this Agreement and does not cure within ten (10) days after notice, (c) uses the Services unlawfully, fraudulently, or in a way that threatens the security, integrity or reputation of ERA, its providers, or other clients, or (d) becomes insolvent. Either party may terminate for the other's uncured material breach. Sections 2 (amounts owed), 4, 9, 10, 13, 14, 15, 16 and 18 survive termination.");
