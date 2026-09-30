@@ -20,5 +20,5 @@
 - [ ] Switch Stripe from test key to live for real charges
 - [ ] Clear remaining database security linter warnings
 
-- [ ] Send final purchase agreement (Word) to user
-- [ ] Client plan change/cancel + AI agent switches + support alerts
+- [x] Send final purchase agreement (Word) to user
+- [x] Client plan change/cancel + AI agent switches + support alerts
