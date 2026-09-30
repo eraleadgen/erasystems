@@ -225,6 +225,7 @@ function ClientProfilePage() {
                 <>
                   <Row label="Signed by" value={profile.membership.fullName} />
                   <Row label="Invite email" value={profile.membership.email} />
+                  <PasswordResetRow email={profile.membership.email} />
                   <Row
                     label="Subscription"
                     value={`${formatMoney(profile.membership.subscriptionPriceCents)} / ${profile.membership.billingInterval}`}
