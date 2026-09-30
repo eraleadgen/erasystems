@@ -225,6 +225,7 @@ function ClientProfilePage() {
                 <>
                   <Row label="Signed by" value={profile.membership.fullName} />
                   <Row label="Invite email" value={profile.membership.email} />
+                  <PasswordResetRow email={profile.membership.email} />
                   <Row
                     label="Subscription"
                     value={`${formatMoney(profile.membership.subscriptionPriceCents)} / ${profile.membership.billingInterval}`}
@@ -873,5 +874,32 @@ function ClientSummary({
         </p>
       )}
     </section>
+  );
+}
+
+function PasswordResetRow({ email }: { email: string }) {
+  const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+      <span className="text-muted-foreground">Password reset</span>
+      <div className="flex items-center gap-3">
+        {state === "sent" ? <span className="text-xs text-muted-foreground">Reset email sent to {email}</span> : null}
+        {state === "error" ? <span className="text-xs text-destructive">Couldn't send, try again</span> : null}
+        <button
+          type="button"
+          disabled={state === "sending"}
+          onClick={async () => {
+            setState("sending");
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+              redirectTo: `${window.location.origin}/reset-password`,
+            });
+            setState(error ? "error" : "sent");
+          }}
+          className="rounded-md border border-border px-3 py-1 text-xs font-medium hover:bg-muted disabled:opacity-60"
+        >
+          {state === "sending" ? "Sending…" : "Send reset email"}
+        </button>
+      </div>
+    </div>
   );
 }

@@ -35,6 +35,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -103,6 +104,25 @@ function AuthPage() {
             </div>
           </div>
 
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={async () => {
+                setError(null);
+                setNotice(null);
+                if (!email) return setError("Enter your email above first.");
+                await supabase.auth.resetPasswordForEmail(email, {
+                  redirectTo: `${window.location.origin}/reset-password`,
+                });
+                setNotice("If that email has an account, a reset link is on its way.");
+              }}
+              className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            >
+              Forgot password?
+            </button>
+          </div>
+
+          {notice ? <p className="text-sm text-muted-foreground">{notice}</p> : null}
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
           <button
