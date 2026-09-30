@@ -118,6 +118,12 @@ function Header() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
+          <Link
+            to="/auth"
+            className="hidden rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-secondary sm:inline-flex"
+          >
+            Client login
+          </Link>
           <CtaButton className="hidden rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-elevated transition-all hover:-translate-y-0.5 hover:bg-primary/90 sm:inline-flex" />
           <button
             type="button"
@@ -157,6 +163,13 @@ function Header() {
                 {link.label}
               </Link>
             ))}
+            <Link
+              to="/auth"
+              onClick={() => setMenuOpen(false)}
+              className="mt-2 rounded-md border border-border px-4 py-2 text-center text-sm font-medium text-foreground"
+            >
+              Client login
+            </Link>
             <CtaButton
               onClick={() => setMenuOpen(false)}
               className="mt-2 rounded-md bg-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground"
@@ -181,6 +194,9 @@ function Footer() {
               {link.label}
             </Link>
           ))}
+          <Link to="/auth" className="hover:text-foreground">
+            Client login
+          </Link>
           <a href="mailto:support@eraleadgen.com" className="hover:text-foreground">
             support@eraleadgen.com
           </a>
