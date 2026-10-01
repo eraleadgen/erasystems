@@ -105,7 +105,7 @@ export const Route = createFileRoute("/")({
   component: Index,
   errorComponent: ({ error }) => (
     <div className="flex min-h-screen items-center justify-center bg-background p-8">
-      <p className="max-w-md text-sm text-destructive">{error.message}</p>
+      <p className="max-w-md text-sm text-destructive">{error instanceof Error ? error.message : String(error)}</p>
     </div>
   ),
 });

@@ -56,7 +56,7 @@ export const Route = createFileRoute("/_authenticated/admin/clients/$businessId"
   errorComponent: ({ error }) => (
     <AppShell title="Client profile" variant="staff">
       <div className="era-card p-6">
-        <p className="text-sm text-destructive">{error.message}</p>
+        <p className="text-sm text-destructive">{error instanceof Error ? error.message : String(error)}</p>
       </div>
     </AppShell>
   ),
@@ -681,7 +681,7 @@ function DomainManager({
           {addMutation.isPending ? "Adding…" : "Add address"}
         </button>
       </div>
-      {error && <p className="mt-3 text-sm text-destructive">{error.message}</p>}
+      {error && <p className="mt-3 text-sm text-destructive">{error instanceof Error ? error.message : String(error)}</p>}
     </section>
   );
 }

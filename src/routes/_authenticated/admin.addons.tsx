@@ -41,7 +41,7 @@ export const Route = createFileRoute("/_authenticated/admin/addons")({
   errorComponent: ({ error }) => (
     <AppShell title="Add-ons" variant="staff">
       <div className="era-card p-6">
-        <p className="text-sm text-destructive">{error.message}</p>
+        <p className="text-sm text-destructive">{error instanceof Error ? error.message : String(error)}</p>
       </div>
     </AppShell>
   ),
