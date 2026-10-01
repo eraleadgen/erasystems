@@ -60,7 +60,7 @@ export const Route = createFileRoute("/specialists")({
   component: Specialists,
   errorComponent: ({ error }) => (
     <div className="era-app flex min-h-screen items-center justify-center bg-background p-8">
-      <p className="text-sm text-destructive">{error.message}</p>
+      <p className="text-sm text-destructive">{error instanceof Error ? error.message : String(error)}</p>
     </div>
   ),
 });

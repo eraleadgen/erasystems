@@ -33,7 +33,7 @@ export const Route = createFileRoute("/register")({
   component: RegisterPage,
   errorComponent: ({ error }) => (
     <Shell>
-      <p className="text-sm text-destructive">{error.message}</p>
+      <p className="text-sm text-destructive">{error instanceof Error ? error.message : String(error)}</p>
     </Shell>
   ),
 });
