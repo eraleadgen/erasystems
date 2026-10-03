@@ -29,6 +29,13 @@
       "when": 1790736133556,
       "tag": "0003_plan_changes_and_ai_choice",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791009882924,
+      "tag": "0004_onboarding_inbox_theme_device_codes",
+      "breakpoints": true
     }
   ]
 }
