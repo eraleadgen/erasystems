@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 
 import logoAsset from "@/assets/era-logo.png.asset.json";
+import { brandVars, usePortalTheme } from "@/components/app/portal-theme";
 
 export type NavItem = {
   label: string;
@@ -82,10 +83,15 @@ export function AppShell({
 }) {
   const [open, setOpen] = useState(false);
   const items = navItems ?? (variant === "staff" ? STAFF_NAV : CLIENT_NAV);
+  const theme = usePortalTheme(variant === "client");
+  const look = variant === "client" ? theme.data : null;
 
 
   return (
-    <div className="era-app min-h-screen bg-background text-foreground">
+    <div
+      className={`era-app min-h-screen bg-background text-foreground ${look?.theme === "light" ? "era-light" : ""}`}
+      style={brandVars(look?.brandPrimary)}
+    >
       <div className="mx-auto flex w-full max-w-[92rem]">
         <aside className="era-rail hidden w-64 shrink-0 flex-col px-5 py-7 lg:flex">
           <Link to={variant === "staff" ? "/admin/invites" : "/dashboard"} className="flex items-center gap-3">
@@ -94,6 +100,9 @@ export function AppShell({
           <p className="mt-2 text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
             {variant === "staff" ? "Agency console" : "Client portal"}
           </p>
+          {look?.logoUrl ? (
+            <img src={look.logoUrl} alt="Business logo" className="mt-5 h-12 w-auto max-w-full object-contain" />
+          ) : null}
           <div className="mt-8 flex-1">
             <NavList items={items} />
           </div>

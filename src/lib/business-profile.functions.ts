@@ -113,3 +113,78 @@ export const updateMyBusinessProfile = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export type PortalTheme = {
+  theme: "light" | "dark";
+  brandPrimary: string;
+  logoPath: string | null;
+  logoUrl: string | null;
+};
+
+async function myBusinessId(context: { supabase: any; userId: string }): Promise<string | null> {
+  const { data } = await context.supabase
+    .from("business_members")
+    .select("business_id")
+    .eq("user_id", context.userId)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  return data?.business_id ?? null;
+}
+
+/** The caller's portal look: light/dark, brand color and logo (signed link). */
+export const getMyPortalTheme = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<PortalTheme | null> => {
+    const businessId = await myBusinessId(context);
+    if (!businessId) return null;
+    const { data: b } = await context.supabase
+      .from("businesses")
+      .select("portal_theme, brand_primary, logo_url")
+      .eq("id", businessId)
+      .maybeSingle();
+    if (!b) return null;
+    let logoUrl: string | null = null;
+    if (b.logo_url) {
+      const { data: signed } = await context.supabase.storage
+        .from("onboarding-logos")
+        .createSignedUrl(b.logo_url, 60 * 60);
+      logoUrl = signed?.signedUrl ?? null;
+    }
+    return {
+      theme: b.portal_theme === "light" ? "light" : "dark",
+      brandPrimary: b.brand_primary ?? "",
+      logoPath: b.logo_url,
+      logoUrl,
+    };
+  });
+
+export const saveMyPortalTheme = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        theme: z.enum(["light", "dark"]),
+        brandPrimary: z.string().trim().max(20),
+        brandAccent: z.string().trim().max(20).optional(),
+        logoPath: z.string().max(400).nullable().optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const businessId = await myBusinessId(context);
+    if (!businessId) throw new Error("No business is linked to your account yet.");
+    // A logo path must sit in the caller's own upload folder.
+    if (data.logoPath && !data.logoPath.startsWith(`${context.userId}/`)) {
+      throw new Error("Upload the logo again.");
+    }
+    const update: Record<string, unknown> = {
+      portal_theme: data.theme,
+      brand_primary: data.brandPrimary || null,
+    };
+    if (data.brandAccent !== undefined) update["brand_accent"] = data.brandAccent || null;
+    if (data.logoPath !== undefined) update["logo_url"] = data.logoPath;
+    const { error } = await context.supabase.from("businesses").update(update).eq("id", businessId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
