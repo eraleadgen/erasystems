@@ -63,10 +63,9 @@ function AuthPage() {
   return (
     <main className="dark flex min-h-screen items-center justify-center bg-background px-6 py-16">
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-sm">
-        <h1 className="text-xl font-semibold text-foreground">Sign in</h1>
+        <h1 className="text-xl font-semibold text-foreground">Welcome back</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          ERA Systems has no public sign-up. Accounts are created only from an invitation issued
-          after a discovery call.
+          Sign in to continue your journey to a new era.
         </p>
 
         <form
