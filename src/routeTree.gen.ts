@@ -23,6 +23,7 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SpecialistsRouteImport } from './routes/specialists'
+import { Route as VerifyDeviceRouteImport } from './routes/verify-device'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
@@ -38,6 +39,7 @@ import { Route as AuthenticatedAdminAddonsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminCalendarRouteImport } from './routes/_authenticated/admin.calendar'
 import { Route as AuthenticatedAdminDeliveryRouteImport } from './routes/_authenticated/admin.delivery'
 import { Route as AuthenticatedAdminDocumentsRouteImport } from './routes/_authenticated/admin.documents'
+import { Route as AuthenticatedAdminInboxRouteImport } from './routes/_authenticated/admin.inbox'
 import { Route as AuthenticatedAdminInvitesRouteImport } from './routes/_authenticated/admin.invites'
 import { Route as AuthenticatedAdminSalesRouteImport } from './routes/_authenticated/admin.sales'
 import { Route as AuthenticatedStatementMonthRouteImport } from './routes/_authenticated/statement.$month'
@@ -48,6 +50,8 @@ import { Route as ApiPublicCronBookingRemindersRouteImport } from './routes/api/
 import { Route as ApiPublicCronExpireBusinessesRouteImport } from './routes/api/public/cron/expire-businesses'
 import { Route as ApiPublicCronMonthlyStatementsRouteImport } from './routes/api/public/cron/monthly-statements'
 import { Route as ApiPublicCronReviewRequestsRouteImport } from './routes/api/public/cron/review-requests'
+import { Route as ApiPublicDeviceStartRouteImport } from './routes/api/public/device/start'
+import { Route as ApiPublicDeviceVerifyRouteImport } from './routes/api/public/device/verify'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
@@ -118,6 +122,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const SpecialistsRoute = SpecialistsRouteImport.update({
   id: '/specialists',
   path: '/specialists',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyDeviceRoute = VerifyDeviceRouteImport.update({
+  id: '/verify-device',
+  path: '/verify-device',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -199,6 +208,11 @@ const AuthenticatedAdminDocumentsRoute =
     path: '/documents',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminInboxRoute = AuthenticatedAdminInboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminInvitesRoute =
   AuthenticatedAdminInvitesRouteImport.update({
     id: '/invites',
@@ -258,6 +272,16 @@ const ApiPublicCronReviewRequestsRoute =
     path: '/api/public/cron/review-requests',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicDeviceStartRoute = ApiPublicDeviceStartRouteImport.update({
+  id: '/api/public/device/start',
+  path: '/api/public/device/start',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicDeviceVerifyRoute = ApiPublicDeviceVerifyRouteImport.update({
+  id: '/api/public/device/verify',
+  path: '/api/public/device/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
   id: '/api/public/webhooks/stripe',
   path: '/api/public/webhooks/stripe',
@@ -284,6 +308,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
+  '/verify-device': typeof VerifyDeviceRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/billing': typeof AuthenticatedBillingRoute
@@ -299,6 +324,7 @@ export interface FileRoutesByFullPath {
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
   '/admin/documents': typeof AuthenticatedAdminDocumentsRoute
+  '/admin/inbox': typeof AuthenticatedAdminInboxRoute
   '/admin/invites': typeof AuthenticatedAdminInvitesRoute
   '/admin/sales': typeof AuthenticatedAdminSalesRoute
   '/statement/$month': typeof AuthenticatedStatementMonthRoute
@@ -308,6 +334,8 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/cron/monthly-statements': typeof ApiPublicCronMonthlyStatementsRoute
   '/api/public/cron/review-requests': typeof ApiPublicCronReviewRequestsRoute
+  '/api/public/device/start': typeof ApiPublicDeviceStartRoute
+  '/api/public/device/verify': typeof ApiPublicDeviceVerifyRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/admin/clients/': typeof AuthenticatedAdminClientsIndexRoute
@@ -326,6 +354,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
+  '/verify-device': typeof VerifyDeviceRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/billing': typeof AuthenticatedBillingRoute
@@ -341,6 +370,7 @@ export interface FileRoutesByTo {
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
   '/admin/documents': typeof AuthenticatedAdminDocumentsRoute
+  '/admin/inbox': typeof AuthenticatedAdminInboxRoute
   '/admin/invites': typeof AuthenticatedAdminInvitesRoute
   '/admin/sales': typeof AuthenticatedAdminSalesRoute
   '/statement/$month': typeof AuthenticatedStatementMonthRoute
@@ -350,6 +380,8 @@ export interface FileRoutesByTo {
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/cron/monthly-statements': typeof ApiPublicCronMonthlyStatementsRoute
   '/api/public/cron/review-requests': typeof ApiPublicCronReviewRequestsRoute
+  '/api/public/device/start': typeof ApiPublicDeviceStartRoute
+  '/api/public/device/verify': typeof ApiPublicDeviceVerifyRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/admin/clients': typeof AuthenticatedAdminClientsIndexRoute
@@ -370,6 +402,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
+  '/verify-device': typeof VerifyDeviceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
@@ -385,6 +418,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/_authenticated/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
   '/_authenticated/admin/documents': typeof AuthenticatedAdminDocumentsRoute
+  '/_authenticated/admin/inbox': typeof AuthenticatedAdminInboxRoute
   '/_authenticated/admin/invites': typeof AuthenticatedAdminInvitesRoute
   '/_authenticated/admin/sales': typeof AuthenticatedAdminSalesRoute
   '/_authenticated/statement/$month': typeof AuthenticatedStatementMonthRoute
@@ -394,6 +428,8 @@ export interface FileRoutesById {
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/cron/monthly-statements': typeof ApiPublicCronMonthlyStatementsRoute
   '/api/public/cron/review-requests': typeof ApiPublicCronReviewRequestsRoute
+  '/api/public/device/start': typeof ApiPublicDeviceStartRoute
+  '/api/public/device/verify': typeof ApiPublicDeviceVerifyRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/_authenticated/admin/clients/': typeof AuthenticatedAdminClientsIndexRoute
@@ -414,6 +450,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/specialists'
+    | '/verify-device'
     | '/admin'
     | '/analytics'
     | '/billing'
@@ -429,6 +466,7 @@ export interface FileRouteTypes {
     | '/admin/calendar'
     | '/admin/delivery'
     | '/admin/documents'
+    | '/admin/inbox'
     | '/admin/invites'
     | '/admin/sales'
     | '/statement/$month'
@@ -438,6 +476,8 @@ export interface FileRouteTypes {
     | '/api/public/cron/expire-businesses'
     | '/api/public/cron/monthly-statements'
     | '/api/public/cron/review-requests'
+    | '/api/public/device/start'
+    | '/api/public/device/verify'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/transactional/preview'
     | '/admin/clients/'
@@ -456,6 +496,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/specialists'
+    | '/verify-device'
     | '/admin'
     | '/analytics'
     | '/billing'
@@ -471,6 +512,7 @@ export interface FileRouteTypes {
     | '/admin/calendar'
     | '/admin/delivery'
     | '/admin/documents'
+    | '/admin/inbox'
     | '/admin/invites'
     | '/admin/sales'
     | '/statement/$month'
@@ -480,6 +522,8 @@ export interface FileRouteTypes {
     | '/api/public/cron/expire-businesses'
     | '/api/public/cron/monthly-statements'
     | '/api/public/cron/review-requests'
+    | '/api/public/device/start'
+    | '/api/public/device/verify'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/transactional/preview'
     | '/admin/clients'
@@ -499,6 +543,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/specialists'
+    | '/verify-device'
     | '/_authenticated/admin'
     | '/_authenticated/analytics'
     | '/_authenticated/billing'
@@ -514,6 +559,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/calendar'
     | '/_authenticated/admin/delivery'
     | '/_authenticated/admin/documents'
+    | '/_authenticated/admin/inbox'
     | '/_authenticated/admin/invites'
     | '/_authenticated/admin/sales'
     | '/_authenticated/statement/$month'
@@ -523,6 +569,8 @@ export interface FileRouteTypes {
     | '/api/public/cron/expire-businesses'
     | '/api/public/cron/monthly-statements'
     | '/api/public/cron/review-requests'
+    | '/api/public/device/start'
+    | '/api/public/device/verify'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/transactional/preview'
     | '/_authenticated/admin/clients/'
@@ -543,11 +591,14 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SpecialistsRoute: typeof SpecialistsRoute
+  VerifyDeviceRoute: typeof VerifyDeviceRoute
   ApiPublicCronApplyPlanChangesRoute: typeof ApiPublicCronApplyPlanChangesRoute
   ApiPublicCronBookingRemindersRoute: typeof ApiPublicCronBookingRemindersRoute
   ApiPublicCronExpireBusinessesRoute: typeof ApiPublicCronExpireBusinessesRoute
   ApiPublicCronMonthlyStatementsRoute: typeof ApiPublicCronMonthlyStatementsRoute
   ApiPublicCronReviewRequestsRoute: typeof ApiPublicCronReviewRequestsRoute
+  ApiPublicDeviceStartRoute: typeof ApiPublicDeviceStartRoute
+  ApiPublicDeviceVerifyRoute: typeof ApiPublicDeviceVerifyRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
@@ -650,6 +701,13 @@ declare module '@tanstack/react-router' {
       path: '/specialists'
       fullPath: '/specialists'
       preLoaderRoute: typeof SpecialistsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify-device': {
+      id: '/verify-device'
+      path: '/verify-device'
+      fullPath: '/verify-device'
+      preLoaderRoute: typeof VerifyDeviceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -757,6 +815,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminDocumentsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/inbox': {
+      id: '/_authenticated/admin/inbox'
+      path: '/inbox'
+      fullPath: '/admin/inbox'
+      preLoaderRoute: typeof AuthenticatedAdminInboxRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/invites': {
       id: '/_authenticated/admin/invites'
       path: '/invites'
@@ -827,6 +892,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronReviewRequestsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/device/start': {
+      id: '/api/public/device/start'
+      path: '/api/public/device/start'
+      fullPath: '/api/public/device/start'
+      preLoaderRoute: typeof ApiPublicDeviceStartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/device/verify': {
+      id: '/api/public/device/verify'
+      path: '/api/public/device/verify'
+      fullPath: '/api/public/device/verify'
+      preLoaderRoute: typeof ApiPublicDeviceVerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/stripe': {
       id: '/api/public/webhooks/stripe'
       path: '/api/public/webhooks/stripe'
@@ -849,6 +928,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCalendarRoute: typeof AuthenticatedAdminCalendarRoute
   AuthenticatedAdminDeliveryRoute: typeof AuthenticatedAdminDeliveryRoute
   AuthenticatedAdminDocumentsRoute: typeof AuthenticatedAdminDocumentsRoute
+  AuthenticatedAdminInboxRoute: typeof AuthenticatedAdminInboxRoute
   AuthenticatedAdminInvitesRoute: typeof AuthenticatedAdminInvitesRoute
   AuthenticatedAdminSalesRoute: typeof AuthenticatedAdminSalesRoute
   AuthenticatedAdminClientsBusinessIdRoute: typeof AuthenticatedAdminClientsBusinessIdRoute
@@ -860,6 +940,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCalendarRoute: AuthenticatedAdminCalendarRoute,
   AuthenticatedAdminDeliveryRoute: AuthenticatedAdminDeliveryRoute,
   AuthenticatedAdminDocumentsRoute: AuthenticatedAdminDocumentsRoute,
+  AuthenticatedAdminInboxRoute: AuthenticatedAdminInboxRoute,
   AuthenticatedAdminInvitesRoute: AuthenticatedAdminInvitesRoute,
   AuthenticatedAdminSalesRoute: AuthenticatedAdminSalesRoute,
   AuthenticatedAdminClientsBusinessIdRoute:
@@ -918,11 +999,14 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SpecialistsRoute: SpecialistsRoute,
+  VerifyDeviceRoute: VerifyDeviceRoute,
   ApiPublicCronApplyPlanChangesRoute: ApiPublicCronApplyPlanChangesRoute,
   ApiPublicCronBookingRemindersRoute: ApiPublicCronBookingRemindersRoute,
   ApiPublicCronExpireBusinessesRoute: ApiPublicCronExpireBusinessesRoute,
   ApiPublicCronMonthlyStatementsRoute: ApiPublicCronMonthlyStatementsRoute,
   ApiPublicCronReviewRequestsRoute: ApiPublicCronReviewRequestsRoute,
+  ApiPublicDeviceStartRoute: ApiPublicDeviceStartRoute,
+  ApiPublicDeviceVerifyRoute: ApiPublicDeviceVerifyRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }

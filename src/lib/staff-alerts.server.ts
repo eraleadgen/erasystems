@@ -12,6 +12,8 @@ export interface StaffAlert {
   /** Stable key so retries of the same event don't send twice. */
   idempotencyKey: string;
   replyTo?: string | undefined;
+  /** Overrides the default agency-console link. */
+  url?: string;
 }
 
 export async function sendStaffAlert(alert: StaffAlert): Promise<void> {
@@ -25,7 +27,7 @@ export async function sendStaffAlert(alert: StaffAlert): Promise<void> {
         businessName: alert.businessName,
         summary: alert.summary,
         details: alert.details ?? [],
-        profileUrl: `https://www.eraleadgen.com/admin/clients/${alert.businessId}`,
+        profileUrl: alert.url ?? `https://www.eraleadgen.com/admin/clients/${alert.businessId}`,
       },
     });
   } catch (error) {

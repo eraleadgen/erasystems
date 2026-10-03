@@ -372,6 +372,7 @@ export const completeOnboarding = createServerFn({ method: "POST" })
       await sendStaffAlert({
         title: "New client finished setup",
         businessId,
+        url: `https://www.eraleadgen.com/admin/inbox?id=${draft.id}`,
         businessName: payload.basics.displayName,
         summary: "A new client completed the onboarding form. Their account is waiting on payment.",
         details: [
@@ -380,10 +381,45 @@ export const completeOnboarding = createServerFn({ method: "POST" })
           { label: "Plan", value: String(originInvite?.plan_tier ?? "basic") },
           ...(payload.basics.supportEmail ? [{ label: "Email", value: payload.basics.supportEmail }] : []),
           ...(payload.basics.supportPhone ? [{ label: "Phone", value: payload.basics.supportPhone }] : []),
+          { label: "Timezone", value: payload.basics.timezone },
+          {
+            label: "Address",
+            value: [payload.basics.addressLine1, payload.basics.city, payload.basics.region, payload.basics.postalCode]
+              .filter(Boolean)
+              .join(", ") || "Not given",
+          },
+          {
+            label: "Services",
+            value: (payload.catalog.services ?? [])
+              .map((s) => `${s.name} ($${(s.priceCents / 100).toFixed(2)}, ${s.durationMinutes} min)`)
+              .join("; ") || "None yet",
+          },
+          ...(payload.integrations?.desiredDomain
+            ? [{ label: "Domain wanted", value: String(payload.integrations.desiredDomain) }]
+            : []),
         ],
         idempotencyKey: `onboarding-complete-${businessId}`,
         replyTo: payload.basics.supportEmail || undefined,
       });
+
+      // Client confirmation: what happens next. Never fails the submission.
+      const ownerEmail = accountEmail(context.claims as Record<string, unknown>);
+      if (ownerEmail) {
+        try {
+          const { sendTemplateEmail } = await import("./email-templates/send-email");
+          await sendTemplateEmail("onboarding-received", ownerEmail, {
+            idempotencyKey: `onboarding-received-${businessId}`,
+            replyTo: "support@eraleadgen.com",
+            templateData: {
+              name: payload.basics.displayName,
+              businessName: payload.basics.displayName,
+              portalUrl: "https://eraleadgen.com/dashboard",
+            },
+          });
+        } catch (e) {
+          console.error("onboarding confirmation email failed", e instanceof Error ? e.message : e);
+        }
+      }
 
       return { businessId };
     } catch (error) {

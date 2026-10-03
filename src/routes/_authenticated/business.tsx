@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { PortalThemeEditor } from "@/components/app/portal-theme";
 import { AppShell } from "@/components/app/app-shell";
 import { buildClientNav } from "@/components/app/client-nav";
 import { getMyPortalContext } from "@/lib/portal.functions";
@@ -273,6 +274,8 @@ function BusinessInfoPage() {
               </a>
             </div>
           </form>
+
+          <PortalThemeEditor canEdit={profile.canEdit} />
 
           <SiteContentEditor canEdit={profile.canEdit} enabled={hasSession === true} />
         </>

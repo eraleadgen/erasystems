@@ -6,6 +6,7 @@ import { Eye, EyeOff } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { getAccountRouting } from "@/lib/business.functions";
+import { startDeviceCheck } from "@/lib/device-client";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -34,6 +35,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [remember, setRemember] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -41,10 +43,18 @@ function AuthPage() {
     mutationFn: async () => {
       const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
       if (signInError) throw new Error(signInError.message);
+      // New devices must enter an emailed code before anything else loads.
+      const device = await startDeviceCheck();
+      if (!device.trusted) return { verify: true as const, isStaff: false };
       // Staff land in the agency console, clients land in their own app.
-      return await routing().catch(() => ({ isStaff: false, hasBusiness: false }));
+      const r = await routing().catch(() => ({ isStaff: false, hasBusiness: false }));
+      return { verify: false as const, isStaff: r.isStaff };
     },
     onSuccess: (result) => {
+      if (result.verify) {
+        void navigate({ to: "/verify-device", search: { next: "/dashboard", remember: remember ? "1" : "0" } });
+        return;
+      }
       void navigate({ to: result.isStaff ? "/admin/invites" : "/dashboard" });
     },
     onError: (err: Error) => setError(err.message),
@@ -104,7 +114,16 @@ function AuthPage() {
             </div>
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex items-center justify-between gap-3">
+            <label className="flex items-center gap-2 text-xs text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+                className="size-4"
+              />
+              Remember this device for 30 days
+            </label>
             <button
               type="button"
               onClick={async () => {

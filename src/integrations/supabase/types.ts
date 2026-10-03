@@ -527,6 +527,7 @@ export type Database = {
           name: string
           origin_invite_id: string | null
           plan_tier: Database["public"]["Enums"]["plan_tier"]
+          portal_theme: string
           slug: string
           slug_reserved_until: string | null
           support_email: string | null
@@ -547,6 +548,7 @@ export type Database = {
           name: string
           origin_invite_id?: string | null
           plan_tier?: Database["public"]["Enums"]["plan_tier"]
+          portal_theme?: string
           slug: string
           slug_reserved_until?: string | null
           support_email?: string | null
@@ -567,6 +569,7 @@ export type Database = {
           name?: string
           origin_invite_id?: string | null
           plan_tier?: Database["public"]["Enums"]["plan_tier"]
+          portal_theme?: string
           slug?: string
           slug_reserved_until?: string | null
           support_email?: string | null
@@ -920,6 +923,30 @@ export type Database = {
         }
         Relationships: []
       }
+      login_codes: {
+        Row: {
+          attempts: number
+          code_hash: string
+          expires_at: string
+          sent_at: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          code_hash: string
+          expires_at: string
+          sent_at?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string
+          expires_at?: string
+          sent_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       onboarding_drafts: {
         Row: {
           business_id: string | null
@@ -927,6 +954,7 @@ export type Database = {
           current_step: number
           data: Json
           id: string
+          reviewed_at: string | null
           status: Database["public"]["Enums"]["onboarding_status"]
           updated_at: string
           user_id: string
@@ -937,6 +965,7 @@ export type Database = {
           current_step?: number
           data?: Json
           id?: string
+          reviewed_at?: string | null
           status?: Database["public"]["Enums"]["onboarding_status"]
           updated_at?: string
           user_id: string
@@ -947,6 +976,7 @@ export type Database = {
           current_step?: number
           data?: Json
           id?: string
+          reviewed_at?: string | null
           status?: Database["public"]["Enums"]["onboarding_status"]
           updated_at?: string
           user_id?: string
