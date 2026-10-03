@@ -48,6 +48,8 @@ import { Route as ApiPublicCronBookingRemindersRouteImport } from './routes/api/
 import { Route as ApiPublicCronExpireBusinessesRouteImport } from './routes/api/public/cron/expire-businesses'
 import { Route as ApiPublicCronMonthlyStatementsRouteImport } from './routes/api/public/cron/monthly-statements'
 import { Route as ApiPublicCronReviewRequestsRouteImport } from './routes/api/public/cron/review-requests'
+import { Route as ApiPublicDeviceStartRouteImport } from './routes/api/public/device/start'
+import { Route as ApiPublicDeviceVerifyRouteImport } from './routes/api/public/device/verify'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
@@ -258,6 +260,16 @@ const ApiPublicCronReviewRequestsRoute =
     path: '/api/public/cron/review-requests',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicDeviceStartRoute = ApiPublicDeviceStartRouteImport.update({
+  id: '/api/public/device/start',
+  path: '/api/public/device/start',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicDeviceVerifyRoute = ApiPublicDeviceVerifyRouteImport.update({
+  id: '/api/public/device/verify',
+  path: '/api/public/device/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
   id: '/api/public/webhooks/stripe',
   path: '/api/public/webhooks/stripe',
@@ -308,6 +320,8 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/cron/monthly-statements': typeof ApiPublicCronMonthlyStatementsRoute
   '/api/public/cron/review-requests': typeof ApiPublicCronReviewRequestsRoute
+  '/api/public/device/start': typeof ApiPublicDeviceStartRoute
+  '/api/public/device/verify': typeof ApiPublicDeviceVerifyRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/admin/clients/': typeof AuthenticatedAdminClientsIndexRoute
@@ -350,6 +364,8 @@ export interface FileRoutesByTo {
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/cron/monthly-statements': typeof ApiPublicCronMonthlyStatementsRoute
   '/api/public/cron/review-requests': typeof ApiPublicCronReviewRequestsRoute
+  '/api/public/device/start': typeof ApiPublicDeviceStartRoute
+  '/api/public/device/verify': typeof ApiPublicDeviceVerifyRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/admin/clients': typeof AuthenticatedAdminClientsIndexRoute
@@ -394,6 +410,8 @@ export interface FileRoutesById {
   '/api/public/cron/expire-businesses': typeof ApiPublicCronExpireBusinessesRoute
   '/api/public/cron/monthly-statements': typeof ApiPublicCronMonthlyStatementsRoute
   '/api/public/cron/review-requests': typeof ApiPublicCronReviewRequestsRoute
+  '/api/public/device/start': typeof ApiPublicDeviceStartRoute
+  '/api/public/device/verify': typeof ApiPublicDeviceVerifyRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/_authenticated/admin/clients/': typeof AuthenticatedAdminClientsIndexRoute
@@ -438,6 +456,8 @@ export interface FileRouteTypes {
     | '/api/public/cron/expire-businesses'
     | '/api/public/cron/monthly-statements'
     | '/api/public/cron/review-requests'
+    | '/api/public/device/start'
+    | '/api/public/device/verify'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/transactional/preview'
     | '/admin/clients/'
@@ -480,6 +500,8 @@ export interface FileRouteTypes {
     | '/api/public/cron/expire-businesses'
     | '/api/public/cron/monthly-statements'
     | '/api/public/cron/review-requests'
+    | '/api/public/device/start'
+    | '/api/public/device/verify'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/transactional/preview'
     | '/admin/clients'
@@ -523,6 +545,8 @@ export interface FileRouteTypes {
     | '/api/public/cron/expire-businesses'
     | '/api/public/cron/monthly-statements'
     | '/api/public/cron/review-requests'
+    | '/api/public/device/start'
+    | '/api/public/device/verify'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/transactional/preview'
     | '/_authenticated/admin/clients/'
@@ -548,6 +572,8 @@ export interface RootRouteChildren {
   ApiPublicCronExpireBusinessesRoute: typeof ApiPublicCronExpireBusinessesRoute
   ApiPublicCronMonthlyStatementsRoute: typeof ApiPublicCronMonthlyStatementsRoute
   ApiPublicCronReviewRequestsRoute: typeof ApiPublicCronReviewRequestsRoute
+  ApiPublicDeviceStartRoute: typeof ApiPublicDeviceStartRoute
+  ApiPublicDeviceVerifyRoute: typeof ApiPublicDeviceVerifyRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
@@ -827,6 +853,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronReviewRequestsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/device/start': {
+      id: '/api/public/device/start'
+      path: '/api/public/device/start'
+      fullPath: '/api/public/device/start'
+      preLoaderRoute: typeof ApiPublicDeviceStartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/device/verify': {
+      id: '/api/public/device/verify'
+      path: '/api/public/device/verify'
+      fullPath: '/api/public/device/verify'
+      preLoaderRoute: typeof ApiPublicDeviceVerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/stripe': {
       id: '/api/public/webhooks/stripe'
       path: '/api/public/webhooks/stripe'
@@ -923,6 +963,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronExpireBusinessesRoute: ApiPublicCronExpireBusinessesRoute,
   ApiPublicCronMonthlyStatementsRoute: ApiPublicCronMonthlyStatementsRoute,
   ApiPublicCronReviewRequestsRoute: ApiPublicCronReviewRequestsRoute,
+  ApiPublicDeviceStartRoute: ApiPublicDeviceStartRoute,
+  ApiPublicDeviceVerifyRoute: ApiPublicDeviceVerifyRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
