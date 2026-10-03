@@ -23,6 +23,8 @@ export interface SendTemplateEmailOptions {
   /** Dedupes retries of the same logical send; defaults to a random UUID (no dedupe). */
   idempotencyKey?: string
   replyTo?: string
+  /** Local part of the From address on the sender domain; defaults to noreply. */
+  fromLocalPart?: 'noreply' | 'support'
 }
 
 /**
@@ -69,7 +71,7 @@ export async function sendTemplateEmail(
     await sendLovableEmail(
       {
         to: recipient,
-        from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
+        from: `${SITE_NAME} <${options.fromLocalPart ?? 'noreply'}@${FROM_DOMAIN}>`,
         sender_domain: SENDER_DOMAIN,
         subject,
         html,
