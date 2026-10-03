@@ -332,3 +332,6 @@ cancellation). `src/lib/onboarding.functions.ts` and `src/lib/plan-changes.funct
 send staff alerts only; no elevated reads are added there.
 
 - `updateClientBilling` (src/lib/clients.functions.ts): NOT elevated — staff-only update of the client's origin invite terms and plan_tier through the caller's RLS client after an is_platform_staff check.
+
+- `/api/public/device/start` and `/api/public/device/verify` (src/routes/api/public/device/*): elevated read/write of `login_codes` only, keyed by the user id from a bearer token verified with the auth server (`auth.getUser`). No tenant data touched. `login_codes` has RLS on with no policies, so only these routes can reach it.
+- `listOnboardingInbox`, `saveOnboardingInboxItem`, `setInboxReviewed` (src/lib/inbox.functions.ts): NOT elevated — staff-only through the caller's RLS client after an is_platform_staff check; every write filters by business_id.

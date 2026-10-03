@@ -257,6 +257,22 @@ function Dashboard() {
 
       {(data.lifecycle === "pending_payment" || data.lifecycle === "expired") && (
         <>
+          <section className="era-card p-6">
+            <h2 className="text-base font-semibold">Activate your account in 3 steps</h2>
+            <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-sm text-muted-foreground">
+              <li>
+                Review your profile on{" "}
+                <Link to="/business" className="text-primary underline underline-offset-2">Business information</Link>.
+              </li>
+              <li>
+                Set your portal theme (light or dark, brand color and logo) on the same page.
+              </li>
+              <li>Complete your subscription payment below.</li>
+            </ol>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Once your payment is received, our team will have your account set up and live within 7 days.
+            </p>
+          </section>
           <PlanPicker canPay={data.role === "owner" || data.role === "admin"} />
           <CheckoutPanel canPay={data.role === "owner" || data.role === "admin"} businessName={data.name} />
         </>
