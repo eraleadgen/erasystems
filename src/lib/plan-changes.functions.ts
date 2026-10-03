@@ -46,6 +46,22 @@ function computePeriodEnd(anchorIso: string, interval: string): Date {
   return end;
 }
 
+/** Mirrors a scheduled cancellation onto Stripe so it stops charging at period end. */
+async function syncStripeCancel(ctx: Ctx, businessId: string, cancel: boolean) {
+  const { data } = await ctx.supabase
+    .from("business_billing")
+    .select("stripe_subscription_id")
+    .eq("business_id", businessId)
+    .maybeSingle();
+  if (!data?.stripe_subscription_id) return;
+  try {
+    const { setStripeCancelAtPeriodEnd } = await import("./payments.server");
+    await setStripeCancelAtPeriodEnd(data.stripe_subscription_id, cancel);
+  } catch (error) {
+    console.error("stripe cancel sync failed", error instanceof Error ? error.message : error);
+  }
+}
+
 async function loadStatus(ctx: Ctx, businessId: string): Promise<PlanStatus> {
   const [biz, pay, req, tracks, invite] = await Promise.all([
     ctx.supabase.from("businesses").select("id, name, plan_tier, lifecycle, origin_invite_id").eq("id", businessId).maybeSingle(),
@@ -153,6 +169,7 @@ export const schedulePlanChange = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (error || !row) throw new Error("Couldn't schedule that change. Try again.");
+    if (data.kind === "cancel") await syncStripeCancel(context, data.businessId, true);
 
     const name = await businessName(context, data.businessId);
     const from = PLAN_PRICING[status.tier].name;
@@ -190,6 +207,7 @@ export const withdrawPlanChange = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error) throw new Error("Couldn't withdraw that change. Try again.");
     if (row) {
+      if (row.kind === "cancel") await syncStripeCancel(context, data.businessId, false);
       const { sendStaffAlert } = await import("./staff-alerts.server");
       await sendStaffAlert({
         title: row.kind === "cancel" ? "Client withdrew their cancellation" : "Client withdrew a plan change",
