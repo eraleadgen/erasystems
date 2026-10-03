@@ -394,8 +394,8 @@ export const completeOnboarding = createServerFn({ method: "POST" })
               .map((s) => `${s.name} ($${(s.priceCents / 100).toFixed(2)}, ${s.durationMinutes} min)`)
               .join("; ") || "None yet",
           },
-          ...(payload.integrations?.requestedDomain
-            ? [{ label: "Domain wanted", value: String(payload.integrations.requestedDomain) }]
+          ...(payload.integrations?.desiredDomain
+            ? [{ label: "Domain wanted", value: String(payload.integrations.desiredDomain) }]
             : []),
         ],
         idempotencyKey: `onboarding-complete-${businessId}`,
@@ -411,7 +411,7 @@ export const completeOnboarding = createServerFn({ method: "POST" })
             idempotencyKey: `onboarding-received-${businessId}`,
             replyTo: "support@eraleadgen.com",
             templateData: {
-              name: payload.basics.contactName ?? payload.basics.displayName,
+              name: payload.basics.displayName,
               businessName: payload.basics.displayName,
               portalUrl: "https://eraleadgen.com/dashboard",
             },

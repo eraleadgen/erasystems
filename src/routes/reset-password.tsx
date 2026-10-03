@@ -49,7 +49,7 @@ function ResetPasswordPage() {
     setBusy(false);
     if (err) return setError(err.message);
     setDone(true);
-    setTimeout(() => void navigate({ to: "/dashboard" }), 1500);
+    setTimeout(() => void navigate({ to: "/verify-device", search: { next: "/dashboard" } }), 1500);
   };
 
   return (
