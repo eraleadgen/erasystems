@@ -335,3 +335,10 @@ send staff alerts only; no elevated reads are added there.
 
 - `/api/public/device/start` and `/api/public/device/verify` (src/routes/api/public/device/*): elevated read/write of `login_codes` only, keyed by the user id from a bearer token verified with the auth server (`auth.getUser`). No tenant data touched. `login_codes` has RLS on with no policies, so only these routes can reach it.
 - `listOnboardingInbox`, `saveOnboardingInboxItem`, `setInboxReviewed` (src/lib/inbox.functions.ts): NOT elevated — staff-only through the caller's RLS client after an is_platform_staff check; every write filters by business_id.
+
+### Stripe subscriptions (2026-10-03)
+
+- `syncSubscription` (src/lib/payments.server.ts): elevated upsert of `business_billing` only, keyed by a subscription id re-read from Stripe's API (business id from the row or from metadata ERA set at checkout). Called from the signature-verified webhook and from `verifyAndActivate`.
+- Stripe webhook `invoice.payment_failed` sets `business_billing.last_payment_failed_at` and reads `businesses.name` for that business id only.
+- `startClientSubscription` (src/lib/clients.functions.ts): after an is_platform_staff check, one elevated `auth.admin.getUserById` for the owner of that business (owner row read through the staff RLS client) to email the payment link.
+- `updateClientBilling`, `getClientStripeStatus`, plan-change Stripe cancel sync: NOT elevated — RLS reads of `business_billing`; Stripe calls use the server secret only.
