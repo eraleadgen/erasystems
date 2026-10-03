@@ -30,6 +30,8 @@ export type InboxItem = {
   services: { id: string; name: string; priceCents: number; durationMinutes: number }[];
   /** Everything the client typed in the wizard, as submitted. */
   answers: { [key: string]: any };
+  /** Short-lived link to the logo uploaded in the wizard, for building the site. */
+  logoUrl: string | null;
 };
 
 async function assertStaff(supabase: { rpc: (fn: "is_platform_staff") => PromiseLike<{ data: unknown }> }) {
@@ -71,7 +73,7 @@ export const listOnboardingInbox = createServerFn({ method: "GET" })
             .order("sort_order")
         : Promise.resolve({ data: [] as never[] }),
     ]);
-    return (drafts ?? []).map((d) => {
+    const items = (drafts ?? []).map((d) => {
       const b = (biz.data ?? []).find((x) => x.id === d.business_id);
       const s = (sites.data ?? []).find((x) => x.business_id === d.business_id);
       return {
@@ -106,8 +108,20 @@ export const listOnboardingInbox = createServerFn({ method: "GET" })
           .filter((x) => x.business_id === d.business_id)
           .map((x) => ({ id: x.id, name: x.name, priceCents: x.base_price_cents, durationMinutes: x.duration_minutes })),
         answers: (d.data ?? {}) as { [key: string]: any },
+        logoUrl: null as string | null,
       };
     });
+    await Promise.all(
+      items.map(async (item) => {
+        const path = (item.answers as { branding?: { logoPath?: string | null } }).branding?.logoPath;
+        if (!path) return;
+        const { data: signed } = await context.supabase.storage
+          .from("onboarding-logos")
+          .createSignedUrl(path, 60 * 60, { download: false });
+        item.logoUrl = signed?.signedUrl ?? null;
+      }),
+    );
+    return items;
   });
 
 const saveInput = z.object({

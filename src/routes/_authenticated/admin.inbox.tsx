@@ -144,6 +144,16 @@ function InboxDetail({ item }: { item: InboxItem }) {
     >
       <section className="era-card p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
+          {item.logoUrl ? (
+            <div className="mb-3 flex items-center gap-3">
+              <img src={item.logoUrl} alt={`${business.name} logo`} className="h-14 w-auto max-w-[10rem] rounded border border-border bg-background object-contain p-1" />
+              <a href={item.logoUrl} download target="_blank" rel="noreferrer" className="text-xs text-primary underline">
+                Download logo
+              </a>
+            </div>
+          ) : (
+            <p className="mb-3 text-xs text-muted-foreground">No logo uploaded.</p>
+          )}
           <h2 className="text-base font-semibold">{business.name}</h2>
           <Link to="/admin/clients/$businessId" params={{ businessId: item.businessId }} className="text-xs text-primary underline">
             Open client page

@@ -97,9 +97,11 @@ export function AppShell({
           <Link to={variant === "staff" ? "/admin/invites" : "/dashboard"} className="flex items-center gap-3">
             <img src={logoAsset.url} alt="ERA Systems" className="h-9 w-auto" />
           </Link>
-          <p className="mt-2 text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
-            {variant === "staff" ? "Agency console" : "Client portal"}
-          </p>
+          {variant === "staff" ? (
+            <p className="mt-2 text-[11px] uppercase tracking-[0.28em] text-muted-foreground">Agency console</p>
+          ) : (
+            <p className="era-member-glow mt-2 text-[11px] font-semibold uppercase tracking-[0.28em]">ERA Member</p>
+          )}
           {look?.logoUrl ? (
             <img src={look.logoUrl} alt="Business logo" className="mt-5 h-12 w-auto max-w-full object-contain" />
           ) : null}
