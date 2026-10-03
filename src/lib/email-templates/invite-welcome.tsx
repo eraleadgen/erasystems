@@ -8,12 +8,18 @@ export interface InviteWelcomeProps {
   fullName?: string;
   registerUrl?: string;
   expiresOn?: string;
+  setupFee?: string;
+  recurring?: string;
+  payUrl?: string;
 }
 
 export function InviteWelcomeEmail({
   fullName = "there",
   registerUrl = "https://www.eraleadgen.com/register",
   expiresOn = "",
+  setupFee = "",
+  recurring = "",
+  payUrl = "https://www.eraleadgen.com/dashboard",
 }: InviteWelcomeProps) {
   return (
     <CustomerEmailShell
@@ -49,8 +55,23 @@ export function InviteWelcomeEmail({
           textDecoration: "none",
         }}
       >
-        Create your ERA account
+        Create account and pay with Stripe
       </Button>
+      {recurring ? (
+        <Text style={{ fontSize: "15px", color: "#141a19", margin: "22px 0 6px" }}>
+          <strong>Your quote</strong>
+          <br />
+          {setupFee ? <>One-time setup fee: {setupFee}<br /></> : null}
+          Recurring: {recurring}
+        </Text>
+      ) : null}
+      {recurring ? (
+        <Text style={{ ...muted, margin: "0 0 0" }}>
+          After the setup wizard you'll pay these exact amounts securely through Stripe. The setup
+          fee is charged once; the recurring amount renews automatically. Already set up your
+          account? <a href={payUrl}>Pay here</a>.
+        </Text>
+      ) : null}
       {expiresOn ? (
         <Text style={{ ...muted, margin: "20px 0 0" }}>This invitation expires {expiresOn}.</Text>
       ) : null}
@@ -66,5 +87,7 @@ export const template = {
     fullName: "Dana",
     registerUrl: "https://www.eraleadgen.com/register?token=example",
     expiresOn: "September 18, 2026",
+    setupFee: "$2,000.00",
+    recurring: "$499.00 monthly",
   },
 } satisfies TemplateEntry;
