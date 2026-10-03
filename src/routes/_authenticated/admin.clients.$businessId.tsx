@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
+import { getClientStripeStatus, startClientSubscription } from "@/lib/clients.functions";
 import {
   addClientDomain,
   getClientActivity,
@@ -232,6 +233,7 @@ function ClientProfilePage() {
                   <AgreementRow profile={profile} />
                   <PasswordResetRow email={profile.membership.email} />
                   <BillingEditRow profile={profile} />
+                  <StripeSubscriptionRow businessId={profile.id} active={profile.lifecycle === "active"} />
                   <Row
                     label="Subscription"
                     value={`${formatMoney(profile.membership.subscriptionPriceCents)} / ${profile.membership.billingInterval}`}
@@ -1094,6 +1096,52 @@ function BillingEditRow({ profile }: { profile: ClientProfile }) {
         </form>
       )}
       {msg && <p className="mt-2 text-xs text-muted-foreground">{msg}</p>}
+    </div>
+  );
+}
+
+function StripeSubscriptionRow({ businessId, active }: { businessId: string; active: boolean }) {
+  const fetchStatus = useServerFn(getClientStripeStatus);
+  const start = useServerFn(startClientSubscription);
+  const qc = useQueryClient();
+  const [msg, setMsg] = useState<string | null>(null);
+  const status = useQuery({
+    queryKey: ["client-stripe", businessId],
+    queryFn: () => fetchStatus({ data: { businessId } }),
+  });
+  const m = useMutation({
+    mutationFn: () => start({ data: { businessId } }),
+    onSuccess: (r) => {
+      setMsg(r.emailedTo ? `Payment link emailed to ${r.emailedTo}. It works for 24 hours.` : `Send the client this link (works 24 hours): ${r.url}`);
+      void qc.invalidateQueries({ queryKey: ["client-stripe", businessId] });
+    },
+    onError: (e: Error) => setMsg(e.message),
+  });
+  const s = status.data;
+  const label = !s
+    ? "Loading…"
+    : !s.hasSubscription
+      ? "No automatic payments yet"
+      : s.lastPaymentFailedAt && s.status !== "active" && s.status !== "trialing"
+        ? `Payment failed ${new Date(s.lastPaymentFailedAt).toLocaleDateString()}`
+        : `${s.status}${s.cancelAtPeriodEnd ? " · ends" : " · renews"}${s.currentPeriodEnd ? ` ${new Date(s.currentPeriodEnd).toLocaleDateString()}` : ""}`;
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 py-3">
+      <div className="min-w-0">
+        <p className="text-sm font-medium text-foreground">Stripe subscription</p>
+        <p className="text-xs text-muted-foreground">{label}</p>
+        {msg ? <p className="mt-1 break-all text-xs text-muted-foreground">{msg}</p> : null}
+      </div>
+      {s && !s.hasSubscription && active ? (
+        <button
+          type="button"
+          disabled={m.isPending}
+          onClick={() => m.mutate()}
+          className="rounded-md border border-border px-3 py-1.5 text-xs text-foreground disabled:opacity-50"
+        >
+          {m.isPending ? "Creating…" : "Start subscription"}
+        </button>
+      ) : null}
     </div>
   );
 }
