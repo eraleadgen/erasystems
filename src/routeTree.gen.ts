@@ -23,6 +23,7 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SpecialistsRouteImport } from './routes/specialists'
+import { Route as VerifyDeviceRouteImport } from './routes/verify-device'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
@@ -120,6 +121,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const SpecialistsRoute = SpecialistsRouteImport.update({
   id: '/specialists',
   path: '/specialists',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyDeviceRoute = VerifyDeviceRouteImport.update({
+  id: '/verify-device',
+  path: '/verify-device',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -296,6 +302,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
+  '/verify-device': typeof VerifyDeviceRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/billing': typeof AuthenticatedBillingRoute
@@ -340,6 +347,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
+  '/verify-device': typeof VerifyDeviceRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/billing': typeof AuthenticatedBillingRoute
@@ -386,6 +394,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/specialists': typeof SpecialistsRoute
+  '/verify-device': typeof VerifyDeviceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
@@ -432,6 +441,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/specialists'
+    | '/verify-device'
     | '/admin'
     | '/analytics'
     | '/billing'
@@ -476,6 +486,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/specialists'
+    | '/verify-device'
     | '/admin'
     | '/analytics'
     | '/billing'
@@ -521,6 +532,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/specialists'
+    | '/verify-device'
     | '/_authenticated/admin'
     | '/_authenticated/analytics'
     | '/_authenticated/billing'
@@ -567,6 +579,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SpecialistsRoute: typeof SpecialistsRoute
+  VerifyDeviceRoute: typeof VerifyDeviceRoute
   ApiPublicCronApplyPlanChangesRoute: typeof ApiPublicCronApplyPlanChangesRoute
   ApiPublicCronBookingRemindersRoute: typeof ApiPublicCronBookingRemindersRoute
   ApiPublicCronExpireBusinessesRoute: typeof ApiPublicCronExpireBusinessesRoute
@@ -676,6 +689,13 @@ declare module '@tanstack/react-router' {
       path: '/specialists'
       fullPath: '/specialists'
       preLoaderRoute: typeof SpecialistsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify-device': {
+      id: '/verify-device'
+      path: '/verify-device'
+      fullPath: '/verify-device'
+      preLoaderRoute: typeof VerifyDeviceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -958,6 +978,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SpecialistsRoute: SpecialistsRoute,
+  VerifyDeviceRoute: VerifyDeviceRoute,
   ApiPublicCronApplyPlanChangesRoute: ApiPublicCronApplyPlanChangesRoute,
   ApiPublicCronBookingRemindersRoute: ApiPublicCronBookingRemindersRoute,
   ApiPublicCronExpireBusinessesRoute: ApiPublicCronExpireBusinessesRoute,

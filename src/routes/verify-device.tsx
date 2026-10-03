@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { supabase } from "@/integrations/supabase/client";
 import { safeNext, startDeviceCheck, verifyDeviceCode } from "@/lib/device-client";
+import { getAccountRouting } from "@/lib/business.functions";
 
 export const Route = createFileRoute("/verify-device")({
   validateSearch: z.object({ next: z.string().optional(), remember: z.string().optional() }),
@@ -33,7 +34,13 @@ function VerifyDevicePage() {
   const [busy, setBusy] = useState(false);
   const target = safeNext(next, "/dashboard");
 
-  const go = () => window.location.assign(target);
+  const go = async () => {
+    if (target === "/dashboard") {
+      const r = await getAccountRouting().catch(() => null);
+      if (r?.isStaff) return window.location.assign("/admin/invites");
+    }
+    window.location.assign(target);
+  };
 
   useEffect(() => {
     void (async () => {
@@ -41,7 +48,7 @@ function VerifyDevicePage() {
       if (!data.session) return void navigate({ to: "/auth" });
       try {
         const r = await startDeviceCheck();
-        if (r.trusted) return go();
+        if (r.trusted) return void go();
         setEmail(r.email ?? "");
         setState("code");
       } catch (e) {
@@ -69,7 +76,7 @@ function VerifyDevicePage() {
               setBusy(true);
               try {
                 await verifyDeviceCode(code.trim(), remember);
-                go();
+                await go();
               } catch (err) {
                 setError(err instanceof Error ? err.message : "That code isn't right.");
                 setBusy(false);
