@@ -178,12 +178,12 @@ export const saveMyPortalTheme = createServerFn({ method: "POST" })
     if (data.logoPath && !data.logoPath.startsWith(`${context.userId}/`)) {
       throw new Error("Upload the logo again.");
     }
-    const update: Record<string, unknown> = {
+    const update: { portal_theme: string; brand_primary: string | null; brand_accent?: string | null; logo_url?: string | null } = {
       portal_theme: data.theme,
       brand_primary: data.brandPrimary || null,
     };
-    if (data.brandAccent !== undefined) update["brand_accent"] = data.brandAccent || null;
-    if (data.logoPath !== undefined) update["logo_url"] = data.logoPath;
+    if (data.brandAccent !== undefined) update.brand_accent = data.brandAccent || null;
+    if (data.logoPath !== undefined) update.logo_url = data.logoPath;
     const { error } = await context.supabase.from("businesses").update(update).eq("id", businessId);
     if (error) throw new Error(error.message);
     return { ok: true };

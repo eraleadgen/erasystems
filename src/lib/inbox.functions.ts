@@ -29,7 +29,7 @@ export type InboxItem = {
   } | null;
   services: { id: string; name: string; priceCents: number; durationMinutes: number }[];
   /** Everything the client typed in the wizard, as submitted. */
-  answers: Record<string, unknown>;
+  answers: { [key: string]: any };
 };
 
 async function assertStaff(supabase: { rpc: (fn: "is_platform_staff") => PromiseLike<{ data: unknown }> }) {
@@ -105,7 +105,7 @@ export const listOnboardingInbox = createServerFn({ method: "GET" })
         services: (services.data ?? [])
           .filter((x) => x.business_id === d.business_id)
           .map((x) => ({ id: x.id, name: x.name, priceCents: x.base_price_cents, durationMinutes: x.duration_minutes })),
-        answers: (d.data ?? {}) as Record<string, unknown>,
+        answers: (d.data ?? {}) as { [key: string]: any },
       };
     });
   });
