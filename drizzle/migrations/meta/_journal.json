@@ -43,6 +43,13 @@
       "when": 1791010031775,
       "tag": "0005_staff_update_services",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791011270847,
+      "tag": "0006_stripe_subscriptions_and_shared_logos",
+      "breakpoints": true
     }
   ]
 }

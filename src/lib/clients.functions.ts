@@ -491,5 +491,160 @@ export const updateClientBilling = createServerFn({ method: "POST" })
         .eq("id", data.businessId);
       if (error) throw new Error(error.message);
     }
-    return { ok: true };
+    // Keep Stripe charging the same amount ERA shows, from the next billing date.
+    const { data: billing } = await context.supabase
+      .from("business_billing")
+      .select("stripe_subscription_id, subscription_status")
+      .eq("business_id", data.businessId)
+      .maybeSingle();
+    let stripeUpdated = false;
+    if (billing?.stripe_subscription_id && billing.subscription_status !== "canceled") {
+      const { updateStripeSubscriptionPrice } = await import("./payments.server");
+      await updateStripeSubscriptionPrice({
+        subscriptionId: billing.stripe_subscription_id,
+        amountCents: data.subscriptionPriceCents,
+        interval: data.billingInterval,
+      });
+      stripeUpdated = true;
+    }
+    return { ok: true, stripeUpdated };
   });
+
+export type ClientStripeStatus = {
+  hasSubscription: boolean;
+  status: string | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  lastPaymentFailedAt: string | null;
+};
+
+/** Staff-only view of a client's Stripe subscription mirror. RLS-scoped. */
+export const getClientStripeStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ businessId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<ClientStripeStatus> => {
+    const { data: isStaff } = await context.supabase.rpc("is_platform_staff");
+    if (!isStaff) throw new Error("Only ERA staff can view billing.");
+    const { data: row } = await context.supabase
+      .from("business_billing")
+      .select("stripe_subscription_id, subscription_status, current_period_end, cancel_at_period_end, last_payment_failed_at")
+      .eq("business_id", data.businessId)
+      .maybeSingle();
+    return {
+      hasSubscription: Boolean(row?.stripe_subscription_id),
+      status: row?.subscription_status ?? null,
+      currentPeriodEnd: row?.current_period_end ?? null,
+      cancelAtPeriodEnd: row?.cancel_at_period_end ?? false,
+      lastPaymentFailedAt: row?.last_payment_failed_at ?? null,
+    };
+  });
+
+/**
+ * For clients who paid before subscriptions existed: emails the owner a Stripe
+ * link that starts automatic payments for their saved amount. The first charge
+ * waits until their current paid period ends, so nobody pays twice.
+ */
+export const startClientSubscription = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ businessId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<{ url: string; emailedTo: string | null }> => {
+    const { data: isStaff } = await context.supabase.rpc("is_platform_staff");
+    if (!isStaff) throw new Error("Only ERA staff can start subscriptions.");
+    const { data: biz } = await context.supabase
+      .from("businesses")
+      .select("id, name, plan_tier, lifecycle, origin_invite_id")
+      .eq("id", data.businessId)
+      .single();
+    if (!biz) throw new Error("Client not found.");
+    if (biz.lifecycle !== "active") throw new Error("Only active, paid clients can start a subscription here.");
+    const { data: billing } = await context.supabase
+      .from("business_billing")
+      .select("stripe_subscription_id, subscription_status")
+      .eq("business_id", biz.id)
+      .maybeSingle();
+    if (billing?.stripe_subscription_id && billing.subscription_status !== "canceled") {
+      throw new Error("This client already has a Stripe subscription.");
+    }
+    const { resolveAgreedTerms } = await import("./terms.server");
+    const terms = await resolveAgreedTerms(biz.id, biz.plan_tier as never, biz.origin_invite_id);
+    const { stripeRecurring, createStripeCheckoutSession } = await import("./payments.server");
+    if (!stripeRecurring(terms.billingInterval) || terms.subscriptionPriceCents <= 0) {
+      throw new Error("Set a monthly, quarterly or annual recurring amount with Update billing first.");
+    }
+    // Next charge date: the end of their current paid period.
+    const { data: lastPaid } = await context.supabase
+      .from("payments")
+      .select("activated_at, created_at")
+      .eq("business_id", biz.id)
+      .eq("status", "paid")
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    const rec = stripeRecurring(terms.billingInterval)!;
+    let next = new Date(lastPaid?.activated_at ?? lastPaid?.created_at ?? Date.now());
+    const step = () => {
+      const d = new Date(next);
+      if (rec.interval === "year") d.setFullYear(d.getFullYear() + rec.count);
+      else d.setMonth(d.getMonth() + rec.count);
+      return d;
+    };
+    next = step();
+    while (next.getTime() < Date.now() + 2 * 86400_000) next = step();
+
+    // Owner email: elevated auth lookup, scoped to this business's owner row.
+    const { data: owner } = await context.supabase
+      .from("business_members")
+      .select("user_id")
+      .eq("business_id", biz.id)
+      .eq("role", "owner")
+      .limit(1)
+      .maybeSingle();
+    let ownerEmail: string | null = null;
+    if (owner) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: u } = await supabaseAdmin.auth.admin.getUserById(owner.user_id);
+      ownerEmail = u.user?.email ?? null;
+    }
+
+    const session = await createStripeCheckoutSession({
+      businessId: biz.id,
+      currency: "usd",
+      kind: "subscription_start",
+      trialEnd: Math.floor(next.getTime() / 1000),
+      customerEmail: ownerEmail,
+      lines: [
+        {
+          name: `ERA Systems — ${terms.planTier} plan`,
+          amountCents: terms.subscriptionPriceCents,
+          interval: terms.billingInterval,
+        },
+      ],
+      description: biz.name,
+      successUrl: `${PUBLIC_ORIGIN}/billing?subscription=started`,
+      cancelUrl: `${PUBLIC_ORIGIN}/billing`,
+    });
+    if (!session.url) throw new Error("Stripe didn't return a payment link.");
+
+    let emailedTo: string | null = null;
+    if (ownerEmail) {
+      try {
+        const { sendTemplateEmail } = await import("./email-templates/send-email");
+        const { formatMoney } = await import("./entitlements");
+        const r = await sendTemplateEmail("payment-link", ownerEmail, {
+          templateData: {
+            businessName: biz.name,
+            payUrl: session.url,
+            recurring: `${formatMoney(terms.subscriptionPriceCents)} ${terms.billingInterval}`,
+            firstCharge: next.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+          },
+          idempotencyKey: `payment-link-${session.id}`,
+        });
+        if (r.sent) emailedTo = ownerEmail;
+      } catch (error) {
+        console.error("payment link email failed", error instanceof Error ? error.message : error);
+      }
+    }
+    return { url: session.url, emailedTo };
+  });
+
+const PUBLIC_ORIGIN = "https://eraleadgen.com";

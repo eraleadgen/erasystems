@@ -52,46 +52,200 @@ async function stripeRequest(
 export interface StripeSession {
   id: string;
   paymentStatus: string;
+  status: string;
   amountTotal: number | null;
   currency: string | null;
   clientReferenceId: string | null;
   url: string | null;
+  subscriptionId: string | null;
+  customerId: string | null;
+  kind: string | null;
 }
 
 function toSession(raw: Record<string, unknown>): StripeSession {
+  const meta = (raw["metadata"] ?? {}) as Record<string, unknown>;
   return {
     id: String(raw["id"]),
     paymentStatus: String(raw["payment_status"] ?? ""),
+    status: String(raw["status"] ?? ""),
     amountTotal: typeof raw["amount_total"] === "number" ? raw["amount_total"] : null,
     currency: typeof raw["currency"] === "string" ? raw["currency"] : null,
     clientReferenceId:
       typeof raw["client_reference_id"] === "string" ? raw["client_reference_id"] : null,
     url: typeof raw["url"] === "string" ? raw["url"] : null,
+    subscriptionId: typeof raw["subscription"] === "string" ? raw["subscription"] : null,
+    customerId: typeof raw["customer"] === "string" ? raw["customer"] : null,
+    kind: typeof meta["kind"] === "string" ? (meta["kind"] as string) : null,
   };
 }
 
+/** Stripe recurring interval for an ERA billing interval; null = not recurring. */
+export function stripeRecurring(interval: string): { interval: "month" | "year"; count: number } | null {
+  if (interval === "monthly") return { interval: "month", count: 1 };
+  if (interval === "quarterly") return { interval: "month", count: 3 };
+  if (interval === "annual") return { interval: "year", count: 1 };
+  return null;
+}
+
+export interface CheckoutLine {
+  name: string;
+  amountCents: number;
+  /** ERA billing interval; "one_time" lines are charged once on the first invoice. */
+  interval: string;
+}
+
+/**
+ * Checkout charging exactly the staff-quoted amounts. When any line recurs the
+ * session is a Stripe subscription: one-time lines (setup fee) land on the first
+ * invoice only, recurring lines repeat automatically every period.
+ */
 export async function createStripeCheckoutSession(args: {
   businessId: string;
-  amountCents: number;
   currency: string;
-  productName: string;
+  lines: CheckoutLine[];
   description: string;
   successUrl: string;
   cancelUrl: string;
+  customerEmail?: string | null;
+  kind?: "activation" | "subscription_start";
+  trialEnd?: number | null;
 }): Promise<StripeSession> {
+  const recurringLines = args.lines.filter((l) => stripeRecurring(l.interval) && l.amountCents > 0);
+  const subscription = recurringLines.length > 0;
   const body = new URLSearchParams({
-    mode: "payment",
-    "line_items[0][quantity]": "1",
-    "line_items[0][price_data][currency]": args.currency,
-    "line_items[0][price_data][unit_amount]": String(args.amountCents),
-    "line_items[0][price_data][product_data][name]": args.productName,
-    "line_items[0][price_data][product_data][description]": args.description,
+    mode: subscription ? "subscription" : "payment",
     client_reference_id: args.businessId,
     "metadata[business_id]": args.businessId,
+    "metadata[kind]": args.kind ?? "activation",
     success_url: args.successUrl,
     cancel_url: args.cancelUrl,
   });
+  if (args.customerEmail) body.set("customer_email", args.customerEmail);
+  let i = 0;
+  for (const line of args.lines) {
+    if (line.amountCents <= 0) continue;
+    const p = `line_items[${i}]`;
+    body.set(`${p}[quantity]`, "1");
+    body.set(`${p}[price_data][currency]`, args.currency);
+    body.set(`${p}[price_data][unit_amount]`, String(line.amountCents));
+    body.set(`${p}[price_data][product_data][name]`, line.name);
+    body.set(`${p}[price_data][product_data][description]`, args.description);
+    const rec = subscription ? stripeRecurring(line.interval) : null;
+    if (rec) {
+      body.set(`${p}[price_data][recurring][interval]`, rec.interval);
+      body.set(`${p}[price_data][recurring][interval_count]`, String(rec.count));
+    }
+    i++;
+  }
+  if (subscription) {
+    body.set("subscription_data[metadata][business_id]", args.businessId);
+    if (args.trialEnd) body.set("subscription_data[trial_end]", String(args.trialEnd));
+  }
   return toSession(await stripeRequest("/checkout/sessions", { method: "POST", body }));
+}
+
+export interface StripeSubscription {
+  id: string;
+  status: string;
+  customerId: string | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  businessId: string | null;
+  items: { id: string; productId: string; productName: string; unitAmount: number }[];
+}
+
+function toSubscription(raw: Record<string, unknown>): StripeSubscription {
+  const items = ((raw["items"] as { data?: unknown[] })?.data ?? []) as Record<string, any>[];
+  const end =
+    typeof raw["current_period_end"] === "number"
+      ? (raw["current_period_end"] as number)
+      : typeof items[0]?.["current_period_end"] === "number"
+        ? (items[0]!["current_period_end"] as number)
+        : null;
+  const meta = (raw["metadata"] ?? {}) as Record<string, unknown>;
+  return {
+    id: String(raw["id"]),
+    status: String(raw["status"] ?? ""),
+    customerId: typeof raw["customer"] === "string" ? raw["customer"] : null,
+    currentPeriodEnd: end ? new Date(end * 1000).toISOString() : null,
+    cancelAtPeriodEnd: Boolean(raw["cancel_at_period_end"]),
+    businessId: typeof meta["business_id"] === "string" ? (meta["business_id"] as string) : null,
+    items: items.map((it) => {
+      const product = it["price"]?.["product"];
+      return {
+        id: String(it["id"]),
+        productId: typeof product === "string" ? product : String(product?.["id"] ?? ""),
+        productName: typeof product === "object" && product ? String(product["name"] ?? "") : "",
+        unitAmount: Number(it["price"]?.["unit_amount"] ?? 0),
+      };
+    }),
+  };
+}
+
+export async function fetchStripeSubscription(id: string): Promise<StripeSubscription> {
+  return toSubscription(
+    await stripeRequest(
+      `/subscriptions/${encodeURIComponent(id)}?expand[]=items.data.price.product`,
+    ),
+  );
+}
+
+/** Changes the plan price from the next billing date. No partial charges. */
+export async function updateStripeSubscriptionPrice(args: {
+  subscriptionId: string;
+  amountCents: number;
+  interval: string;
+}): Promise<void> {
+  const rec = stripeRecurring(args.interval);
+  if (!rec) throw new Error("A Stripe subscription needs a monthly, quarterly or annual interval.");
+  const sub = await fetchStripeSubscription(args.subscriptionId);
+  const plan = sub.items.find((it) => it.productName.includes("plan")) ?? sub.items[0];
+  if (!plan) throw new Error("This Stripe subscription has no plan item.");
+  const body = new URLSearchParams({
+    proration_behavior: "none",
+    "items[0][id]": plan.id,
+    "items[0][price_data][currency]": "usd",
+    "items[0][price_data][product]": plan.productId,
+    "items[0][price_data][unit_amount]": String(args.amountCents),
+    "items[0][price_data][recurring][interval]": rec.interval,
+    "items[0][price_data][recurring][interval_count]": String(rec.count),
+  });
+  await stripeRequest(`/subscriptions/${encodeURIComponent(args.subscriptionId)}`, {
+    method: "POST",
+    body,
+  });
+}
+
+export async function setStripeCancelAtPeriodEnd(subscriptionId: string, cancel: boolean) {
+  await stripeRequest(`/subscriptions/${encodeURIComponent(subscriptionId)}`, {
+    method: "POST",
+    body: new URLSearchParams({ cancel_at_period_end: String(cancel) }),
+  });
+}
+
+/**
+ * Mirrors the live Stripe subscription onto business_billing. Elevated write,
+ * keyed by the business id Stripe returns for a subscription we created.
+ */
+export async function syncSubscription(subscriptionId: string): Promise<StripeSubscription | null> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const sub = await fetchStripeSubscription(subscriptionId);
+  const { data: row } = await supabaseAdmin
+    .from("business_billing")
+    .select("business_id")
+    .eq("stripe_subscription_id", subscriptionId)
+    .maybeSingle();
+  const businessId = row?.business_id ?? sub.businessId;
+  if (!businessId) return null;
+  await supabaseAdmin.from("business_billing").upsert({
+    business_id: businessId,
+    stripe_customer_id: sub.customerId,
+    stripe_subscription_id: sub.id,
+    subscription_status: sub.status,
+    current_period_end: sub.currentPeriodEnd,
+    cancel_at_period_end: sub.cancelAtPeriodEnd,
+  });
+  return { ...sub, businessId };
 }
 
 /** The independent second check: read the session straight from the provider. */
@@ -191,6 +345,15 @@ export async function verifyAndActivate(sessionId: string): Promise<Verification
       },
     })
     .eq("id", payment.id);
+
+  // Remember the Stripe subscription so later billing changes reach Stripe.
+  if (session.subscriptionId) {
+    try {
+      await syncSubscription(session.subscriptionId);
+    } catch (error) {
+      console.error("subscription sync failed", error instanceof Error ? error.message : error);
+    }
+  }
 
   // Internal hand-off: staff get the full picture plus a link to finish provisioning.
   if (transitioned) {

@@ -164,6 +164,18 @@ export const createInvite = createServerFn({ method: "POST" })
         templateData: {
           fullName: row.full_name.split(" ")[0] || row.full_name,
           registerUrl: inviteUrl(PUBLIC_SITE_ORIGIN, token),
+          payUrl: `${PUBLIC_SITE_ORIGIN}/dashboard`,
+          ...(await (async () => {
+            const { formatMoney } = await import("./entitlements");
+            const t = data.terms;
+            const addonCents = t.addons.reduce((s, a) => s + a.priceCents, 0);
+            const per =
+              t.billingInterval === "one_time" ? "one time" : t.billingInterval.replace("annual", "yearly");
+            return {
+              setupFee: t.setupFeeCents > 0 ? formatMoney(t.setupFeeCents) : "",
+              recurring: `${formatMoney(t.subscriptionPriceCents + addonCents)} ${per}`,
+            };
+          })()),
           expiresOn: new Date(row.expires_at).toLocaleDateString("en-US", {
             month: "long",
             day: "numeric",

@@ -14,6 +14,7 @@ import { template as discoveryConfirmationTemplate } from './discovery-confirmat
 import { template as accountAlertTemplate } from './account-alert'
 import { template as loginCodeTemplate } from './login-code'
 import { template as onboardingReceivedTemplate } from './onboarding-received'
+import { template as paymentLinkTemplate } from './payment-link'
 
 
 export interface TemplateEntry {
@@ -48,5 +49,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'account-alert': accountAlertTemplate,
   'login-code': loginCodeTemplate,
   'onboarding-received': onboardingReceivedTemplate,
+  'payment-link': paymentLinkTemplate,
 }
 
