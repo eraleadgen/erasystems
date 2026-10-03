@@ -55,11 +55,11 @@ function ResetPasswordPage() {
   return (
     <main className="dark flex min-h-screen items-center justify-center bg-background px-6 py-16">
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-sm">
-        <h1 className="text-xl font-semibold text-foreground">Set a new password</h1>
+        <h1 className="text-center text-xl font-semibold text-foreground">Set a new password</h1>
         {done ? (
-          <p className="mt-3 text-sm text-muted-foreground">Password updated. Taking you to your portal…</p>
+          <p className="mt-3 text-center text-sm text-muted-foreground">Password updated. Taking you to your portal…</p>
         ) : !ready ? (
-          <p className="mt-3 text-sm text-muted-foreground">
+          <p className="mt-3 text-center text-sm text-muted-foreground">
             Checking your reset link… If nothing happens, the link may have expired. Request a new
             one from the sign-in page.
           </p>
