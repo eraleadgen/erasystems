@@ -321,6 +321,50 @@ export type Database = {
           },
         ]
       }
+      business_billing: {
+        Row: {
+          business_id: string
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string | null
+          last_payment_failed_at: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_status: string | null
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          last_payment_failed_at?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          last_payment_failed_at?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_billing_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_domains: {
         Row: {
           business_id: string
