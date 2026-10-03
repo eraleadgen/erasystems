@@ -113,15 +113,15 @@ function AuthPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-3">
-            <label className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center justify-between gap-2">
+            <label className="flex items-center gap-1.5 whitespace-nowrap text-[11px] text-muted-foreground">
               <input
                 type="checkbox"
                 checked={remember}
                 onChange={(e) => setRemember(e.target.checked)}
-                className="size-4"
+                className="size-3.5"
               />
-              Remember this device for 30 days
+              Remember device for 30 days
             </label>
             <button
               type="button"
@@ -134,7 +134,7 @@ function AuthPage() {
                 });
                 setNotice("If that email has an account, a reset link is on its way.");
               }}
-              className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              className="whitespace-nowrap text-[11px] text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
             >
               Forgot password?
             </button>
