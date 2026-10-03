@@ -346,6 +346,15 @@ export async function verifyAndActivate(sessionId: string): Promise<Verification
     })
     .eq("id", payment.id);
 
+  // Remember the Stripe subscription so later billing changes reach Stripe.
+  if (session.subscriptionId) {
+    try {
+      await syncSubscription(session.subscriptionId);
+    } catch (error) {
+      console.error("subscription sync failed", error instanceof Error ? error.message : error);
+    }
+  }
+
   // Internal hand-off: staff get the full picture plus a link to finish provisioning.
   if (transitioned) {
     const { notifyTierPurchased } = await import("./purchase-notification.server");

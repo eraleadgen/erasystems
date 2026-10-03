@@ -119,14 +119,26 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
     const { createStripeCheckoutSession } = await import("./payments.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    const { ADDON_LABELS } = await import("./entitlements");
     const session = await createStripeCheckoutSession({
       businessId: business.id,
-      amountCents: terms.totalCents,
       currency: "usd",
-      productName: `ERA Systems — ${terms.planTier} plan`,
-      description: `${business.name} · first ${terms.billingInterval} period${
-        terms.addons.length ? ` + ${terms.addons.length} add-on(s)` : ""
-      }`,
+      lines: [
+        {
+          name: `ERA Systems — ${terms.planTier} plan`,
+          amountCents: terms.subscriptionPriceCents,
+          interval: terms.billingInterval,
+        },
+        { name: "ERA Systems — one-time setup fee", amountCents: terms.setupFeeCents, interval: "one_time" },
+        ...terms.addons.map((a) => ({
+          name: `ERA Systems — ${ADDON_LABELS[a.addon]}`,
+          amountCents: a.priceCents,
+          // Stripe needs every recurring line on one schedule.
+          interval: a.billingInterval === "one_time" ? "one_time" : terms.billingInterval,
+        })),
+      ],
+      description: business.name,
+      customerEmail: (context.claims as { email?: string } | undefined)?.email ?? null,
       successUrl: `${origin}/dashboard?session={CHECKOUT_SESSION_ID}`,
       cancelUrl: `${origin}/dashboard?checkout=cancelled`,
     });
