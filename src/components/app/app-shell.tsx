@@ -18,6 +18,7 @@ const CLIENT_NAV: NavItem[] = [
 ];
 
 const STAFF_NAV: NavItem[] = [
+  { label: "Inbox", to: "/admin/inbox" },
   { label: "Clients", to: "/admin/clients" },
   { label: "Delivery", to: "/admin/delivery" },
   { label: "Calendar", to: "/admin/calendar" },
