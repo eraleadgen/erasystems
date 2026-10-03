@@ -22,3 +22,9 @@
 
 - [x] Send final purchase agreement (Word) to user
 - [x] Client plan change/cancel + AI agent switches + support alerts
+
+## Oct 2026 — onboarding inbox, theme, device verification
+- [ ] Agency console inbox of onboarding submissions (full config, editable) + support email link
+- [ ] Client email after onboarding: account live within 7 days after payment
+- [ ] Portal theme: brand colors, logo, light/dark
+- [ ] Email code on new devices (sign-in, new account, password reset); remember device 30 days
