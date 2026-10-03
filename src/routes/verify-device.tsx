@@ -62,11 +62,11 @@ function VerifyDevicePage() {
   return (
     <main className="dark flex min-h-screen items-center justify-center bg-background px-6 py-16">
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-sm">
-        <h1 className="text-xl font-semibold text-foreground">Check your email</h1>
+        <h1 className="text-center text-xl font-semibold text-foreground">Check your email</h1>
         {state === "checking" ? (
-          <p className="mt-3 text-sm text-muted-foreground">Checking this device…</p>
+          <p className="mt-3 text-center text-sm text-muted-foreground">Checking this device…</p>
         ) : state === "error" ? (
-          <p className="mt-3 text-sm text-destructive">{error}</p>
+          <p className="mt-3 text-center text-sm text-destructive">{error}</p>
         ) : (
           <form
             className="mt-4 space-y-4"
@@ -83,7 +83,7 @@ function VerifyDevicePage() {
               }
             }}
           >
-            <p className="text-sm text-muted-foreground">
+            <p className="text-center text-sm text-muted-foreground">
               We sent a 6-digit code from support@eraleadgen.com to {email || "your email"}. Enter it
               to finish signing in on this device.
             </p>
@@ -96,9 +96,9 @@ function VerifyDevicePage() {
               aria-label="Verification code"
               className="w-full rounded-md border border-border bg-background px-3 py-2 text-center text-lg tracking-[0.4em] text-foreground"
             />
-            <label className="flex items-center gap-2 text-sm text-muted-foreground">
-              <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="size-4" />
-              Remember this device for 30 days
+            <label className="flex items-center justify-center gap-2 whitespace-nowrap text-[11px] text-muted-foreground">
+              <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="size-3.5" />
+              Remember device for 30 days
             </label>
             {notice ? <p className="text-sm text-muted-foreground">{notice}</p> : null}
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
