@@ -39,6 +39,7 @@ import { Route as AuthenticatedAdminAddonsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminCalendarRouteImport } from './routes/_authenticated/admin.calendar'
 import { Route as AuthenticatedAdminDeliveryRouteImport } from './routes/_authenticated/admin.delivery'
 import { Route as AuthenticatedAdminDocumentsRouteImport } from './routes/_authenticated/admin.documents'
+import { Route as AuthenticatedAdminInboxRouteImport } from './routes/_authenticated/admin.inbox'
 import { Route as AuthenticatedAdminInvitesRouteImport } from './routes/_authenticated/admin.invites'
 import { Route as AuthenticatedAdminSalesRouteImport } from './routes/_authenticated/admin.sales'
 import { Route as AuthenticatedStatementMonthRouteImport } from './routes/_authenticated/statement.$month'
@@ -207,6 +208,11 @@ const AuthenticatedAdminDocumentsRoute =
     path: '/documents',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminInboxRoute = AuthenticatedAdminInboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminInvitesRoute =
   AuthenticatedAdminInvitesRouteImport.update({
     id: '/invites',
@@ -318,6 +324,7 @@ export interface FileRoutesByFullPath {
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
   '/admin/documents': typeof AuthenticatedAdminDocumentsRoute
+  '/admin/inbox': typeof AuthenticatedAdminInboxRoute
   '/admin/invites': typeof AuthenticatedAdminInvitesRoute
   '/admin/sales': typeof AuthenticatedAdminSalesRoute
   '/statement/$month': typeof AuthenticatedStatementMonthRoute
@@ -363,6 +370,7 @@ export interface FileRoutesByTo {
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
   '/admin/documents': typeof AuthenticatedAdminDocumentsRoute
+  '/admin/inbox': typeof AuthenticatedAdminInboxRoute
   '/admin/invites': typeof AuthenticatedAdminInvitesRoute
   '/admin/sales': typeof AuthenticatedAdminSalesRoute
   '/statement/$month': typeof AuthenticatedStatementMonthRoute
@@ -410,6 +418,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/_authenticated/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
   '/_authenticated/admin/documents': typeof AuthenticatedAdminDocumentsRoute
+  '/_authenticated/admin/inbox': typeof AuthenticatedAdminInboxRoute
   '/_authenticated/admin/invites': typeof AuthenticatedAdminInvitesRoute
   '/_authenticated/admin/sales': typeof AuthenticatedAdminSalesRoute
   '/_authenticated/statement/$month': typeof AuthenticatedStatementMonthRoute
@@ -457,6 +466,7 @@ export interface FileRouteTypes {
     | '/admin/calendar'
     | '/admin/delivery'
     | '/admin/documents'
+    | '/admin/inbox'
     | '/admin/invites'
     | '/admin/sales'
     | '/statement/$month'
@@ -502,6 +512,7 @@ export interface FileRouteTypes {
     | '/admin/calendar'
     | '/admin/delivery'
     | '/admin/documents'
+    | '/admin/inbox'
     | '/admin/invites'
     | '/admin/sales'
     | '/statement/$month'
@@ -548,6 +559,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/calendar'
     | '/_authenticated/admin/delivery'
     | '/_authenticated/admin/documents'
+    | '/_authenticated/admin/inbox'
     | '/_authenticated/admin/invites'
     | '/_authenticated/admin/sales'
     | '/_authenticated/statement/$month'
@@ -803,6 +815,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminDocumentsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/inbox': {
+      id: '/_authenticated/admin/inbox'
+      path: '/inbox'
+      fullPath: '/admin/inbox'
+      preLoaderRoute: typeof AuthenticatedAdminInboxRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/invites': {
       id: '/_authenticated/admin/invites'
       path: '/invites'
@@ -909,6 +928,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCalendarRoute: typeof AuthenticatedAdminCalendarRoute
   AuthenticatedAdminDeliveryRoute: typeof AuthenticatedAdminDeliveryRoute
   AuthenticatedAdminDocumentsRoute: typeof AuthenticatedAdminDocumentsRoute
+  AuthenticatedAdminInboxRoute: typeof AuthenticatedAdminInboxRoute
   AuthenticatedAdminInvitesRoute: typeof AuthenticatedAdminInvitesRoute
   AuthenticatedAdminSalesRoute: typeof AuthenticatedAdminSalesRoute
   AuthenticatedAdminClientsBusinessIdRoute: typeof AuthenticatedAdminClientsBusinessIdRoute
@@ -920,6 +940,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCalendarRoute: AuthenticatedAdminCalendarRoute,
   AuthenticatedAdminDeliveryRoute: AuthenticatedAdminDeliveryRoute,
   AuthenticatedAdminDocumentsRoute: AuthenticatedAdminDocumentsRoute,
+  AuthenticatedAdminInboxRoute: AuthenticatedAdminInboxRoute,
   AuthenticatedAdminInvitesRoute: AuthenticatedAdminInvitesRoute,
   AuthenticatedAdminSalesRoute: AuthenticatedAdminSalesRoute,
   AuthenticatedAdminClientsBusinessIdRoute:
