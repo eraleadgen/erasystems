@@ -19,3 +19,4 @@ caller authorized first through the RLS-scoped client; and a new row added to th
 register in the same change.
 
 - Purchase agreement text lives only in src/lib/agreement.ts (versioned); checkout, admin download and template all render from it, and checkout records acceptance in agreement_acceptances. Why: one source keeps signed terms consistent.
+- Signed-in server functions require a remembered-device cookie (src/lib/device-trust.server.ts, enforced in src/start.ts); codes are issued only by /api/public/device/*. Why: email 2-step check must be enforced server side, not just on the login page.
