@@ -30,6 +30,8 @@ export type InboxItem = {
   services: { id: string; name: string; priceCents: number; durationMinutes: number }[];
   /** Everything the client typed in the wizard, as submitted. */
   answers: { [key: string]: any };
+  /** The invite's quote: what checkout charges. Null when the client has no invite. */
+  billing: { planTier: string; billingInterval: string; subscriptionPriceCents: number; setupFeeCents: number } | null;
   /** Short-lived link to the logo uploaded in the wizard, for building the site. */
   logoUrl: string | null;
 };
@@ -56,7 +58,7 @@ export const listOnboardingInbox = createServerFn({ method: "GET" })
       ids.length
         ? context.supabase
             .from("businesses")
-            .select("id, name, legal_name, timezone, support_email, support_phone, brand_primary, brand_accent, lifecycle, plan_tier")
+            .select("id, name, legal_name, timezone, support_email, support_phone, brand_primary, brand_accent, lifecycle, plan_tier, origin_invite_id")
             .in("id", ids)
         : Promise.resolve({ data: [] as never[] }),
       ids.length
@@ -73,6 +75,13 @@ export const listOnboardingInbox = createServerFn({ method: "GET" })
             .order("sort_order")
         : Promise.resolve({ data: [] as never[] }),
     ]);
+    const inviteIds = (biz.data ?? []).map((b) => b.origin_invite_id).filter((x): x is string => Boolean(x));
+    const { data: invites } = inviteIds.length
+      ? await context.supabase
+          .from("invites")
+          .select("id, plan_tier, billing_interval, subscription_price_cents, setup_fee_cents")
+          .in("id", inviteIds)
+      : { data: [] as never[] };
     const items = (drafts ?? []).map((d) => {
       const b = (biz.data ?? []).find((x) => x.id === d.business_id);
       const s = (sites.data ?? []).find((x) => x.business_id === d.business_id);
@@ -108,6 +117,17 @@ export const listOnboardingInbox = createServerFn({ method: "GET" })
           .filter((x) => x.business_id === d.business_id)
           .map((x) => ({ id: x.id, name: x.name, priceCents: x.base_price_cents, durationMinutes: x.duration_minutes })),
         answers: (d.data ?? {}) as { [key: string]: any },
+        billing: (() => {
+          const inv = (invites ?? []).find((x) => x.id === b?.origin_invite_id);
+          return inv
+            ? {
+                planTier: inv.plan_tier,
+                billingInterval: inv.billing_interval,
+                subscriptionPriceCents: inv.subscription_price_cents,
+                setupFeeCents: inv.setup_fee_cents,
+              }
+            : null;
+        })(),
         logoUrl: null as string | null,
       };
     });

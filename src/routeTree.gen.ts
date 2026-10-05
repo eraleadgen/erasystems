@@ -35,7 +35,6 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedReferralsRouteImport } from './routes/_authenticated/referrals'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
-import { Route as AuthenticatedAdminAddonsRouteImport } from './routes/_authenticated/admin.addons'
 import { Route as AuthenticatedAdminCalendarRouteImport } from './routes/_authenticated/admin.calendar'
 import { Route as AuthenticatedAdminDeliveryRouteImport } from './routes/_authenticated/admin.delivery'
 import { Route as AuthenticatedAdminDocumentsRouteImport } from './routes/_authenticated/admin.documents'
@@ -184,12 +183,6 @@ const AuthenticatedTeamRoute = AuthenticatedTeamRouteImport.update({
   path: '/team',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAdminAddonsRoute =
-  AuthenticatedAdminAddonsRouteImport.update({
-    id: '/addons',
-    path: '/addons',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
 const AuthenticatedAdminCalendarRoute =
   AuthenticatedAdminCalendarRouteImport.update({
     id: '/calendar',
@@ -320,7 +313,6 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/referrals': typeof AuthenticatedReferralsRoute
   '/team': typeof AuthenticatedTeamRoute
-  '/admin/addons': typeof AuthenticatedAdminAddonsRoute
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
   '/admin/documents': typeof AuthenticatedAdminDocumentsRoute
@@ -366,7 +358,6 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/referrals': typeof AuthenticatedReferralsRoute
   '/team': typeof AuthenticatedTeamRoute
-  '/admin/addons': typeof AuthenticatedAdminAddonsRoute
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
   '/admin/documents': typeof AuthenticatedAdminDocumentsRoute
@@ -414,7 +405,6 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/referrals': typeof AuthenticatedReferralsRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
-  '/_authenticated/admin/addons': typeof AuthenticatedAdminAddonsRoute
   '/_authenticated/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/_authenticated/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
   '/_authenticated/admin/documents': typeof AuthenticatedAdminDocumentsRoute
@@ -462,7 +452,6 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/referrals'
     | '/team'
-    | '/admin/addons'
     | '/admin/calendar'
     | '/admin/delivery'
     | '/admin/documents'
@@ -508,7 +497,6 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/referrals'
     | '/team'
-    | '/admin/addons'
     | '/admin/calendar'
     | '/admin/delivery'
     | '/admin/documents'
@@ -555,7 +543,6 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/referrals'
     | '/_authenticated/team'
-    | '/_authenticated/admin/addons'
     | '/_authenticated/admin/calendar'
     | '/_authenticated/admin/delivery'
     | '/_authenticated/admin/documents'
@@ -787,13 +774,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeamRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/admin/addons': {
-      id: '/_authenticated/admin/addons'
-      path: '/addons'
-      fullPath: '/admin/addons'
-      preLoaderRoute: typeof AuthenticatedAdminAddonsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/_authenticated/admin/calendar': {
       id: '/_authenticated/admin/calendar'
       path: '/calendar'
@@ -924,7 +904,6 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
-  AuthenticatedAdminAddonsRoute: typeof AuthenticatedAdminAddonsRoute
   AuthenticatedAdminCalendarRoute: typeof AuthenticatedAdminCalendarRoute
   AuthenticatedAdminDeliveryRoute: typeof AuthenticatedAdminDeliveryRoute
   AuthenticatedAdminDocumentsRoute: typeof AuthenticatedAdminDocumentsRoute
@@ -936,7 +915,6 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
-  AuthenticatedAdminAddonsRoute: AuthenticatedAdminAddonsRoute,
   AuthenticatedAdminCalendarRoute: AuthenticatedAdminCalendarRoute,
   AuthenticatedAdminDeliveryRoute: AuthenticatedAdminDeliveryRoute,
   AuthenticatedAdminDocumentsRoute: AuthenticatedAdminDocumentsRoute,

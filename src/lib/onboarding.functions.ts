@@ -302,31 +302,6 @@ export const completeOnboarding = createServerFn({ method: "POST" })
       });
       if (memberError) throw new Error(memberError.message);
 
-      /**
-       * Agreed add-ons are copied onto the business INACTIVE. They carry their
-       * per-client amount into checkout, and only the payment activation path
-       * flips them on — a tenant is never entitled to an add-on before paying.
-       */
-      if (originInvite?.id) {
-        const { data: inviteAddons } = await supabaseAdmin
-          .from("invite_addons")
-          .select("addon, price_cents, billing_interval")
-          .eq("invite_id", originInvite.id);
-
-        if (inviteAddons && inviteAddons.length > 0) {
-          const { error: addonError } = await supabaseAdmin.from("business_addons").insert(
-            inviteAddons.map((row) => ({
-              business_id: businessId,
-              addon: row.addon,
-              price_cents: row.price_cents,
-              billing_interval: row.billing_interval,
-              is_active: false,
-              deactivated_at: new Date().toISOString(),
-            })),
-          );
-          if (addonError) throw new Error(addonError.message);
-        }
-      }
 
 
       const services = payload.catalog.services ?? [];

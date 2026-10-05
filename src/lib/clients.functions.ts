@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { AddonKind, PlanTier } from "./entitlements";
+import type { PlanTier } from "./entitlements";
 
 const businessIdInput = z.object({ businessId: z.string().uuid() });
 
@@ -44,7 +44,6 @@ export type ClientProfile = {
     setupFeeCents: number;
     acceptedAt: string | null;
   } | null;
-  addons: { addon: AddonKind; isActive: boolean; priceCents: number }[];
   /** Partner-network code this client shares, and how many bookings it produced. */
   referral: { code: string; isActive: boolean; sentCount: number } | null;
   services: { id: string; name: string; basePriceCents: number }[];
@@ -83,12 +82,8 @@ export const getClientProfile = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (!business) return null;
 
-    const [addons, services, payments, provisioning, domains, members, referralCode, referralsSent] =
+    const [services, payments, provisioning, domains, members, referralCode, referralsSent] =
       await Promise.all([
-      context.supabase
-        .from("business_addons")
-        .select("addon, is_active, price_cents")
-        .eq("business_id", business.id),
       context.supabase
         .from("services")
         .select("id, name, base_price_cents")
@@ -180,11 +175,6 @@ export const getClientProfile = createServerFn({ method: "GET" })
             sentCount: (referralsSent.data ?? []).length,
           }
         : null,
-      addons: (addons.data ?? []).map((a) => ({
-        addon: a.addon as AddonKind,
-        isActive: a.is_active,
-        priceCents: a.price_cents,
-      })),
       services: (services.data ?? []).map((s) => ({
         id: s.id,
         name: s.name,

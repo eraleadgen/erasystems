@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 import { getAccountRouting, getMyBusiness, type MyBusiness } from "@/lib/business.functions";
 import { createCheckoutSession, getMyTerms, verifyMyPayment } from "@/lib/payments.functions";
-import { ADDON_LABELS, formatMoney, type PlanTier } from "@/lib/entitlements";
+import { formatMoney, type PlanTier } from "@/lib/entitlements";
 import { getMyPlanSelection, selectMyPlan } from "@/lib/plan-selection.functions";
 import { PLAN_PRICING, SELECTABLE_TIERS } from "@/lib/pricing";
 import { intervalLabel } from "@/lib/payments";
@@ -22,7 +22,7 @@ import { AiAgentStatusPanel } from "@/components/app/ai-agent-delivery";
 import { getLaunchStatus } from "@/lib/launch-status.functions";
 import { buildClientNav } from "@/components/app/client-nav";
 import { getMyPortalContext } from "@/lib/portal.functions";
-import { getBusinessAddons, getMyEntitlements } from "@/lib/entitlements.functions";
+import { getMyEntitlements } from "@/lib/entitlements.functions";
 
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -305,17 +305,11 @@ function Dashboard() {
 /** Live/pending lights for whatever this business is actually entitled to. */
 function StatusSection({ businessId }: { businessId: string }) {
   const fetchEntitlements = useServerFn(getMyEntitlements);
-  const fetchAddons = useServerFn(getBusinessAddons);
   const fetchStatus = useServerFn(getLaunchStatus);
 
   const entitlements = useQuery({
     queryKey: ["my-entitlements", businessId],
     queryFn: () => fetchEntitlements({ data: { businessId } }),
-    retry: false,
-  });
-  const addons = useQuery({
-    queryKey: ["my-addons", businessId],
-    queryFn: () => fetchAddons({ data: { businessId } }),
     retry: false,
   });
   const statuses = useQuery({
@@ -330,7 +324,6 @@ function StatusSection({ businessId }: { businessId: string }) {
   return (
     <LaunchStatusPanel
       features={entitlements.data.features}
-      addons={(addons.data ?? []).filter((a) => a.isActive).map((a) => a.addon)}
       rows={statuses.data ?? []}
     />
   );
@@ -516,17 +509,6 @@ function CheckoutPanel({ canPay, businessName }: { canPay: boolean; businessName
                 <span className="text-muted-foreground">{formatMoney(terms.setupFeeCents)}</span>
               </li>
             )}
-            {terms.addons.map((addon) => (
-              <li
-                key={addon.addon}
-                className="era-hairline flex items-center justify-between gap-4 border-b py-2.5"
-              >
-                <span className="text-foreground">{ADDON_LABELS[addon.addon]}</span>
-                <span className="text-muted-foreground">
-                  {formatMoney(addon.priceCents)} {intervalLabel(addon.billingInterval)}
-                </span>
-              </li>
-            ))}
           </ul>
           <div className="mt-4 flex items-baseline justify-between gap-4">
             <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
@@ -556,7 +538,6 @@ function CheckoutPanel({ canPay, businessName }: { canPay: boolean; businessName
                       subscriptionPriceCents: terms.subscriptionPriceCents,
                       setupFeeCents: terms.setupFeeCents,
                       billingInterval: terms.billingInterval,
-                      addons: terms.addons,
                     })
                   }
                   className="font-medium text-primary underline underline-offset-2"

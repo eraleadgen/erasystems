@@ -9,7 +9,7 @@
  * a single `.eq("id", …)` — no listing, no cross-tenant surface.
  */
 
-import type { AddonKind, PlanTier } from "./entitlements";
+import type { PlanTier } from "./entitlements";
 import type { AgreedTerms } from "./payments";
 import { PLAN_PRICING } from "./pricing";
 
@@ -54,28 +54,13 @@ export async function resolveAgreedTerms(
     }
   }
 
-  const { data: addonRows } = await supabaseAdmin
-    .from("business_addons")
-    .select("addon, price_cents, billing_interval")
-    .eq("business_id", businessId);
-
-  const addons = (addonRows ?? []).map((row) => ({
-    addon: row.addon as AddonKind,
-    priceCents: row.price_cents,
-    billingInterval: row.billing_interval,
-  }));
-
-  const totalCents =
-    subscriptionPriceCents +
-    setupFeeCents +
-    addons.reduce((sum, row) => sum + row.priceCents, 0);
+  const totalCents = subscriptionPriceCents + setupFeeCents;
 
   return {
     planTier,
     subscriptionPriceCents,
     setupFeeCents,
     billingInterval,
-    addons,
     totalCents,
   };
 }

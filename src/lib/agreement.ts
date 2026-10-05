@@ -5,14 +5,12 @@
  * Bump AGREEMENT_VERSION whenever wording changes.
  */
 import {
-  ADDON_LABELS,
   FEATURE_LABELS,
-  type AddonKind,
   type PlanTier,
   type PlatformFeature,
 } from "./entitlements";
 
-export const AGREEMENT_VERSION = "2026-09-30d";
+export const AGREEMENT_VERSION = "2026-10-05a";
 
 const TIER_FEATURES: Record<PlanTier, PlatformFeature[]> = {
   basic: ["website", "ai_chat_widget", "core_engines", "payments", "admin_dashboard", "self_serve_setup", "email_automations"],
@@ -26,7 +24,6 @@ export type AgreementInput = {
   subscriptionPriceCents: number | null;
   setupFeeCents: number | null;
   billingInterval: string | null;
-  addons: { addon: AddonKind; priceCents: number; billingInterval: string }[] | null;
 };
 
 export type AgreementBlock =
@@ -68,16 +65,7 @@ export function buildAgreement(input: AgreementInput): AgreementBlock[] {
   p(`ERA will provide the hosted software platform, setup and support services described below (the "Services"). Client is purchasing the ${tier ? cap(tier) : BLANK} plan, which includes:`);
   if (features) for (const f of features) li(FEATURE_LABELS[f]);
   else { li(BLANK); li(BLANK); li(BLANK); }
-  const addons = input.addons;
-  if (addons === null) {
-    p("Optional add-ons purchased (if none, write \"None\"): " + BLANK);
-  } else if (addons.length) {
-    p("Client is also purchasing the following add-ons, which are separate from the plan and priced individually:");
-    for (const a of addons) li(`${ADDON_LABELS[a.addon]} (${money(a.priceCents)} ${per(a.billingInterval)})`);
-  } else {
-    p("No add-ons are purchased. Add-ons are never included in a plan and require a separate written order.");
-  }
-  p("Any service not listed above is not included. Additional work, custom development, or new add-ons require a written change order or updated agreement and may carry additional fees. ERA may improve, modify or replace features of the platform over time, provided the overall functionality of the purchased plan is not materially reduced.");
+  p("Any service not listed above is not included. Additional work or custom development requires a written change order or updated agreement and may carry additional fees. ERA may improve, modify or replace features of the platform over time, provided the overall functionality of the purchased plan is not materially reduced.");
 
   h("2. Fees and Payment");
   const rows: [string, string][] = [
@@ -85,9 +73,8 @@ export function buildAgreement(input: AgreementInput): AgreementBlock[] {
     ["Recurring subscription fee", `${money(input.subscriptionPriceCents)} ${per(input.billingInterval)}`],
     ["One-time setup fee", money(input.setupFeeCents)],
   ];
-  if (addons) for (const a of addons) rows.push([ADDON_LABELS[a.addon], `${money(a.priceCents)} ${per(a.billingInterval)}`]);
-  if (input.subscriptionPriceCents !== null && input.setupFeeCents !== null && addons) {
-    rows.push(["Total due at signing", money(input.subscriptionPriceCents + input.setupFeeCents + addons.reduce((s, a) => s + a.priceCents, 0))]);
+  if (input.subscriptionPriceCents !== null && input.setupFeeCents !== null) {
+    rows.push(["Total due at signing", money(input.subscriptionPriceCents + input.setupFeeCents)]);
   } else rows.push(["Total due at signing", "$__________"]);
   b.push({ kind: "table", rows });
   li("The setup fee reflects the complexity of Client's build and is due in full before work begins. The setup fee is NON-REFUNDABLE once paid, regardless of whether Client later cancels.");

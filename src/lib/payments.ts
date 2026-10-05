@@ -1,6 +1,6 @@
 /** Browser-safe payment types and helpers. No secrets, no server imports. */
 
-import type { AddonKind, PlanTier } from "./entitlements";
+import type { PlanTier } from "./entitlements";
 
 export type PaymentStatus = "pending" | "paid" | "failed";
 
@@ -20,8 +20,7 @@ export interface AgreedTerms {
   subscriptionPriceCents: number;
   setupFeeCents: number;
   billingInterval: string;
-  addons: { addon: AddonKind; priceCents: number; billingInterval: string }[];
-  /** subscription + setup fee + every agreed add-on, for the first billing period. */
+  /** subscription + setup fee, for the first billing period. */
   totalCents: number;
 }
 
