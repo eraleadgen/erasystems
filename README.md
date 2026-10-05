@@ -8,7 +8,7 @@ Report back before writing any code.
 
 This project was built with [Lovable](https://lovable.dev).
 
-**Live app**: https://erasystems.lovable.app
+**Live app**: https://eraleadgen.com
 
 ## Build with Lovable
 
