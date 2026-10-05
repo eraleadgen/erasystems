@@ -246,3 +246,57 @@ export const setInboxReviewed = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/**
+ * Staff-only: email a not-yet-paid client a button to their checkout. The amounts
+ * shown come from the same invite terms checkout charges. Elevated access is one
+ * auth.admin.getUserById for that business's owner, after the staff check.
+ */
+export const sendInboxPaymentLink = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ businessId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<{ emailedTo: string }> => {
+    await assertStaff(context.supabase);
+    const { data: biz } = await context.supabase
+      .from("businesses")
+      .select("id, name, plan_tier, lifecycle, origin_invite_id")
+      .eq("id", data.businessId)
+      .single();
+    if (!biz) throw new Error("Client not found.");
+    if (biz.lifecycle !== "pending_payment" && biz.lifecycle !== "expired") {
+      throw new Error("This client has already paid.");
+    }
+    const { data: owner } = await context.supabase
+      .from("business_members")
+      .select("user_id")
+      .eq("business_id", biz.id)
+      .eq("role", "owner")
+      .limit(1)
+      .maybeSingle();
+    if (!owner) throw new Error("This client has no owner account yet.");
+
+    const { resolveAgreedTerms } = await import("./terms.server");
+    const terms = await resolveAgreedTerms(biz.id, biz.plan_tier, biz.origin_invite_id);
+    if (terms.totalCents <= 0) throw new Error("Set a price before sending the payment link.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: u } = await supabaseAdmin.auth.admin.getUserById(owner.user_id);
+    const email = u?.user?.email;
+    if (!email) throw new Error("The owner has no email on file.");
+
+    const { formatMoney } = await import("./entitlements");
+    const per = terms.billingInterval === "annual" ? "yearly" : terms.billingInterval.replace("_", " ");
+    const { sendTemplateEmail } = await import("./email-templates/send-email");
+    const r = await sendTemplateEmail("payment-link", email, {
+      templateData: {
+        kind: "activation",
+        businessName: biz.name,
+        payUrl: "https://eraleadgen.com/dashboard",
+        setupFee: terms.setupFeeCents > 0 ? formatMoney(terms.setupFeeCents) : "",
+        recurring: `${formatMoney(terms.subscriptionPriceCents)} ${per}`,
+      },
+      idempotencyKey: `activation-link-${biz.id}-${terms.subscriptionPriceCents}-${terms.setupFeeCents}-${Date.now()}`,
+    });
+    if (!r.sent) throw new Error("This address is blocked from receiving our email.");
+    return { emailedTo: email };
+  });

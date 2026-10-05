@@ -434,6 +434,9 @@ function CheckoutPanel({ canPay, businessName }: { canPay: boolean; businessName
     queryKey: ["my-terms"],
     queryFn: () => fetchTerms(),
     retry: false,
+    // Staff can change the quote from the agency console; always show the latest.
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 
   const checkout = useMutation({
