@@ -9,6 +9,9 @@ export interface PaymentLinkProps {
   payUrl?: string;
   recurring?: string;
   firstCharge?: string;
+  /** activation = new client paying setup fee + first period from their portal. */
+  kind?: "subscription" | "activation";
+  setupFee?: string;
 }
 
 export function PaymentLinkEmail({
@@ -16,7 +19,34 @@ export function PaymentLinkEmail({
   payUrl = "https://eraleadgen.com",
   recurring = "",
   firstCharge = "",
+  kind = "subscription",
+  setupFee = "",
 }: PaymentLinkProps) {
+  if (kind === "activation") {
+    return (
+      <CustomerEmailShell
+        businessName="ERA Systems"
+        accent="#0f766e"
+        preview="Your ERA quote is ready to pay"
+        heading="Activate your ERA account"
+        footer={<Text style={muted}>Sign in, tick the agreement box, then you'll go straight to Stripe's secure checkout.</Text>}
+      >
+        <Text style={{ fontSize: "15px", color: "#141a19", margin: "0 0 18px" }}>
+          Your quote for {businessName} is ready.
+        </Text>
+        <Text style={{ fontSize: "15px", color: "#141a19", margin: "0 0 20px" }}>
+          {setupFee ? <>One-time setup fee: <strong>{setupFee}</strong><br /></> : null}
+          Recurring: <strong>{recurring}</strong>
+        </Text>
+        <Button
+          href={payUrl}
+          style={{ backgroundColor: "#0f766e", borderRadius: "8px", color: "#ffffff", display: "inline-block", fontSize: "14px", fontWeight: 600, padding: "12px 20px", textDecoration: "none" }}
+        >
+          Pay with Stripe
+        </Button>
+      </CustomerEmailShell>
+    );
+  }
   return (
     <CustomerEmailShell
       businessName="ERA Systems"

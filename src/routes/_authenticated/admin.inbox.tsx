@@ -10,6 +10,7 @@ import { updateClientBilling } from "@/lib/clients.functions";
 import {
   listOnboardingInbox,
   saveOnboardingInboxItem,
+  sendInboxPaymentLink,
   setInboxReviewed,
   type InboxItem,
 } from "@/lib/inbox.functions";
@@ -304,6 +305,13 @@ const INTERVALS = [
 /** The invite quote checkout charges. Saved through the same staff-only billing update as the client page. */
 function BillingSection({ item }: { item: InboxItem }) {
   const update = useServerFn(updateClientBilling);
+  const sendLink = useServerFn(sendInboxPaymentLink);
+  const linkM = useMutation({
+    mutationFn: () => sendLink({ data: { businessId: item.businessId! } }),
+    onSuccess: (r) => setMsg(`Payment link emailed to ${r.emailedTo}.`),
+    onError: (e: Error) => setMsg(e.message),
+  });
+  const unpaid = item.lifecycle === "pending_payment" || item.lifecycle === "expired";
   const qc = useQueryClient();
   const b = item.billing;
   const [tier, setTier] = useState(b?.planTier ?? "basic");
@@ -390,6 +398,19 @@ function BillingSection({ item }: { item: InboxItem }) {
         >
           {m.isPending ? "Saving…" : "Save plan and quote"}
         </button>
+        {unpaid && (
+          <button
+            type="button"
+            disabled={linkM.isPending}
+            onClick={() => {
+              setMsg(null);
+              linkM.mutate();
+            }}
+            className="rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted disabled:opacity-60"
+          >
+            {linkM.isPending ? "Sending…" : "Email Stripe payment link"}
+          </button>
+        )}
         {msg && <span className="text-xs text-muted-foreground">{msg}</span>}
       </div>
     </section>

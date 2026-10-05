@@ -342,3 +342,4 @@ send staff alerts only; no elevated reads are added there.
 - Stripe webhook `invoice.payment_failed` sets `business_billing.last_payment_failed_at` and reads `businesses.name` for that business id only.
 - `startClientSubscription` (src/lib/clients.functions.ts): after an is_platform_staff check, one elevated `auth.admin.getUserById` for the owner of that business (owner row read through the staff RLS client) to email the payment link.
 - `updateClientBilling`, `getClientStripeStatus`, plan-change Stripe cancel sync: NOT elevated — RLS reads of `business_billing`; Stripe calls use the server secret only.
+- `sendInboxPaymentLink` (src/lib/inbox.functions.ts): after an is_platform_staff check, one elevated `auth.admin.getUserById` for that business's owner (owner row read through the staff RLS client) to email the checkout link; terms via the registered `resolveAgreedTerms`.
