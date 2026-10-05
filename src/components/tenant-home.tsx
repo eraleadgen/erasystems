@@ -170,13 +170,6 @@ export function TenantHome({
           >
             Specialist portal
           </Link>
-          <Link
-            to="/admin/addons"
-            search={{ tenant: tenant.slug }}
-            className="rounded-md border border-border px-3 py-1.5 text-foreground underline-offset-4 hover:underline"
-          >
-            Add-on management
-          </Link>
         </div>
 
         <h2 className="mt-14 text-lg font-semibold text-foreground">Service catalog</h2>

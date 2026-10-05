@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
-import type { AddonKind, PlanTier, PlatformFeature } from "./entitlements";
+import type { PlanTier, PlatformFeature } from "./entitlements";
 import type { AutoTaskKey, DeliveryStatus } from "./delivery-tasks";
 
 export type DerivedStatus = { status: DeliveryStatus; evidence: string };
@@ -15,7 +15,6 @@ export type BusinessDelivery = {
   createdAt: string;
   contactEmail: string | null;
   features: PlatformFeature[];
-  addons: AddonKind[];
   derived: Partial<Record<AutoTaskKey, DerivedStatus>>;
 };
 
@@ -43,12 +42,8 @@ export async function computeDelivery(
     .maybeSingle();
   if (!business) return null;
 
-  const [features, addons, services, domains, provisioning, launch, payments] = await Promise.all([
+  const [features, services, domains, provisioning, launch, payments] = await Promise.all([
     supabase.from("plan_tier_features").select("feature").eq("plan_tier", business.plan_tier),
-    supabase
-      .from("business_addons")
-      .select("addon, is_active, price_cents")
-      .eq("business_id", businessId),
     supabase
       .from("services")
       .select("id, base_price_cents, duration_minutes, is_active")
@@ -69,9 +64,6 @@ export async function computeDelivery(
   ]);
 
   const featureKeys = (features.data ?? []).map((f) => f.feature as PlatformFeature);
-  const activeAddons = (addons.data ?? [])
-    .filter((a) => a.is_active)
-    .map((a) => a.addon as AddonKind);
 
   // Contact for assisted emails: the invite this account came from, else support email.
   let contactEmail = business.support_email;
@@ -94,11 +86,10 @@ export async function computeDelivery(
       ? { status: "in_progress", evidence: "Payment recorded, activation pending" }
       : { status: "not_started", evidence: "No confirmed payment" };
 
-  const pricedAddons = (addons.data ?? []).filter((a) => a.is_active && a.price_cents >= 0).length;
-  derived.tier_addons_locked = isActive
+  derived.tier_locked = isActive
     ? {
         status: "done",
-        evidence: `${business.plan_tier} tier · ${pricedAddons} add-on${pricedAddons === 1 ? "" : "s"} priced`,
+        evidence: `${business.plan_tier} tier`,
       }
     : { status: "not_started", evidence: "Tier locks on activation" };
 
@@ -170,7 +161,7 @@ export async function computeDelivery(
           : { status: "not_started", evidence: "Not started" };
   }
 
-  const entitledItems = [...featureKeys, ...activeAddons] as string[];
+  const entitledItems = [...featureKeys] as string[];
   const rows = launch.data ?? [];
   const liveCount = entitledItems.filter(
     (k) => rows.find((r) => r.item_key === k)?.status === "live",
@@ -192,7 +183,6 @@ export async function computeDelivery(
     createdAt: business.created_at,
     contactEmail,
     features: featureKeys,
-    addons: activeAddons,
     derived,
   };
 }

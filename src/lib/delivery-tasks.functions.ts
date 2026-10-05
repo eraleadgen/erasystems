@@ -11,7 +11,7 @@ import {
   type DeliveryStatus,
 } from "./delivery-tasks";
 import { computeDelivery } from "./delivery-evidence";
-import type { AddonKind, PlanTier } from "./entitlements";
+import type { PlanTier } from "./entitlements";
 
 const businessIdInput = z.object({ businessId: z.string().uuid() });
 
@@ -78,7 +78,7 @@ function resolveTasks(
   stored: StoredRow[],
   delivery: NonNullable<Awaited<ReturnType<typeof computeDelivery>>>,
 ): ResolvedTask[] {
-  const applicable = applicableTasks(delivery.planTier, delivery.features, delivery.addons);
+  const applicable = applicableTasks(delivery.planTier, delivery.features);
   return applicable.map((task) => {
     const row = stored.find((r) => r.task_key === task.key);
     const mode = automationFor(task.key);

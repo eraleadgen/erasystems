@@ -1,4 +1,4 @@
-import type { AddonKind, PlanTier, PlatformFeature } from "./entitlements";
+import type { PlanTier, PlatformFeature } from "./entitlements";
 
 export const DELIVERY_STATUSES = ["not_started", "in_progress", "blocked", "done"] as const;
 export type DeliveryStatus = (typeof DELIVERY_STATUSES)[number];
@@ -17,7 +17,6 @@ export type TaskOwner = "era" | "client";
  * `requires` decides whether the step applies to this client at all:
  *  - undefined: every client
  *  - feature: only when the tier entitles that feature
- *  - addon: only when the add-on row is active
  *  - tier: only for the listed tiers
  */
 export type DeliveryTask = {
@@ -29,7 +28,6 @@ export type DeliveryTask = {
   day: number;
   requires?:
     | { kind: "feature"; feature: PlatformFeature }
-    | { kind: "addon"; addon: AddonKind }
     | { kind: "tier"; tiers: PlanTier[] };
 };
 
@@ -55,9 +53,9 @@ export const DELIVERY_PHASES: DeliveryPhase[] = [
         day: 0,
       },
       {
-        key: "tier_addons_locked",
-        label: "Tier and add-on pricing locked on the account",
-        detail: "Plan tier set, each purchased add-on row active with the agreed custom price.",
+        key: "tier_locked",
+        label: "Tier and pricing locked on the account",
+        detail: "Plan tier set with the agreed custom price.",
         owner: "era",
         day: 0,
       },
@@ -210,14 +208,6 @@ export const DELIVERY_PHASES: DeliveryPhase[] = [
         day: 4,
         requires: { kind: "feature", feature: "specialist_portal" },
       },
-      {
-        key: "white_label_branding",
-        label: "White-label branding applied",
-        detail: "Client name, logo and colours applied across the platform surfaces they use.",
-        owner: "era",
-        day: 5,
-        requires: { kind: "addon", addon: "white_label_branding" },
-      },
     ],
   },
   {
@@ -265,14 +255,6 @@ export const DELIVERY_PHASES: DeliveryPhase[] = [
         owner: "era",
         day: 5,
         requires: { kind: "feature", feature: "partner_network" },
-      },
-      {
-        key: "ads_launched",
-        label: "Ad management campaigns launched",
-        detail: "Accounts accessed, tracking installed, budget confirmed, first campaigns live.",
-        owner: "era",
-        day: 5,
-        requires: { kind: "addon", addon: "ad_management" },
       },
     ],
   },
@@ -358,17 +340,15 @@ export const DELIVERY_PHASES: DeliveryPhase[] = [
 
 export const ALL_DELIVERY_TASKS: DeliveryTask[] = DELIVERY_PHASES.flatMap((p) => p.tasks);
 
-/** Steps that apply to this specific client, given tier features and active add-ons. */
+/** Steps that apply to this specific client, given its tier features. */
 export function applicableTasks(
   tier: PlanTier,
   features: PlatformFeature[],
-  addons: AddonKind[],
 ): DeliveryTask[] {
   return ALL_DELIVERY_TASKS.filter((task) => {
     const req = task.requires;
     if (!req) return true;
     if (req.kind === "feature") return features.includes(req.feature);
-    if (req.kind === "addon") return addons.includes(req.addon);
     return req.tiers.includes(tier);
   });
 }

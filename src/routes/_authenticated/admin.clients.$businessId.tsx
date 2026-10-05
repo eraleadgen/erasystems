@@ -21,8 +21,8 @@ import {
 import { getDeliveryBoard } from "@/lib/delivery-tasks.functions";
 import { getAiAgentDelivery } from "@/lib/ai-agents.functions";
 import { AI_AGENT_TRACK_LIST, trackProgress } from "@/lib/ai-agents";
-import { ADDON_LABELS, FEATURE_LABELS, formatMoney } from "@/lib/entitlements";
-import { getBusinessAddons, getMyEntitlements } from "@/lib/entitlements.functions";
+import { FEATURE_LABELS, formatMoney } from "@/lib/entitlements";
+import { getMyEntitlements } from "@/lib/entitlements.functions";
 import {
   getLaunchStatus,
   setLaunchStatus,
@@ -152,19 +152,6 @@ function ClientProfilePage() {
               <Row label="Timezone" value={profile.timezone} />
               <Row label="Contact email" value={profile.supportEmail ?? "Not provided"} />
               <Row label="Contact phone" value={profile.supportPhone ?? "Not provided"} />
-              <Row
-                label="Add-ons"
-                value={
-                  profile.addons.length
-                    ? profile.addons
-                        .map(
-                          (a) =>
-                            `${ADDON_LABELS[a.addon]} (${a.isActive ? "active" : "pending"}, ${formatMoney(a.priceCents)})`,
-                        )
-                        .join(", ")
-                    : "None"
-                }
-              />
               <Row label="Services" value={String(profile.services.length)} />
               <Row
                 label="Referral code"
@@ -450,7 +437,6 @@ function ClientProfilePage() {
  */
 function LaunchStatusEditor({ businessId }: { businessId: string }) {
   const fetchEntitlements = useServerFn(getMyEntitlements);
-  const fetchAddons = useServerFn(getBusinessAddons);
   const fetchStatus = useServerFn(getLaunchStatus);
   const setStatus = useServerFn(setLaunchStatus);
   const queryClient = useQueryClient();
@@ -458,11 +444,6 @@ function LaunchStatusEditor({ businessId }: { businessId: string }) {
   const entitlements = useQuery({
     queryKey: ["client-entitlements", businessId],
     queryFn: () => fetchEntitlements({ data: { businessId } }),
-    retry: false,
-  });
-  const addons = useQuery({
-    queryKey: ["client-addons", businessId],
-    queryFn: () => fetchAddons({ data: { businessId } }),
     retry: false,
   });
   const statuses = useQuery({
@@ -484,9 +465,6 @@ function LaunchStatusEditor({ businessId }: { businessId: string }) {
       // The AI agents are tracked step by step in their own checklists below.
       .filter((f) => f !== "voice_sms_agent")
       .map((f) => ({ key: f as string, label: FEATURE_LABELS[f] })),
-    ...(addons.data ?? [])
-      .filter((a) => a.isActive)
-      .map((a) => ({ key: a.addon as string, label: ADDON_LABELS[a.addon] })),
   ];
 
   const rows = statuses.data ?? [];
@@ -745,7 +723,6 @@ function ClientSummary({
   const blockedTasks = tasks.filter((t) => t.status === "blocked").length;
   const deliveryPct = tasks.length ? Math.round((doneTasks / tasks.length) * 100) : 0;
 
-  const activeAddons = profile.addons.filter((a) => a.isActive);
   const enabledTracks = AI_AGENT_TRACK_LIST.filter((t) =>
     (ai.data?.enabledTracks ?? []).includes(t.track),
   );
@@ -795,23 +772,6 @@ function ClientSummary({
 
       <div className="mt-5 grid gap-5 md:grid-cols-2">
         <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Active add-ons</p>
-          {activeAddons.length === 0 ? (
-            <p className="mt-2 text-sm text-muted-foreground">None</p>
-          ) : (
-            <ul className="mt-2 divide-y divide-border/50">
-              {activeAddons.map((a) => (
-                <li
-                  key={a.addon}
-                  className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 py-2 text-sm"
-                >
-                  <span className="min-w-0 truncate">{ADDON_LABELS[a.addon]}</span>
-                  <span className="shrink-0 font-medium">{formatMoney(a.priceCents)}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-
           {profile.planTier === "enterprise" && (
             <div className="mt-4">
               <p className="text-xs uppercase tracking-wide text-muted-foreground">AI agents</p>
@@ -953,7 +913,6 @@ function AccountActiveRow({ businessId, lifecycle }: { businessId: string; lifec
 }
 
 function AgreementRow({ profile }: { profile: ClientProfile }) {
-  const fetchAddons = useServerFn(getBusinessAddons);
   const [busy, setBusy] = useState(false);
   const accepted = useQuery({
     queryKey: ["agreement-acceptance", profile.id],
@@ -984,16 +943,12 @@ function AgreementRow({ profile }: { profile: ClientProfile }) {
           onClick={async () => {
             setBusy(true);
             try {
-              const addons = await fetchAddons({ data: { businessId: profile.id } });
               await downloadAgreementDocx({
                 clientName: profile.name,
                 planTier: profile.planTier,
                 subscriptionPriceCents: m?.subscriptionPriceCents ?? null,
                 setupFeeCents: m?.setupFeeCents ?? null,
                 billingInterval: m?.billingInterval ?? null,
-                addons: addons
-                  .filter((a) => a.isActive)
-                  .map((a) => ({ addon: a.addon, priceCents: a.priceCents, billingInterval: a.billingInterval })),
               });
             } finally {
               setBusy(false);

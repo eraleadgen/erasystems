@@ -1,5 +1,5 @@
-import { ADDON_LABELS, FEATURE_LABELS } from "@/lib/entitlements";
-import type { AddonKind, PlatformFeature } from "@/lib/entitlements";
+import { FEATURE_LABELS } from "@/lib/entitlements";
+import type { PlatformFeature } from "@/lib/entitlements";
 import type { LaunchStatus, LaunchStatusRow } from "@/lib/launch-status.functions";
 
 const STATUS_COPY: Record<LaunchStatus, { label: string; dot: string; text: string }> = {
@@ -40,11 +40,9 @@ export function statusFor(rows: LaunchStatusRow[], key: string): LaunchStatus {
  */
 export function LaunchStatusPanel({
   features,
-  addons,
   rows,
 }: {
   features: PlatformFeature[];
-  addons: AddonKind[];
   rows: LaunchStatusRow[];
 }) {
   const items = [
@@ -53,7 +51,6 @@ export function LaunchStatusPanel({
     ...features
       .filter((f) => f !== "voice_sms_agent")
       .map((f) => ({ key: f as string, label: FEATURE_LABELS[f] })),
-    ...addons.map((a) => ({ key: a as string, label: ADDON_LABELS[a] })),
   ];
   if (items.length === 0) return null;
 
