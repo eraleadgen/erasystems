@@ -28,3 +28,7 @@
 - [x] Client email after onboarding: account live within 7 days after payment
 - [x] Portal theme: brand colors, logo, light/dark
 - [x] Email code on new devices (sign-in, new account, password reset); remember device 30 days
+
+## Oct 2026 — cleanup + inbox billing
+- [ ] Remove Ad Management / White-Label everywhere except the public /addons "Coming soon" page
+- [ ] Inbox shows invite tier, billing interval, setup fee + recurring quote, editable by staff (for $1 test)
