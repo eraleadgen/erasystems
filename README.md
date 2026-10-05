@@ -1,30 +1,40 @@
-# ERA Systems LLC
+# ERA Systems
 
-I'm building a multi-tenant SaaS platform. I've uploaded a reference document for context. Before any code gets written, I need you to explain exactly how you'd deliver tenant isolation on this platform's real infrastructure, not confirm in general terms that it's possible.
+**Live:** [eraleadgen.com](https://eraleadgen.com)
 
-Walk me through: the actual Postgres RLS policy pattern you'd use, keyed on a business/tenant identifier, show me a real policy definition. Then walk me through hostname-based tenant resolution, how a request arriving on one business's domain resolves to that business's data before anything renders, and where that logic actually runs. Flag directly if there's any proxy, edge function, or hosting layer on this platform that could rewrite or obscure the real incoming hostname before your resolution logic sees it, that exact failure mode caused a real, hard-to-find bug on a different platform, and I want to know now if it's a risk here too.
+ERA Systems is a multi-tenant SaaS platform that gives local service businesses one system for their website, AI chat, scheduling, customers, jobs and payments. Each client business gets its own branded public site on its own domain, plus a private portal to run the business.
 
-Report back before writing any code.
+## Highlights
 
-This project was built with [Lovable](https://lovable.dev).
+- **Multi-tenant isolation:** every record carries a `business_id`, and Postgres Row-Level Security policies enforce separation in the database, not just in the app. Two live custom domains were tested side by side for cross-tenant leaks.
+- **Hostname-based tenant resolution:** the server resolves the business from the incoming domain before rendering. Forged forwarding headers are ignored, and unknown domains return 404.
+- **Invite-only onboarding:** single-use hashed invite tokens, a resumable onboarding wizard and an inactive-until-paid account lifecycle.
+- **Stripe subscriptions:** custom quotes (setup fee plus recurring price), signature-verified webhooks, idempotent activation and end-of-period plan changes and cancellations.
+- **Tiered entitlements:** Basic, Growth and Enterprise tiers, with add-ons that are never granted implicitly. All entitlement checks run on the server.
+- **AI chat grounded in live tenant data:** answers come only from the business's real catalog, pricing and availability, with daily usage limits.
+- **Automated customer emails:** booking confirmations, day-before reminders and review requests, sent by scheduled jobs with idempotency.
+- **Security:** email-code device verification with a 30-day remembered device, enforced on the server; elevated database access limited to an audited, documented register.
+- **Analytics:** monthly statements built from one shared calculation, downloadable as PDF.
 
-**Live app**: https://eraleadgen.com
+## Tech stack
 
-## Build with Lovable
+TanStack Start (React 19, SSR, server functions), TypeScript, Vite, Tailwind CSS v4, Postgres with RLS, Stripe, scheduled jobs with pg_cron and transactional email. Deployed on edge (Cloudflare Workers) infrastructure.
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/74b053ae-5e69-460d-a5f4-b9087a39bf37).
+## Project structure
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+- `src/routes`: pages, the agency console, the client portal and API/webhook endpoints
+- `src/lib`: server functions, pricing, entitlements, billing and tenant resolution
+- `src/components`: marketing site, tenant sites and portal UI
+- `supabase/`: database migrations, including RLS policies
+- `docs/elevated-access.md`: register of privileged database access
 
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+## Local development
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
+git clone https://github.com/eraleadgen/erasystems.git
+cd erasystems
 npm i
 npm run dev
 ```
+
+Built with [Lovable](https://lovable.dev).
