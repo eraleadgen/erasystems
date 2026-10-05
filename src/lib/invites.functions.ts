@@ -60,7 +60,6 @@ const termsInput = z.object({
   subscriptionPriceCents: z.number().int().min(0).max(100_000_00),
   setupFeeCents: z.number().int().min(0).max(100_000_00),
   billingInterval: z.enum(["monthly", "quarterly", "annual", "one_time"]),
-    .default([]),
 });
 
 /**
