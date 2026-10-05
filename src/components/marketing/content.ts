@@ -120,7 +120,7 @@ export const steps = [
   },
   {
     title: "Go live",
-    body: "Your tier and any add-ons are set from the call, you complete payment, and the platform goes live on your domain.",
+    body: "Your tier and price are set from the call, you complete payment, and the platform goes live on your domain.",
   },
 ];
 
@@ -131,11 +131,7 @@ export const faqs = [
   },
   {
     q: "What happens on the discovery call?",
-    a: "We go through the tools you're running now, what breaks between them, and what your week actually looks like. You leave knowing the tier, the add-ons if any, and the real number.",
-  },
-  {
-    q: "Are add-ons tied to a tier?",
-    a: "No. Ad Management and White-Label Branding are available on any tier, including Basic, and are never bundled into a higher plan. They're quoted per business.",
+    a: "We go through the tools you're running now, what breaks between them, and what your week actually looks like. You leave knowing the tier and the real number.",
   },
   {
     q: "Can I change tiers later?",

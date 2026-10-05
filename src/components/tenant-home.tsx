@@ -53,9 +53,7 @@ function EntitlementMatrix({ businessId }: { businessId: string }) {
       </h2>
       <p className="mt-2 max-w-2xl text-xs text-muted-foreground">
         Visible to this business&apos;s own team only. Resolved from{" "}
-        <code className="text-foreground">plan_tier_features</code>; add-ons live in a separate
-        table keyed on <code className="text-foreground">business_id</code> and are never granted by
-        a tier.
+        <code className="text-foreground">plan_tier_features</code> for this tier.
       </p>
       <ul className="mt-4 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2">
         {ALL_FEATURES.map((feature) => {

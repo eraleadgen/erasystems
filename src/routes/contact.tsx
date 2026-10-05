@@ -65,7 +65,7 @@ function ContactPage() {
             {[
               { t: "We reply", b: "You hear back from support@eraleadgen.com to confirm the time that works." },
               { t: "We talk", b: "A 60 minute call about what you run today, what breaks, and whether ERA fits." },
-              { t: "We scope", b: "If it fits, we set the tier and any add-ons with you, then send an invite." },
+              { t: "We scope", b: "If it fits, we set the tier and price with you, then send an invite." },
             ].map((s, i) => (
               <article key={s.t} className="lift h-full rounded-2xl border border-border bg-card p-6 text-center lg:text-left">
                 <span className="inline-flex size-9 items-center justify-center rounded-full border border-gold/40 font-display text-sm font-semibold text-gold">

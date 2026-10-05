@@ -372,7 +372,7 @@ export type AutomationMode =
 /** Steps whose status is computed from real account data. */
 export const AUTO_TASK_KEYS = [
   "payment_confirmed",
-  "tier_addons_locked",
+  "tier_locked",
   "kickoff_scheduled",
   "business_profile",
   "brand_assets",
