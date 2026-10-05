@@ -307,7 +307,7 @@ function BillingSection({ item }: { item: InboxItem }) {
   const qc = useQueryClient();
   const b = item.billing;
   const [tier, setTier] = useState(b?.planTier ?? "basic");
-  const [interval, setInterval] = useState(b?.billingInterval ?? "monthly");
+  const [interval, setBillingInt] = useState(b?.billingInterval ?? "monthly");
   const [recurring, setRecurring] = useState(b ? String(b.subscriptionPriceCents / 100) : "");
   const [setup, setSetup] = useState(b ? String(b.setupFeeCents / 100) : "");
   const [msg, setMsg] = useState<string | null>(null);
@@ -363,7 +363,7 @@ function BillingSection({ item }: { item: InboxItem }) {
         </label>
         <label className="text-xs text-muted-foreground">
           Billing schedule
-          <select value={interval} onChange={(e) => setInterval(e.target.value)} className={input}>
+          <select value={interval} onChange={(e) => setBillingInt(e.target.value)} className={input}>
             {INTERVALS.map((i) => (
               <option key={i.value} value={i.value}>{i.label}</option>
             ))}
