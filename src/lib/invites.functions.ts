@@ -36,9 +36,7 @@ type InviteRow = {
   billing_interval: string;
 };
 
-type AddonRow = { invite_id: string; addon: string; price_cents: number; billing_interval: string };
-
-function toSummary(row: InviteRow, addonRows: AddonRow[] = []): InviteSummary {
+function toSummary(row: InviteRow): InviteSummary {
   return {
     id: row.id,
     email: row.email,
@@ -53,13 +51,6 @@ function toSummary(row: InviteRow, addonRows: AddonRow[] = []): InviteSummary {
       subscriptionPriceCents: row.subscription_price_cents,
       setupFeeCents: row.setup_fee_cents,
       billingInterval: row.billing_interval,
-      addons: addonRows
-        .filter((addon) => addon.invite_id === row.id)
-        .map((addon) => ({
-          addon: addon.addon as InviteSummary["terms"]["addons"][number]["addon"],
-          priceCents: addon.price_cents,
-          billingInterval: addon.billing_interval,
-        })),
     },
   };
 }
@@ -69,15 +60,6 @@ const termsInput = z.object({
   subscriptionPriceCents: z.number().int().min(0).max(100_000_00),
   setupFeeCents: z.number().int().min(0).max(100_000_00),
   billingInterval: z.enum(["monthly", "quarterly", "annual", "one_time"]),
-  addons: z
-    .array(
-      z.object({
-        addon: z.enum(["ad_management", "white_label_branding"]),
-        priceCents: z.number().int().min(0).max(100_000_00),
-        billingInterval: z.enum(["monthly", "quarterly", "annual", "one_time"]),
-      }),
-    )
-    .max(2)
     .default([]),
 });
 
@@ -135,22 +117,6 @@ export const createInvite = createServerFn({ method: "POST" })
 
     if (error || !row) throw new Error(error?.message ?? "Could not create the invite.");
 
-    let addonRows: AddonRow[] = [];
-    if (data.terms.addons.length > 0) {
-      const { data: inserted, error: addonError } = await context.supabase
-        .from("invite_addons")
-        .insert(
-          data.terms.addons.map((addon) => ({
-            invite_id: row.id,
-            addon: addon.addon,
-            price_cents: addon.priceCents,
-            billing_interval: addon.billingInterval,
-          })),
-        )
-        .select("invite_id, addon, price_cents, billing_interval");
-      if (addonError) throw new Error(addonError.message);
-      addonRows = (inserted ?? []) as AddonRow[];
-    }
 
     // The prospect gets the welcome email with their own registration link.
     // A delivery problem must not lose the invite, so the copyable link is
@@ -168,12 +134,11 @@ export const createInvite = createServerFn({ method: "POST" })
           ...(await (async () => {
             const { formatMoney } = await import("./entitlements");
             const t = data.terms;
-            const addonCents = t.addons.reduce((s, a) => s + a.priceCents, 0);
             const per =
               t.billingInterval === "one_time" ? "one time" : t.billingInterval.replace("annual", "yearly");
             return {
               setupFee: t.setupFeeCents > 0 ? formatMoney(t.setupFeeCents) : "",
-              recurring: `${formatMoney(t.subscriptionPriceCents + addonCents)} ${per}`,
+              recurring: `${formatMoney(t.subscriptionPriceCents)} ${per}`,
             };
           })()),
           expiresOn: new Date(row.expires_at).toLocaleDateString("en-US", {
@@ -190,7 +155,7 @@ export const createInvite = createServerFn({ method: "POST" })
       emailError = error instanceof Error ? error.message : "The invitation email did not send.";
     }
 
-      return { token, invite: toSummary(row as InviteRow, addonRows), emailed, emailError };
+      return { token, invite: toSummary(row as InviteRow), emailed, emailError };
     },
   );
 
@@ -206,15 +171,8 @@ export const listInvites = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
 
     const rows = (data ?? []) as InviteRow[];
-    const { data: addons } = await context.supabase
-      .from("invite_addons")
-      .select("invite_id, addon, price_cents, billing_interval")
-      .in(
-        "invite_id",
-        rows.map((row) => row.id),
-      );
 
-    return rows.map((row) => toSummary(row, (addons ?? []) as AddonRow[]));
+    return rows.map((row) => toSummary(row));
   });
 
 /** Staff-only: withdraw an unused invite before it expires. */

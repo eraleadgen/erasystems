@@ -1,6 +1,6 @@
 /** Shared, browser-safe invite types and helpers. No secrets, no server imports. */
 
-import type { AddonKind, PlanTier } from "./entitlements";
+import type { PlanTier } from "./entitlements";
 
 export type InviteStatus = "pending" | "accepted" | "revoked";
 
@@ -14,7 +14,6 @@ export interface InviteTerms {
   subscriptionPriceCents: number;
   setupFeeCents: number;
   billingInterval: string;
-  addons: { addon: AddonKind; priceCents: number; billingInterval: string }[];
 }
 
 export interface InviteSummary {
