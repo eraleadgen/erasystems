@@ -9,11 +9,8 @@ import { AppShell } from "@/components/app/app-shell";
 import { createInvite, listInvites, revokeInvite } from "@/lib/invites.functions";
 import { INVITE_TTL_DAYS, inviteStatusLabel, inviteUrl, type InviteSummary } from "@/lib/invites";
 import {
-  ADDON_LABELS,
-  ALL_ADDONS,
   BILLING_INTERVALS,
   formatMoney,
-  type AddonKind,
   type BillingInterval,
   type PlanTier,
 } from "@/lib/entitlements";
@@ -60,10 +57,6 @@ function InvitesAdmin() {
   const [subscriptionPrice, setSubscriptionPrice] = useState(String(PLAN_PRICING.basic.monthlyCents / 100));
   const [setupFee, setSetupFee] = useState(String(PLAN_PRICING.basic.setupFeeCents / 100));
   const [billingInterval, setBillingInterval] = useState<BillingInterval>("monthly");
-  const [addonPrices, setAddonPrices] = useState<Record<AddonKind, string>>({
-    ad_management: "",
-    white_label_branding: "",
-  });
   const [issuedLink, setIssuedLink] = useState<string | null>(null);
   const [emailStatus, setEmailStatus] = useState<{ ok: boolean; message: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -97,12 +90,6 @@ function InvitesAdmin() {
             subscriptionPriceCents: toCents(subscriptionPrice),
             setupFeeCents: toCents(setupFee),
             billingInterval,
-            // Add-ons are orthogonal to tier: a row exists only where staff typed an amount.
-            addons: ALL_ADDONS.filter((addon) => addonPrices[addon].trim() !== "").map((addon) => ({
-              addon,
-              priceCents: toCents(addonPrices[addon]),
-              billingInterval,
-            })),
           },
         },
       }),
@@ -122,7 +109,6 @@ function InvitesAdmin() {
       setNotes("");
       setSubscriptionPrice(String(PLAN_PRICING[planTier].monthlyCents / 100));
       setSetupFee(String(PLAN_PRICING[planTier].setupFeeCents / 100));
-      setAddonPrices({ ad_management: "", white_label_branding: "" });
       void queryClient.invalidateQueries({ queryKey: ["invites"] });
     },
     onError: (err: Error) => setError(err.message),
@@ -259,27 +245,6 @@ function InvitesAdmin() {
             className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
           />
         </div>
-        {ALL_ADDONS.map((addon) => (
-          <div key={addon}>
-            <label
-              className="block text-xs font-medium text-muted-foreground"
-              htmlFor={`addon-${addon}`}
-            >
-              {ADDON_LABELS[addon]} (USD, blank = not sold)
-            </label>
-            <input
-              id={`addon-${addon}`}
-              type="number"
-              min="0"
-              step="0.01"
-              value={addonPrices[addon]}
-              onChange={(event) =>
-                setAddonPrices((prev) => ({ ...prev, [addon]: event.target.value }))
-              }
-              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
-            />
-          </div>
-        ))}
         <div className="sm:col-span-2">
           <button
             type="submit"
@@ -332,9 +297,6 @@ function InvitesAdmin() {
                   {invite.terms.setupFeeCents > 0
                     ? ` · setup ${formatMoney(invite.terms.setupFeeCents)}`
                     : ""}
-                  {invite.terms.addons.map(
-                    (addon) => ` · ${ADDON_LABELS[addon.addon]} ${formatMoney(addon.priceCents)}`,
-                  )}
                 </p>
               </div>
               {invite.status === "pending" ? (
