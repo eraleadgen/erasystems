@@ -119,7 +119,6 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
     const { createStripeCheckoutSession } = await import("./payments.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { ADDON_LABELS } = await import("./entitlements");
     const session = await createStripeCheckoutSession({
       businessId: business.id,
       currency: "usd",
@@ -130,12 +129,6 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
           interval: terms.billingInterval,
         },
         { name: "ERA Systems — one-time setup fee", amountCents: terms.setupFeeCents, interval: "one_time" },
-        ...terms.addons.map((a) => ({
-          name: `ERA Systems — ${ADDON_LABELS[a.addon]}`,
-          amountCents: a.priceCents,
-          // Stripe needs every recurring line on one schedule.
-          interval: a.billingInterval === "one_time" ? "one_time" : terms.billingInterval,
-        })),
       ],
       description: business.name,
       customerEmail: (context.claims as { email?: string } | undefined)?.email ?? null,

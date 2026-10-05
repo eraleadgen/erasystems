@@ -7,7 +7,7 @@
  * per docs/elevated-access.md. Failure to send never fails a payment.
  */
 
-import { ADDON_LABELS, formatMoney, type AddonKind } from "./entitlements";
+import { formatMoney } from "./entitlements";
 import { PLAN_PRICING } from "./pricing";
 
 const ADMIN_BASE_URL = "https://www.eraleadgen.com";
@@ -22,11 +22,6 @@ export async function notifyTierPurchased(businessId: string, amountCents: numbe
       .eq("id", businessId)
       .maybeSingle();
     if (!business) return;
-
-    const { data: addons } = await supabaseAdmin
-      .from("business_addons")
-      .select("addon, is_active")
-      .eq("business_id", businessId);
 
     const { count } = await supabaseAdmin
       .from("services")
@@ -49,10 +44,6 @@ export async function notifyTierPurchased(businessId: string, amountCents: numbe
       ownerName = String(authUser?.user?.user_metadata?.["full_name"] ?? "");
     }
 
-    const activeAddons = (addons ?? [])
-      .filter((row) => row.is_active)
-      .map((row) => ADDON_LABELS[row.addon as AddonKind]);
-
     const { sendTemplateEmail } = await import("./email-templates/send-email");
     await sendTemplateEmail("tier-purchased", "support@eraleadgen.com", {
       idempotencyKey: `tier-purchased-${businessId}`,
@@ -63,7 +54,6 @@ export async function notifyTierPurchased(businessId: string, amountCents: numbe
         slug: business.slug,
         planTier: PLAN_PRICING[business.plan_tier as keyof typeof PLAN_PRICING].name,
         amount: formatMoney(amountCents),
-        addons: activeAddons.length ? activeAddons.join(", ") : "None",
         ownerEmail,
         ownerName,
         supportPhone: business.support_phone ?? "",

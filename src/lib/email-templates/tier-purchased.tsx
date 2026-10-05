@@ -20,7 +20,6 @@ export interface TierPurchasedEmailProps {
   slug?: string;
   planTier?: string;
   amount?: string;
-  addons?: string;
   ownerEmail?: string;
   ownerName?: string;
   supportPhone?: string;
@@ -60,7 +59,6 @@ export function TierPurchasedEmail({
   slug,
   planTier,
   amount,
-  addons,
   ownerEmail,
   ownerName,
   supportPhone,
@@ -108,7 +106,6 @@ export function TierPurchasedEmail({
 
           <Field name="Purchased tier" text={planTier} />
           <Field name="Amount paid" text={amount} />
-          <Field name="Add-ons" text={addons} />
           <Field name="Business" text={businessName} />
           <Field name="Legal name" text={legalName} />
           <Field name="Web address" text={slug} />
@@ -136,7 +133,6 @@ export const template = {
     slug: "vds",
     planTier: "Enterprise",
     amount: "$4,000",
-    addons: "White-Label Branding",
     ownerEmail: "owner@example.com",
     ownerName: "Owner",
     timezone: "America/New_York",
