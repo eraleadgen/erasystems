@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { AppShell } from "@/components/app/app-shell";
 import { formatMoney } from "@/lib/entitlements";
+import { updateClientBilling } from "@/lib/clients.functions";
 import {
   listOnboardingInbox,
   saveOnboardingInboxItem,
@@ -173,6 +174,8 @@ function InboxDetail({ item }: { item: InboxItem }) {
         </div>
       </section>
 
+      <BillingSection item={item} />
+
       {site && (
         <section className="era-card p-5">
           <h3 className="text-sm font-semibold">Address</h3>
@@ -288,5 +291,107 @@ function InboxDetail({ item }: { item: InboxItem }) {
         {msg && <span className="text-xs text-muted-foreground">{msg}</span>}
       </div>
     </form>
+  );
+}
+
+const INTERVALS = [
+  { value: "monthly", label: "Monthly" },
+  { value: "quarterly", label: "Quarterly" },
+  { value: "annual", label: "Yearly" },
+  { value: "one_time", label: "One time" },
+] as const;
+
+/** The invite quote checkout charges. Saved through the same staff-only billing update as the client page. */
+function BillingSection({ item }: { item: InboxItem }) {
+  const update = useServerFn(updateClientBilling);
+  const qc = useQueryClient();
+  const b = item.billing;
+  const [tier, setTier] = useState(b?.planTier ?? "basic");
+  const [interval, setInterval] = useState(b?.billingInterval ?? "monthly");
+  const [recurring, setRecurring] = useState(b ? String(b.subscriptionPriceCents / 100) : "");
+  const [setup, setSetup] = useState(b ? String(b.setupFeeCents / 100) : "");
+  const [msg, setMsg] = useState<string | null>(null);
+
+  const m = useMutation({
+    mutationFn: () =>
+      update({
+        data: {
+          businessId: item.businessId!,
+          planTier: tier as "basic" | "growth" | "enterprise",
+          billingInterval: interval as "monthly" | "quarterly" | "annual" | "one_time",
+          subscriptionPriceCents: Math.round(Number(recurring || 0) * 100),
+          setupFeeCents: Math.round(Number(setup || 0) * 100),
+        },
+      }),
+    onSuccess: (r) => {
+      setMsg(
+        r.stripeUpdated
+          ? "Saved. Stripe will charge the new amount from the next billing date."
+          : "Saved. Checkout will charge these amounts.",
+      );
+      void qc.invalidateQueries({ queryKey: ["onboarding-inbox"] });
+    },
+    onError: (e: Error) => setMsg(e.message),
+  });
+
+  if (!b) {
+    return (
+      <section className="era-card p-5">
+        <h3 className="text-sm font-semibold">Plan and quote</h3>
+        <p className="mt-2 text-sm text-muted-foreground">This client has no invitation quote on file.</p>
+      </section>
+    );
+  }
+
+  return (
+    <section className="era-card p-5">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h3 className="text-sm font-semibold">Plan and quote</h3>
+        <p className="text-xs text-muted-foreground">
+          Current: {b.planTier} · {formatMoney(b.subscriptionPriceCents)}{" "}
+          {INTERVALS.find((i) => i.value === b.billingInterval)?.label.toLowerCase()} · setup {formatMoney(b.setupFeeCents)}
+        </p>
+      </div>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <label className="text-xs text-muted-foreground">
+          Plan
+          <select value={tier} onChange={(e) => setTier(e.target.value)} className={input}>
+            <option value="basic">Basic</option>
+            <option value="growth">Growth</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+        </label>
+        <label className="text-xs text-muted-foreground">
+          Billing schedule
+          <select value={interval} onChange={(e) => setInterval(e.target.value)} className={input}>
+            {INTERVALS.map((i) => (
+              <option key={i.value} value={i.value}>{i.label}</option>
+            ))}
+          </select>
+        </label>
+        <label className="text-xs text-muted-foreground">
+          Recurring price (USD)
+          <input type="number" min="0" step="0.01" value={recurring} onChange={(e) => setRecurring(e.target.value)} className={input} />
+        </label>
+        <label className="text-xs text-muted-foreground">
+          One-time setup fee (USD)
+          <input type="number" min="0" step="0.01" value={setup} onChange={(e) => setSetup(e.target.value)} className={input} />
+        </label>
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          disabled={m.isPending}
+          onClick={() => {
+            setMsg(null);
+            m.mutate();
+          }}
+          className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground disabled:opacity-60"
+        >
+          {m.isPending ? "Saving…" : "Save plan and quote"}
+        </button>
+        {msg && <span className="text-xs text-muted-foreground">{msg}</span>}
+      </div>
+    </section>
   );
 }
