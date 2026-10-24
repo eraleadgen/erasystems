@@ -1049,16 +1049,20 @@ export type Database = {
           activated_at: string | null
           amount_cents: number
           api_verified_at: string | null
+          billing_interval: string | null
           business_id: string
           created_at: string
           currency: string
           failure_reason: string | null
           id: string
+          plan_tier: string | null
           provider: string
           provider_event_id: string | null
           provider_session_id: string | null
           raw_summary: Json | null
+          setup_fee_cents: number | null
           status: string
+          subscription_price_cents: number | null
           updated_at: string
           webhook_verified_at: string | null
         }
@@ -1066,16 +1070,20 @@ export type Database = {
           activated_at?: string | null
           amount_cents: number
           api_verified_at?: string | null
+          billing_interval?: string | null
           business_id: string
           created_at?: string
           currency?: string
           failure_reason?: string | null
           id?: string
+          plan_tier?: string | null
           provider?: string
           provider_event_id?: string | null
           provider_session_id?: string | null
           raw_summary?: Json | null
+          setup_fee_cents?: number | null
           status?: string
+          subscription_price_cents?: number | null
           updated_at?: string
           webhook_verified_at?: string | null
         }
@@ -1083,16 +1091,20 @@ export type Database = {
           activated_at?: string | null
           amount_cents?: number
           api_verified_at?: string | null
+          billing_interval?: string | null
           business_id?: string
           created_at?: string
           currency?: string
           failure_reason?: string | null
           id?: string
+          plan_tier?: string | null
           provider?: string
           provider_event_id?: string | null
           provider_session_id?: string | null
           raw_summary?: Json | null
+          setup_fee_cents?: number | null
           status?: string
+          subscription_price_cents?: number | null
           updated_at?: string
           webhook_verified_at?: string | null
         }
