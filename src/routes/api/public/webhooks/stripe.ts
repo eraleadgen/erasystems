@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+/** Days a client keeps service after a failed payment. */
+const GRACE_DAYS = 7;
 /**
  * Payment webhook. Public prefix, so it authenticates itself.
  *
@@ -59,33 +61,129 @@ export const Route = createFileRoute("/api/public/webhooks/stripe")({
           try {
             const { syncSubscription } = await import("@/lib/payments.server");
             const sub = await syncSubscription(subId);
-            if (sub?.businessId && (event.type === "invoice.payment_failed" || event.type === "customer.subscription.deleted")) {
+            if (sub?.businessId) {
               const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+              const now = new Date();
+              const businessId = sub.businessId;
+
               if (event.type === "invoice.payment_failed") {
                 await supabaseAdmin
                   .from("business_billing")
-                  .update({ last_payment_failed_at: new Date().toISOString() })
-                  .eq("business_id", sub.businessId);
+                  .update({ last_payment_failed_at: now.toISOString() })
+                  .eq("business_id", businessId);
+                // Start the grace window once per failure streak; Stripe retries don't extend it.
+                await supabaseAdmin
+                  .from("business_billing")
+                  .update({ grace_ends_at: new Date(now.getTime() + GRACE_DAYS * 86400000).toISOString() })
+                  .eq("business_id", businessId)
+                  .is("grace_ends_at", null);
+                const { data: bill } = await supabaseAdmin
+                  .from("business_billing")
+                  .select("grace_ends_at")
+                  .eq("business_id", businessId)
+                  .maybeSingle();
+                const { sendBillingNotice } = await import("@/lib/billing-notices.server");
+                await sendBillingNotice({
+                  businessId,
+                  kind: "payment_failed",
+                  graceEndsAt: bill?.grace_ends_at ?? null,
+                  idempotencyKey: `billing-failed-${event.id}`,
+                });
               }
-              const { data: biz } = await supabaseAdmin
-                .from("businesses")
-                .select("name")
-                .eq("id", sub.businessId)
-                .maybeSingle();
-              const { sendStaffAlert } = await import("@/lib/staff-alerts.server");
-              await sendStaffAlert({
-                title: event.type === "invoice.payment_failed" ? "A client's payment failed" : "A client's Stripe subscription ended",
-                businessId: sub.businessId,
-                businessName: biz?.name ?? "Client",
-                summary:
-                  event.type === "invoice.payment_failed"
-                    ? "Stripe couldn't charge this client's recurring payment. Stripe will retry; reach out to them to update their card."
-                    : "The Stripe subscription was cancelled, so Stripe won't charge this client again.",
-                idempotencyKey: `stripe-${event.id}`,
-              });
+
+              if (event.type === "invoice.paid") {
+                const { data: bill } = await supabaseAdmin
+                  .from("business_billing")
+                  .select("billing_suspended")
+                  .eq("business_id", businessId)
+                  .maybeSingle();
+                await supabaseAdmin
+                  .from("business_billing")
+                  .update({
+                    last_payment_failed_at: null,
+                    grace_ends_at: null,
+                    ...(sub.status === "active" || sub.status === "trialing" ? { suspend_at: null } : {}),
+                    billing_suspended: false,
+                  })
+                  .eq("business_id", businessId);
+                // Only undo a suspension the billing system itself made.
+                if (bill?.billing_suspended) {
+                  await supabaseAdmin
+                    .from("businesses")
+                    .update({ lifecycle: "active", is_active: true })
+                    .eq("id", businessId)
+                    .eq("lifecycle", "suspended");
+                }
+              }
+
+              if (event.type === "customer.subscription.deleted") {
+                await supabaseAdmin
+                  .from("business_billing")
+                  .update({ suspend_at: sub.currentPeriodEnd ?? now.toISOString() })
+                  .eq("business_id", businessId);
+              }
+
+              if (event.type === "invoice.payment_failed" || event.type === "customer.subscription.deleted") {
+                const { data: biz } = await supabaseAdmin
+                  .from("businesses")
+                  .select("name")
+                  .eq("id", businessId)
+                  .maybeSingle();
+                const { sendStaffAlert } = await import("@/lib/staff-alerts.server");
+                await sendStaffAlert({
+                  title: event.type === "invoice.payment_failed" ? "A client's payment failed" : "A client's Stripe subscription ended",
+                  businessId,
+                  businessName: biz?.name ?? "Client",
+                  summary:
+                    event.type === "invoice.payment_failed"
+                      ? `Stripe couldn't charge this client's recurring payment. They've been emailed a card-update link and have ${GRACE_DAYS} days before service pauses.`
+                      : "The Stripe subscription was cancelled, so Stripe won't charge this client again. Service pauses at the end of the paid period.",
+                  idempotencyKey: `stripe-${event.id}`,
+                });
+              }
             }
           } catch (error) {
             console.error("stripe subscription sync error", error instanceof Error ? error.message : error);
+            return new Response("retry", { status: 500 });
+          }
+          return new Response("ok", { status: 200 });
+        }
+
+        // Refunds and disputes: tell staff, change nothing automatically.
+        if (event.type === "charge.refunded" || event.type === "charge.dispute.created") {
+          const chargeId =
+            event.type === "charge.refunded" ? (obj["id"] as string | undefined) : (obj["charge"] as string | undefined);
+          if (!chargeId) return new Response("ignored", { status: 200 });
+          try {
+            const { fetchStripeCharge } = await import("@/lib/payments.server");
+            const charge = await fetchStripeCharge(chargeId);
+            if (!charge.customerId) return new Response("ignored", { status: 200 });
+            const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+            const { data: bill } = await supabaseAdmin
+              .from("business_billing")
+              .select("business_id")
+              .eq("stripe_customer_id", charge.customerId)
+              .maybeSingle();
+            if (!bill) return new Response("ignored", { status: 200 });
+            const { data: biz } = await supabaseAdmin
+              .from("businesses")
+              .select("name")
+              .eq("id", bill.business_id)
+              .maybeSingle();
+            const money = (c: number) => `$${(c / 100).toFixed(2)}`;
+            const { sendStaffAlert } = await import("@/lib/staff-alerts.server");
+            await sendStaffAlert({
+              title: event.type === "charge.refunded" ? "A client payment was refunded" : "A client opened a payment dispute",
+              businessId: bill.business_id,
+              businessName: biz?.name ?? "Client",
+              summary:
+                event.type === "charge.refunded"
+                  ? `${money(charge.amountRefundedCents)} of a ${money(charge.amountCents)} charge was refunded. No account change was made.`
+                  : `A dispute was opened on a ${money(charge.amountCents)} charge. Respond in Stripe. No account change was made.`,
+              idempotencyKey: `stripe-${event.id}`,
+            });
+          } catch (error) {
+            console.error("stripe charge alert error", error instanceof Error ? error.message : error);
             return new Response("retry", { status: 500 });
           }
           return new Response("ok", { status: 200 });
