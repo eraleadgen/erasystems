@@ -2,7 +2,7 @@
 
 import type { PlanTier } from "./entitlements";
 
-export type PaymentStatus = "pending" | "paid" | "failed";
+export type PaymentStatus = "pending" | "paid" | "failed" | "needs_review";
 
 export interface PaymentRecord {
   id: string;

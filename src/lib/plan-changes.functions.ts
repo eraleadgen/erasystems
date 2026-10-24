@@ -32,13 +32,31 @@ const businessInput = z.object({ businessId: z.string().uuid() });
 
 type Ctx = { supabase: any; userId: string };
 
-/** End of the current paid period: first activation date rolled forward by whole periods past now. */
-function computePeriodEnd(anchorIso: string, interval: string): Date {
-  const step = interval === "yearly" || interval === "year" ? 12 : 1;
+/** Months in one ERA billing period; null = not recurring (one_time or unknown). */
+export function intervalMonths(interval: string): number | null {
+  if (interval === "monthly") return 1;
+  if (interval === "quarterly") return 3;
+  if (interval === "annual") return 12;
+  return null;
+}
+
+/**
+ * End of the current paid period. Stripe's own current_period_end wins when we
+ * have it; otherwise roll the first activation date forward by whole periods.
+ */
+export function computePeriodEnd(
+  anchorIso: string | null,
+  interval: string,
+  stripePeriodEnd: string | null,
+  now: Date = new Date(),
+): Date | null {
+  if (stripePeriodEnd) return new Date(stripePeriodEnd);
+  const step = intervalMonths(interval);
+  if (!step || !anchorIso) return null;
   const anchor = new Date(anchorIso);
   const end = new Date(anchor);
   let n = 0;
-  while (end <= new Date() && n < 1200) {
+  while (end <= now && n < 1200) {
     n += step;
     end.setTime(anchor.getTime());
     end.setUTCMonth(anchor.getUTCMonth() + n);
@@ -46,7 +64,7 @@ function computePeriodEnd(anchorIso: string, interval: string): Date {
   return end;
 }
 
-/** Mirrors a scheduled cancellation onto Stripe so it stops charging at period end. */
+/** Mirrors a scheduled cancellation onto Stripe. Throws if Stripe refuses. */
 async function syncStripeCancel(ctx: Ctx, businessId: string, cancel: boolean) {
   const { data } = await ctx.supabase
     .from("business_billing")
@@ -54,16 +72,12 @@ async function syncStripeCancel(ctx: Ctx, businessId: string, cancel: boolean) {
     .eq("business_id", businessId)
     .maybeSingle();
   if (!data?.stripe_subscription_id) return;
-  try {
-    const { setStripeCancelAtPeriodEnd } = await import("./payments.server");
-    await setStripeCancelAtPeriodEnd(data.stripe_subscription_id, cancel);
-  } catch (error) {
-    console.error("stripe cancel sync failed", error instanceof Error ? error.message : error);
-  }
+  const { setStripeCancelAtPeriodEnd } = await import("./payments.server");
+  await setStripeCancelAtPeriodEnd(data.stripe_subscription_id, cancel);
 }
 
 async function loadStatus(ctx: Ctx, businessId: string): Promise<PlanStatus> {
-  const [biz, pay, req, tracks, invite] = await Promise.all([
+  const [biz, pay, req, tracks, billing] = await Promise.all([
     ctx.supabase.from("businesses").select("id, name, plan_tier, lifecycle, origin_invite_id").eq("id", businessId).maybeSingle(),
     ctx.supabase
       .from("payments")
@@ -80,9 +94,8 @@ async function loadStatus(ctx: Ctx, businessId: string): Promise<PlanStatus> {
       .eq("status", "scheduled")
       .maybeSingle(),
     ctx.supabase.from("business_ai_agent_tracks").select("track, is_enabled").eq("business_id", businessId),
-    Promise.resolve(null),
+    ctx.supabase.from("business_billing").select("current_period_end").eq("business_id", businessId).maybeSingle(),
   ]);
-  void invite;
   if (biz.error || !biz.data) throw new Error("Business not found.");
   const tier = biz.data.plan_tier as PlanTier;
 
@@ -96,7 +109,8 @@ async function loadStatus(ctx: Ctx, businessId: string): Promise<PlanStatus> {
     if (data?.billing_interval) interval = data.billing_interval;
   }
 
-  const anchor = pay.data?.activated_at as string | undefined;
+  const anchor = (pay.data?.activated_at as string | undefined) ?? null;
+  const periodEnd = computePeriodEnd(anchor, interval, (billing.data?.current_period_end as string | null) ?? null);
   const aiTracks: Record<AiAgentTrack, boolean> = { ai_sms: false, ai_voice: false };
   for (const t of tracks.data ?? []) aiTracks[t.track as AiAgentTrack] = Boolean(t.is_enabled);
 
@@ -104,7 +118,7 @@ async function loadStatus(ctx: Ctx, businessId: string): Promise<PlanStatus> {
     businessId,
     tier,
     lifecycle: biz.data.lifecycle,
-    periodEnd: anchor ? computePeriodEnd(anchor, interval).toISOString() : null,
+    periodEnd: periodEnd ? periodEnd.toISOString() : null,
     scheduled: req.data
       ? {
           id: req.data.id,
@@ -156,6 +170,18 @@ export const schedulePlanChange = createServerFn({ method: "POST" })
     }
     const toTier = data.kind === "change" ? data.toTier : null;
 
+    // Stripe first: if it refuses, nothing is recorded and the client is told.
+    if (data.kind === "cancel") {
+      try {
+        await syncStripeCancel(context, data.businessId, true);
+      } catch (error) {
+        console.error("stripe cancel sync failed", error instanceof Error ? error.message : error);
+        throw new Error(
+          "We couldn't cancel your subscription with our payment provider, so nothing was changed. Please try again or contact support@eraleadgen.com.",
+        );
+      }
+    }
+
     const { data: row, error } = await context.supabase
       .from("plan_change_requests")
       .insert({
@@ -168,8 +194,14 @@ export const schedulePlanChange = createServerFn({ method: "POST" })
       })
       .select("id")
       .single();
-    if (error || !row) throw new Error("Couldn't schedule that change. Try again.");
-    if (data.kind === "cancel") await syncStripeCancel(context, data.businessId, true);
+    if (error || !row) {
+      if (data.kind === "cancel") {
+        await syncStripeCancel(context, data.businessId, false).catch((e) =>
+          console.error("stripe cancel revert failed", e instanceof Error ? e.message : e),
+        );
+      }
+      throw new Error("Couldn't schedule that change. Try again.");
+    }
 
     const name = await businessName(context, data.businessId);
     const from = PLAN_PRICING[status.tier].name;
@@ -207,7 +239,11 @@ export const withdrawPlanChange = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error) throw new Error("Couldn't withdraw that change. Try again.");
     if (row) {
-      if (row.kind === "cancel") await syncStripeCancel(context, data.businessId, false);
+      if (row.kind === "cancel") {
+        await syncStripeCancel(context, data.businessId, false).catch((e) =>
+          console.error("stripe cancel sync failed", e instanceof Error ? e.message : e),
+        );
+      }
       const { sendStaffAlert } = await import("./staff-alerts.server");
       await sendStaffAlert({
         title: row.kind === "cancel" ? "Client withdrew their cancellation" : "Client withdrew a plan change",

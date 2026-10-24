@@ -119,6 +119,8 @@ export async function createStripeCheckoutSession(args: {
     "metadata[kind]": args.kind ?? "activation",
     success_url: args.successUrl,
     cancel_url: args.cancelUrl,
+    // Cards only: a delayed method (bank debit) could leave a paid client unactivated.
+    "payment_method_types[0]": "card",
   });
   if (args.customerEmail) body.set("customer_email", args.customerEmail);
   let i = 0;
@@ -216,6 +218,13 @@ export async function updateStripeSubscriptionPrice(args: {
   });
 }
 
+/** Ends a Stripe subscription now. Already-cancelled subscriptions are a no-op. */
+export async function cancelStripeSubscription(subscriptionId: string): Promise<void> {
+  const sub = await fetchStripeSubscription(subscriptionId);
+  if (sub.status === "canceled" || sub.status === "incomplete_expired") return;
+  await stripeRequest(`/subscriptions/${encodeURIComponent(subscriptionId)}`, { method: "DELETE" });
+}
+
 export async function setStripeCancelAtPeriodEnd(subscriptionId: string, cancel: boolean) {
   await stripeRequest(`/subscriptions/${encodeURIComponent(subscriptionId)}`, {
     method: "POST",
@@ -301,12 +310,13 @@ export async function verifyAndActivate(sessionId: string): Promise<Verification
 
   const { data: payment } = await supabaseAdmin
     .from("payments")
-    .select("id, business_id, amount_cents, currency, status")
+    .select("id, business_id, amount_cents, currency, status, plan_tier, subscription_price_cents, setup_fee_cents, billing_interval")
     .eq("provider_session_id", sessionId)
     .maybeSingle();
 
   if (!payment) return { ok: false, reason: "unknown_session" };
   if (payment.status === "paid") return { ok: true };
+  if (payment.status === "needs_review") return { ok: false, reason: "needs_review" };
 
   const fail = async (reason: string): Promise<VerificationOutcome> => {
     await supabaseAdmin
@@ -325,6 +335,53 @@ export async function verifyAndActivate(sessionId: string): Promise<Verification
     return fail("currency_mismatch");
   if (session.clientReferenceId !== payment.business_id) return fail("business_mismatch");
 
+  // The tier and terms must still be the ones the client checked out with.
+  if (payment.plan_tier) {
+    const { data: biz } = await supabaseAdmin
+      .from("businesses")
+      .select("name, plan_tier")
+      .eq("id", payment.business_id)
+      .maybeSingle();
+    const expectedTotal = (payment.subscription_price_cents ?? 0) + (payment.setup_fee_cents ?? 0);
+    const reason =
+      biz?.plan_tier !== payment.plan_tier
+        ? "tier_changed"
+        : expectedTotal !== payment.amount_cents || session.amountTotal !== expectedTotal
+          ? "terms_mismatch"
+          : null;
+    if (reason) {
+      const { data: flagged } = await supabaseAdmin
+        .from("payments")
+        .update({ status: "needs_review", failure_reason: reason, api_verified_at: new Date().toISOString() })
+        .eq("id", payment.id)
+        .eq("business_id", payment.business_id)
+        .eq("status", payment.status)
+        .select("id")
+        .maybeSingle();
+      if (flagged) {
+        const { sendStaffAlert } = await import("./staff-alerts.server");
+        await sendStaffAlert({
+          title: "Payment needs review",
+          businessId: payment.business_id,
+          businessName: biz?.name ?? "A client",
+          summary:
+            reason === "tier_changed"
+              ? "The client paid, but their plan changed after checkout started. The account was NOT activated. Check the plan and amount, then activate or refund."
+              : "The client paid, but the amount doesn't match the terms stored at checkout. The account was NOT activated. Check and activate or refund.",
+          details: [
+            { label: "Checkout plan", value: payment.plan_tier },
+            { label: "Current plan", value: biz?.plan_tier ?? "unknown" },
+            { label: "Paid", value: `$${((session.amountTotal ?? 0) / 100).toFixed(2)}` },
+            { label: "Expected", value: `$${(expectedTotal / 100).toFixed(2)}` },
+          ],
+          idempotencyKey: `payment-review-${payment.id}`,
+        });
+      }
+      console.error(`payment needs review [${reason}] session=${sessionId}`);
+      return { ok: false, reason: "needs_review" };
+    }
+  }
+
   // Both checks passed. One authorized transition, guarded on the expected state.
   const { data: transitioned, error: rpcError } = await supabaseAdmin.rpc(
     "activate_paid_business",
@@ -337,7 +394,6 @@ export async function verifyAndActivate(sessionId: string): Promise<Verification
     .update({
       status: "paid",
       api_verified_at: new Date().toISOString(),
-      activated_at: transitioned ? new Date().toISOString() : null,
       raw_summary: {
         payment_status: session.paymentStatus,
         amount_total: session.amountTotal,
@@ -345,6 +401,16 @@ export async function verifyAndActivate(sessionId: string): Promise<Verification
       },
     })
     .eq("id", payment.id);
+
+  // activated_at is only ever set once, on the transition; never overwritten or cleared.
+  if (transitioned) {
+    await supabaseAdmin
+      .from("payments")
+      .update({ activated_at: new Date().toISOString() })
+      .eq("id", payment.id)
+      .eq("business_id", payment.business_id)
+      .is("activated_at", null);
+  }
 
   // Remember the Stripe subscription so later billing changes reach Stripe.
   if (session.subscriptionId) {

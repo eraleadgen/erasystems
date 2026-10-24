@@ -83,7 +83,8 @@ export function PaymentLinkEmail({
 
 export const template = {
   component: PaymentLinkEmail,
-  subject: "Set up automatic payments for your ERA plan",
+  subject: (data: Record<string, any>) =>
+    data?.["kind"] === "activation" ? "Activate your ERA account" : "Set up automatic payments for your ERA plan",
   displayName: "Subscription payment link",
   previewData: { businessName: "Bloom Lane", payUrl: "https://checkout.stripe.com", recurring: "$499.00 monthly", firstCharge: "November 3, 2026" },
 } satisfies TemplateEntry;

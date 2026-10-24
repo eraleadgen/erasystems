@@ -91,6 +91,22 @@ export const selectMyPlan = createServerFn({ method: "POST" })
       throw new Error("Your plan was already agreed with your ERA representative.");
     }
 
+    // No switching tiers while a checkout is open: the session was priced for the current tier.
+    const { data: openCheckout } = await context.supabase
+      .from("payments")
+      .select("id")
+      .eq("business_id", business.id)
+      .eq("status", "pending")
+      // Stripe Checkout sessions expire after 24 hours; older pending rows are abandoned.
+      .gt("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+      .limit(1)
+      .maybeSingle();
+    if (openCheckout) {
+      throw new Error(
+        "You have a checkout in progress for your current plan. Finish or cancel it, or contact support@eraleadgen.com to change plans.",
+      );
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { error: tierError } = await supabaseAdmin
