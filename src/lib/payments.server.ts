@@ -367,3 +367,19 @@ export async function verifyAndActivate(sessionId: string): Promise<Verification
 
   return { ok: true };
 }
+
+/** True when the server is charging against Stripe test mode. Never exposes the key. */
+export function isStripeTestMode(): boolean {
+  return Boolean(process.env["STRIPE_SECRET_KEY_TEST"]);
+}
+
+/** Stripe-hosted page where a customer updates their card and sees invoices. */
+export async function createBillingPortalSession(customerId: string, returnUrl: string): Promise<string> {
+  const raw = await stripeRequest("/billing_portal/sessions", {
+    method: "POST",
+    body: new URLSearchParams({ customer: customerId, return_url: returnUrl }),
+  });
+  const url = raw["url"];
+  if (typeof url !== "string") throw new Error("Payment provider returned no portal link");
+  return url;
+}
