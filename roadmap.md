@@ -32,3 +32,6 @@
 ## Oct 2026 — cleanup + inbox billing
 - [x] Remove Ad Management / White-Label everywhere except the public /addons "Coming soon" page
 - [x] Inbox shows invite tier, billing interval, setup fee + recurring quote, editable by staff (for $1 test)
+
+- [x] Billing safety part 1: test-mode bar, failed-payment grace, suspension, Stripe customer portal
+- [ ] Billing safety part 2 (awaiting brief)

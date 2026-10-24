@@ -21,3 +21,4 @@ register in the same change.
 - Purchase agreement text lives only in src/lib/agreement.ts (versioned); checkout, admin download and template all render from it, and checkout records acceptance in agreement_acceptances. Why: one source keeps signed terms consistent.
 - Signed-in server functions require a remembered-device cookie (src/lib/device-trust.server.ts, enforced in src/start.ts); codes are issued only by /api/public/device/*. Why: email 2-step check must be enforced server side, not just on the login page.
 - Recurring billing runs on Stripe subscriptions mirrored in business_billing (synced from Stripe's API, never payloads); ERA-side billing edits push to Stripe with no proration. Why: the amount ERA shows must equal what Stripe charges.
+- Automatic billing suspension is flagged by business_billing.billing_suspended; only those suspensions auto-reactivate on invoice.paid. Why: staff manual suspensions must never be undone by a payment.

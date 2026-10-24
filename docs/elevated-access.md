@@ -343,3 +343,13 @@ send staff alerts only; no elevated reads are added there.
 - `startClientSubscription` (src/lib/clients.functions.ts): after an is_platform_staff check, one elevated `auth.admin.getUserById` for the owner of that business (owner row read through the staff RLS client) to email the payment link.
 - `updateClientBilling`, `getClientStripeStatus`, plan-change Stripe cancel sync: NOT elevated — RLS reads of `business_billing`; Stripe calls use the server secret only.
 - `sendInboxPaymentLink` (src/lib/inbox.functions.ts): after an is_platform_staff check, one elevated `auth.admin.getUserById` for that business's owner (owner row read through the staff RLS client) to email the checkout link; terms via the registered `resolveAgreedTerms`.
+
+## Billing notices and billing suspension
+
+| | |
+|---|---|
+| Call sites | `src/lib/billing-notices.server.ts` (owner billing emails); Stripe webhook `invoice.payment_failed` / `invoice.paid` / `customer.subscription.deleted` / `charge.refunded` / `charge.dispute.created` branches; `expire-businesses` cron suspension pass. |
+| Caller authorization | Webhook: Stripe signature verified first. Cron: `authenticateCronRequest`. No user session exists on either path. |
+| Tenant scoping | Business id comes from the live Stripe subscription/charge (re-read from Stripe, never the payload) mapped through `business_billing`, or from the cron's own `business_billing` read. Every write is `.eq` on that one business id. |
+| Client input trusted | None. |
+| Idempotency | Grace start only when `grace_ends_at` is null; suspension guarded on `lifecycle = 'active'`; reactivation only when `billing_suspended` and `lifecycle = 'suspended'`; emails carry per-event idempotency keys. Failures return 500 so Stripe retries. |

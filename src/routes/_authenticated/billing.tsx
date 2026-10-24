@@ -15,6 +15,7 @@ import {
   withdrawPlanChange,
   type PlanStatus,
 } from "@/lib/plan-changes.functions";
+import { openMyBillingPortal } from "@/lib/billing-portal.functions";
 
 export const Route = createFileRoute("/_authenticated/billing")({
   head: () => ({
@@ -41,6 +42,7 @@ function BillingPage() {
       {(businessId) => (
         <div className="space-y-6">
           <PlanPanel businessId={businessId} />
+          <ManagePaymentButton />
           <PaymentsList />
         </div>
       )}
@@ -213,6 +215,29 @@ function PaymentsList() {
           ))}
         </ul>
       )}
+    </section>
+  );
+}
+
+function ManagePaymentButton() {
+  const open = useServerFn(openMyBillingPortal);
+  const portal = useMutation({
+    mutationFn: () => open(),
+    onSuccess: ({ url }) => window.location.assign(url),
+  });
+  return (
+    <section className="era-card p-6 sm:p-7">
+      <h2 className="text-base font-semibold tracking-tight text-foreground">Payment method</h2>
+      <p className="mt-1 text-sm text-muted-foreground">Update your card and download past invoices on Stripe's secure page.</p>
+      <button
+        type="button"
+        className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+        disabled={portal.isPending}
+        onClick={() => portal.mutate()}
+      >
+        {portal.isPending ? "Opening…" : "Manage payment method and invoices"}
+      </button>
+      {portal.error ? <p className="mt-3 text-sm text-destructive">{portal.error.message}</p> : null}
     </section>
   );
 }

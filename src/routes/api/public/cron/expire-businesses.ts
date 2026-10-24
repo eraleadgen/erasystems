@@ -61,8 +61,49 @@ export const Route = createFileRoute("/api/public/cron/expire-businesses")({
           if (!updateError) expired.push(row.id);
         }
 
-        await finishRun(true, { expired: expired.length });
-        return Response.json({ expired: expired.length });
+        // Billing suspension: grace period over, or cancelled subscription's paid period over.
+        const nowIso = new Date().toISOString();
+        const { data: due, error: dueError } = await supabaseAdmin
+          .from("business_billing")
+          .select("business_id, grace_ends_at, suspend_at")
+          .or(`grace_ends_at.lt.${nowIso},suspend_at.lt.${nowIso}`);
+        if (dueError) {
+          await finishRun(false, { expired: expired.length, error: dueError.message });
+          return Response.json({ error: dueError.message }, { status: 500 });
+        }
+        let suspendedGrace = 0;
+        let suspendedCancelled = 0;
+        const { sendBillingNotice } = await import("@/lib/billing-notices.server");
+        for (const row of due ?? []) {
+          const { data: changed } = await supabaseAdmin
+            .from("businesses")
+            .update({ lifecycle: "suspended", is_active: false })
+            .eq("id", row.business_id)
+            .eq("lifecycle", "active")
+            .select("id")
+            .maybeSingle();
+          if (!changed) continue;
+          await supabaseAdmin
+            .from("business_billing")
+            .update({ billing_suspended: true })
+            .eq("business_id", row.business_id);
+          const byGrace = Boolean(row.grace_ends_at && row.grace_ends_at < nowIso);
+          if (byGrace) suspendedGrace++;
+          else suspendedCancelled++;
+          await sendBillingNotice({
+            businessId: row.business_id,
+            kind: "suspended",
+            idempotencyKey: `billing-suspended-${row.business_id}-${(byGrace ? row.grace_ends_at : row.suspend_at) ?? nowIso}`,
+          });
+        }
+
+        const summary = {
+          expired: expired.length,
+          suspended_grace: suspendedGrace,
+          suspended_cancelled: suspendedCancelled,
+        };
+        await finishRun(true, summary);
+        return Response.json(summary);
       },
     },
   },
