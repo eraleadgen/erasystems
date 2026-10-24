@@ -1443,8 +1443,16 @@ export type Database = {
           id: string
         }[]
       }
+      get_statement_email_settings: {
+        Args: { _business_id: string }
+        Returns: {
+          enabled: boolean
+          recipient: string
+        }[]
+      }
       invite_throttle_check: { Args: { _ip: string }; Returns: boolean }
       invite_throttle_record: { Args: { _ip: string }; Returns: undefined }
+      is_platform_admin: { Args: never; Returns: boolean }
       is_platform_staff: { Args: never; Returns: boolean }
       referrals_sent: {
         Args: { _business_id: string }
@@ -1459,47 +1467,27 @@ export type Database = {
         }[]
       }
       release_invite: { Args: { _invite_id: string }; Returns: undefined }
-      request_tenant_booking:
-        | {
-            Args: {
-              _address: string
-              _business_id: string
-              _customer_email: string
-              _customer_name: string
-              _customer_phone: string
-              _multiplier: number
-              _notes: string
-              _service_ids: string[]
-              _specialist_id?: string
-              _starts_at: string
-              _subject: string
-            }
-            Returns: {
-              minutes: number
-              total_cents: number
-            }[]
-          }
-        | {
-            Args: {
-              _address: string
-              _business_id: string
-              _customer_email: string
-              _customer_name: string
-              _customer_phone: string
-              _multiplier: number
-              _notes: string
-              _referral_code?: string
-              _service_ids: string[]
-              _specialist_id?: string
-              _starts_at: string
-              _subject: string
-            }
-            Returns: {
-              booking_id: string
-              minutes: number
-              total_cents: number
-            }[]
-          }
+      request_tenant_booking: {
+        Args: {
+          _address: string
+          _business_id: string
+          _customer_email: string
+          _customer_name: string
+          _customer_phone: string
+          _multiplier: number
+          _notes: string
+          _referral_code?: string
+          _service_ids: string[]
+          _specialist_id?: string
+          _starts_at: string
+          _subject: string
+        }
+        Returns: {
+          booking_id: string
+          minutes: number
+          total_cents: number
+        }[]
+      }
       set_ai_agent_choice: {
         Args: {
           _business_id: string
@@ -1508,13 +1496,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      set_statement_email_enabled: {
+        Args: { _business_id: string; _enabled: boolean }
+        Returns: boolean
+      }
       tenant_chat_consume: {
-        Args: {
-          _business_daily_cap?: number
-          _business_id: string
-          _visitor_daily_cap?: number
-          _visitor_key: string
-        }
+        Args: { _business_id: string; _visitor_key: string }
         Returns: {
           allowed: boolean
           business_messages: number

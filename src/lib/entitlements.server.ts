@@ -34,7 +34,10 @@ export async function fetchTierEntitlements(
   const supabase = publicClient();
   if (!supabase) return null;
 
-  const { data: business } = await supabase
+  // plan_tier is not anon-readable. Elevated single-row read by the id the caller
+  // already resolved (registered in docs/elevated-access.md); only the feature list leaves.
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: business } = await supabaseAdmin
     .from("businesses")
     .select("plan_tier")
     .eq("id", businessId)

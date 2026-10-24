@@ -11,7 +11,6 @@ export type ResolvedTenant = {
   slug: string;
   name: string;
   timezone: string;
-  planTier: Database["public"]["Enums"]["plan_tier"];
   logoUrl: string | null;
   brandPrimary: string | null;
   brandAccent: string | null;
@@ -81,7 +80,7 @@ export const resolveTenant = createServerFn({ method: "GET" })
     const query = supabasePublic
       .from("businesses")
       .select(
-        "id, slug, name, timezone, plan_tier, logo_url, brand_primary, brand_accent, support_email, support_phone",
+        "id, slug, name, timezone, logo_url, brand_primary, brand_accent, support_email, support_phone",
       )
       .eq("is_active", true);
 
@@ -111,7 +110,6 @@ export const resolveTenant = createServerFn({ method: "GET" })
       slug: business.slug,
       name: business.name,
       timezone: business.timezone,
-      planTier: business.plan_tier,
       logoUrl: business.logo_url,
       brandPrimary: business.brand_primary,
       brandAccent: business.brand_accent,

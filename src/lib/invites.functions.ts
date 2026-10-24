@@ -89,7 +89,7 @@ export const createInvite = createServerFn({ method: "POST" })
       emailed: boolean;
       emailError: string | null;
     }> => {
-    const { data: isStaff } = await context.supabase.rpc("is_platform_staff");
+    const { data: isStaff } = await context.supabase.rpc("is_platform_admin");
     if (!isStaff) throw new Error("Only platform staff can issue invites.");
 
     const { generateInviteToken, hashInviteToken, normalizeEmail, expiryFromNow } = await import(

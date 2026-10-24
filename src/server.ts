@@ -63,7 +63,11 @@ function platformRedirect(request: Request): Response | null {
   if (!PUBLISHED_PLATFORM_HOST.test(host)) return null;
   if (url.pathname.startsWith("/api/public/")) return null;
 
-  const target = new URL(url.pathname + url.search, "https://eraleadgen.com");
+  // Never let the path choose the host: "//evil.com/x" or "/\\evil.com" would be
+  // read as a network-path reference. Collapse leading slashes, drop backslashes.
+  const path = "/" + url.pathname.replace(/\\/g, "/").replace(/^\/+/, "");
+  const target = new URL(path + url.search, "https://eraleadgen.com");
+  if (target.host !== "eraleadgen.com") return null;
   return new Response(null, { status: 308, headers: { location: target.toString() } });
 }
 

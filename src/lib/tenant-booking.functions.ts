@@ -74,7 +74,7 @@ export const requestTenantBooking = createServerFn({ method: "POST" })
       _notes: data.notes,
       _starts_at: new Date(data.startsAt).toISOString(),
       ...(data.specialistId ? { _specialist_id: data.specialistId } : {}),
-      _referral_code: data.referralCode ? data.referralCode.toUpperCase() : null,
+      ...(data.referralCode ? { _referral_code: data.referralCode.toUpperCase() } : {}),
     });
     if (error) throw new Error(error.message);
 

@@ -36,6 +36,11 @@ export type InboxItem = {
   logoUrl: string | null;
 };
 
+async function assertAdmin(supabase: { rpc: (fn: "is_platform_admin") => PromiseLike<{ data: unknown }> }) {
+  const { data } = await supabase.rpc("is_platform_admin");
+  if (!data) throw new Error("Only ERA admins can change client records.");
+}
+
 async function assertStaff(supabase: { rpc: (fn: "is_platform_staff") => PromiseLike<{ data: unknown }> }) {
   const { data } = await supabase.rpc("is_platform_staff");
   if (!data) throw new Error("Only ERA staff can use the inbox.");
@@ -181,7 +186,7 @@ export const saveOnboardingInboxItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => saveInput.parse(input))
   .handler(async ({ data, context }) => {
-    await assertStaff(context.supabase);
+    await assertAdmin(context.supabase);
     const { data: draft } = await context.supabase
       .from("onboarding_drafts")
       .select("business_id")
@@ -238,7 +243,7 @@ export const setInboxReviewed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ draftId: z.string().uuid(), reviewed: z.boolean() }).parse(input))
   .handler(async ({ data, context }) => {
-    await assertStaff(context.supabase);
+    await assertAdmin(context.supabase);
     const { error } = await context.supabase
       .from("onboarding_drafts")
       .update({ reviewed_at: data.reviewed ? new Date().toISOString() : null })
@@ -256,7 +261,7 @@ export const sendInboxPaymentLink = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ businessId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }): Promise<{ emailedTo: string }> => {
-    await assertStaff(context.supabase);
+    await assertAdmin(context.supabase);
     const { data: biz } = await context.supabase
       .from("businesses")
       .select("id, name, plan_tier, lifecycle, origin_invite_id")
