@@ -1,5 +1,9 @@
 import { useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+
+import { getStripeMode } from "@/lib/billing-portal.functions";
 
 import logoAsset from "@/assets/era-logo.png.asset.json";
 import { brandVars, usePortalTheme } from "@/components/app/portal-theme";
@@ -91,6 +95,7 @@ export function AppShell({
       className={`era-app min-h-screen bg-background text-foreground ${look?.theme === "light" ? "era-light" : ""}`}
       style={brandVars(look?.brandPrimary)}
     >
+      <StripeTestModeBar />
       <div className="mx-auto flex w-full max-w-[92rem]">
         <aside className="era-rail hidden w-64 shrink-0 flex-col px-5 py-7 lg:flex">
           <Link to={variant === "staff" ? "/admin/invites" : "/dashboard"} className="flex items-center gap-3">
@@ -166,6 +171,18 @@ export function AppShell({
           </main>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Staff-only warning; the server returns false for everyone who isn't platform staff. */
+function StripeTestModeBar() {
+  const fetchMode = useServerFn(getStripeMode);
+  const mode = useQuery({ queryKey: ["stripe-mode"], queryFn: () => fetchMode(), retry: false, staleTime: 60_000 });
+  if (!mode.data?.testMode) return null;
+  return (
+    <div role="status" className="sticky top-0 z-30 bg-destructive px-4 py-2 text-center text-xs font-semibold uppercase tracking-[0.2em] text-destructive-foreground">
+      Stripe TEST MODE · no real charges
     </div>
   );
 }
