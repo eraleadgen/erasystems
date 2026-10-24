@@ -341,7 +341,7 @@ export const runDeliveryAction = createServerFn({ method: "POST" })
     businessIdInput.extend({ taskKey: z.string().min(1).max(80) }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { data: isStaff } = await context.supabase.rpc("is_platform_staff");
+    const { data: isStaff } = await context.supabase.rpc("is_platform_admin");
     if (!isStaff) throw new Error("Platform staff only");
 
     const action = assistedActionFor(data.taskKey);

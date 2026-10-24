@@ -412,7 +412,7 @@ export const setClientAccountActive = createServerFn({ method: "POST" })
     z.object({ businessId: z.string().uuid(), active: z.boolean() }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { data: isStaff } = await context.supabase.rpc("is_platform_staff");
+    const { data: isStaff } = await context.supabase.rpc("is_platform_admin");
     if (!isStaff) throw new Error("Only ERA staff can change account status.");
     const { data: biz, error: readErr } = await context.supabase
       .from("businesses")
@@ -453,7 +453,7 @@ export const updateClientBilling = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { data: isStaff } = await context.supabase.rpc("is_platform_staff");
+    const { data: isStaff } = await context.supabase.rpc("is_platform_admin");
     if (!isStaff) throw new Error("Only ERA staff can update billing.");
     const { data: biz, error: readErr } = await context.supabase
       .from("businesses")
@@ -538,7 +538,7 @@ export const startClientSubscription = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ businessId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }): Promise<{ url: string; emailedTo: string | null }> => {
-    const { data: isStaff } = await context.supabase.rpc("is_platform_staff");
+    const { data: isStaff } = await context.supabase.rpc("is_platform_admin");
     if (!isStaff) throw new Error("Only ERA staff can start subscriptions.");
     const { data: biz } = await context.supabase
       .from("businesses")

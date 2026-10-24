@@ -148,12 +148,9 @@ export const getStatementEmailSettings = createServerFn({ method: "GET" })
       const membership = await callerBusiness(context as Ctx);
       if (!membership) return null;
 
-      const [{ data: site }, { data: business }] = await Promise.all([
-        context.supabase
-          .from("business_site")
-          .select("statement_email_enabled, statement_email_to")
-          .eq("business_id", membership.businessId)
-          .maybeSingle(),
+      // Owner/admin-only columns: read through the guarded RPC, not the table.
+      const [{ data: siteRows }, { data: business }] = await Promise.all([
+        context.supabase.rpc("get_statement_email_settings", { _business_id: membership.businessId }),
         context.supabase
           .from("businesses")
           .select("support_email")
@@ -161,9 +158,10 @@ export const getStatementEmailSettings = createServerFn({ method: "GET" })
           .maybeSingle(),
       ]);
 
+      const site = Array.isArray(siteRows) ? siteRows[0] : siteRows;
       return {
-        enabled: site?.statement_email_enabled ?? false,
-        recipient: site?.statement_email_to ?? business?.support_email ?? null,
+        enabled: site?.enabled ?? false,
+        recipient: site?.recipient ?? business?.support_email ?? null,
       };
     },
   );
@@ -176,12 +174,10 @@ export const setStatementEmailEnabled = createServerFn({ method: "POST" })
     const membership = await callerBusiness(context as Ctx);
     if (!membership || !["owner", "admin"].includes(membership.role)) return { ok: false };
 
-    const { error } = await context.supabase
-      .from("business_site")
-      .upsert(
-        { business_id: membership.businessId, statement_email_enabled: data.enabled },
-        { onConflict: "business_id" },
-      );
+    const { error } = await context.supabase.rpc("set_statement_email_enabled", {
+      _business_id: membership.businessId,
+      _enabled: data.enabled,
+    });
     return { ok: !error };
   });
 

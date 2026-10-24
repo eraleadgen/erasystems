@@ -311,6 +311,8 @@ async function runBooking(
     _subject: "Requested through the website assistant",
     _notes: String(args["notes"] ?? "").trim(),
     _starts_at: startsAt.toISOString(),
+    _specialist_id: null,
+    _referral_code: null,
   });
   if (error) return { error: error.message };
   const result = Array.isArray(rows) ? rows[0] : rows;

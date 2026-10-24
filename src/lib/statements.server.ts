@@ -37,18 +37,26 @@ export async function sendStatementEmail(
   businessId: string,
   options: { month?: string; recipientOverride?: string; requireEnabled?: boolean } = {},
 ): Promise<StatementSendResult> {
-  const [{ data: business }, { data: site }] = await Promise.all([
-    supabase
-      .from("businesses")
-      .select("name, timezone, support_email")
-      .eq("id", businessId)
-      .maybeSingle(),
-    supabase
-      .from("business_site")
-      .select("statement_email_enabled, statement_email_to")
-      .eq("business_id", businessId)
-      .maybeSingle(),
-  ]);
+  const { data: business } = await supabase
+    .from("businesses")
+    .select("name, timezone, support_email")
+    .eq("id", businessId)
+    .maybeSingle();
+  // The statement address is owner/admin-only. The server (service role) can read
+  // the table directly; a signed-in manager goes through the guarded RPC.
+  let site: { statement_email_enabled: boolean; statement_email_to: string | null } | null = null;
+  const direct = await supabase
+    .from("business_site")
+    .select("statement_email_enabled, statement_email_to")
+    .eq("business_id", businessId)
+    .maybeSingle();
+  if (!direct.error) {
+    site = direct.data;
+  } else {
+    const { data: rows } = await supabase.rpc("get_statement_email_settings", { _business_id: businessId });
+    const row = Array.isArray(rows) ? rows[0] : rows;
+    site = row ? { statement_email_enabled: row.enabled, statement_email_to: row.recipient } : null;
+  }
 
   const timezone = business?.timezone ?? "UTC";
   const month = options.month ?? previousMonthKey(timezone);
