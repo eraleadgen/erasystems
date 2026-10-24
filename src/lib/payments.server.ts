@@ -383,3 +383,14 @@ export async function createBillingPortalSession(customerId: string, returnUrl: 
   if (typeof url !== "string") throw new Error("Payment provider returned no portal link");
   return url;
 }
+
+/** Live charge facts (used for refund/dispute alerts; never trust the payload). */
+export async function fetchStripeCharge(id: string): Promise<{ customerId: string | null; amountCents: number; amountRefundedCents: number; disputed: boolean }> {
+  const raw = await stripeRequest(`/charges/${encodeURIComponent(id)}`);
+  return {
+    customerId: typeof raw["customer"] === "string" ? raw["customer"] : null,
+    amountCents: Number(raw["amount"] ?? 0),
+    amountRefundedCents: Number(raw["amount_refunded"] ?? 0),
+    disputed: Boolean(raw["disputed"]),
+  };
+}
