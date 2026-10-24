@@ -483,7 +483,9 @@ function CheckoutPanel({ canPay, businessName }: { canPay: boolean; businessName
             ? "Confirming your payment with the processor…"
             : reconcile.data?.status === "paid"
               ? "Payment confirmed. Your business is being activated."
-              : "We haven't been able to confirm this payment yet. It can take a moment, refresh shortly."}
+              : reconcile.data?.status === "needs_review"
+                ? "We received your payment but need to double-check your plan. Please contact support@eraleadgen.com."
+                : "We haven't been able to confirm this payment yet. It can take a moment, refresh shortly."}
         </p>
       )}
 
