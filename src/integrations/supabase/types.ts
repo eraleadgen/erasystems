@@ -323,36 +323,45 @@ export type Database = {
       }
       business_billing: {
         Row: {
+          billing_suspended: boolean
           business_id: string
           cancel_at_period_end: boolean
           created_at: string
           current_period_end: string | null
+          grace_ends_at: string | null
           last_payment_failed_at: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           subscription_status: string | null
+          suspend_at: string | null
           updated_at: string
         }
         Insert: {
+          billing_suspended?: boolean
           business_id: string
           cancel_at_period_end?: boolean
           created_at?: string
           current_period_end?: string | null
+          grace_ends_at?: string | null
           last_payment_failed_at?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_status?: string | null
+          suspend_at?: string | null
           updated_at?: string
         }
         Update: {
+          billing_suspended?: boolean
           business_id?: string
           cancel_at_period_end?: boolean
           created_at?: string
           current_period_end?: string | null
+          grace_ends_at?: string | null
           last_payment_failed_at?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_status?: string | null
+          suspend_at?: string | null
           updated_at?: string
         }
         Relationships: [

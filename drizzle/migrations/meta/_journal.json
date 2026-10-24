@@ -50,6 +50,13 @@
       "when": 1791011270847,
       "tag": "0006_stripe_subscriptions_and_shared_logos",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792809129369,
+      "tag": "0007_billing_grace_and_suspension",
+      "breakpoints": true
     }
   ]
 }
