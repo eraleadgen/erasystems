@@ -25,7 +25,7 @@ export const Route = createFileRoute("/api/public/cron/apply-plan-changes")({
           "@/lib/payments.server"
         );
         const { PLAN_PRICING } = await import("@/lib/pricing");
-        const { intervalMonths } = await import("@/lib/plan-changes.functions");
+        const intervalMonths = (i: string) => (i === "monthly" ? 1 : i === "quarterly" ? 3 : i === "annual" ? 12 : null);
 
         const { data: runRow } = await supabaseAdmin
           .from("scheduled_job_runs")
@@ -142,7 +142,7 @@ export const Route = createFileRoute("/api/public/cron/apply-plan-changes")({
             })
             .eq("id", runRow.id);
         }
-        return Response.json({ applied, failed: failures.length }, { status: succeeded ? 200 : 207 });
+        return Response.json({ applied, failed: failures.length }, { status: 200 });
       },
     },
   },
