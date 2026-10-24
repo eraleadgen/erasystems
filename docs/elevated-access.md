@@ -353,3 +353,10 @@ send staff alerts only; no elevated reads are added there.
 | Tenant scoping | Business id comes from the live Stripe subscription/charge (re-read from Stripe, never the payload) mapped through `business_billing`, or from the cron's own `business_billing` read. Every write is `.eq` on that one business id. |
 | Client input trusted | None. |
 | Idempotency | Grace start only when `grace_ends_at` is null; suspension guarded on `lifecycle = 'active'`; reactivation only when `billing_suspended` and `lifecycle = 'suspended'`; emails carry per-event idempotency keys. Failures return 500 so Stripe retries. |
+
+### Billing safety part 2 (2026-10-24)
+
+- `apply-plan-changes` cron: now also elevated reads of `business_billing.stripe_subscription_id`, `businesses.origin_invite_id` and the matching `invites` row (`.eq('id', origin_invite_id)`), all scoped to the `business_id` on the due `plan_change_requests` row, to push the new price or a cancellation to Stripe before any ERA write. Stripe failure leaves the request scheduled.
+- `verifyAndActivate` (src/lib/payments.server.ts): elevated read of `businesses.plan_tier/name` for the payment's own `business_id`, to compare against the tier/terms stored on the payments row; on mismatch sets `payments.status = 'needs_review'` (guarded on the prior status) and alerts staff. `activated_at` is set only by a separate guarded update (`activated_at IS NULL`) after a real transition.
+- `createCheckoutSession`: the existing elevated `payments` insert now also stores `plan_tier`, `subscription_price_cents`, `setup_fee_cents`, `billing_interval` from the server-resolved terms.
+- `selectMyPlan`: new open-checkout check is NOT elevated (RLS read of the caller's own `payments`).
