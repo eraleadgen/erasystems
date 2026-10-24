@@ -146,6 +146,10 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       amount_cents: terms.totalCents,
       currency: "usd",
       status: "pending",
+      plan_tier: terms.planTier,
+      subscription_price_cents: terms.subscriptionPriceCents,
+      setup_fee_cents: terms.setupFeeCents,
+      billing_interval: terms.billingInterval,
     });
     if (insertError) throw new Error(insertError.message);
 
@@ -162,7 +166,7 @@ export const verifyMyPayment = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z.object({ sessionId: z.string().min(10).max(300) }).parse(input),
   )
-  .handler(async ({ data, context }): Promise<{ status: "paid" | "pending" | "failed" }> => {
+  .handler(async ({ data, context }): Promise<{ status: "paid" | "pending" | "failed" | "needs_review" }> => {
     // RLS decides ownership: the caller can only see their own business's payment row.
     const { data: payment } = await context.supabase
       .from("payments")
@@ -171,8 +175,9 @@ export const verifyMyPayment = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!payment) return { status: "pending" };
     if (payment.status === "paid") return { status: "paid" };
+    if (payment.status === "needs_review") return { status: "needs_review" };
 
     const { verifyAndActivate } = await import("./payments.server");
     const outcome = await verifyAndActivate(data.sessionId);
-    return { status: outcome.ok ? "paid" : "failed" };
+    return { status: outcome.ok ? "paid" : outcome.reason === "needs_review" ? "needs_review" : "failed" };
   });
